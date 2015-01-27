@@ -17,5 +17,16 @@
   },
   "bugs": {
     "url": "https://github.com/mqttjs/mqtt-stack/issues"
+  },
+  "devDependencies": {
+    "dotenv": "0.4.0",
+    "mocha": "2.1.0",
+    "mqemitter": "0.2.1",
+    "mqtt": "1.0.5",
+    "mqtt-connection": "2.1.1",
+    "mqtt-server": "0.0.3"
+  },
+  "dependencies": {
+    "underscore": "1.7.0"
   }
 }
