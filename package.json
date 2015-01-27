@@ -1,0 +1,21 @@
+{
+  "name": "mqtt-stack",
+  "version": "0.0.1",
+  "description": "middleware based components to build a custom mqtt broker",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive --reporter list"
+  },
+  "contributors": [
+    "Joël Gähwiler <joel.gaehwiler@gmail.com> (https://github.com/256dpi)",
+    "Matteo Collina <matteo.collina@gmail.com> (https://github.com/mcollina)"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "github.com/mqttjs/mqtt-stack"
+  },
+  "bugs": {
+    "url": "https://github.com/mqttjs/mqtt-stack/issues"
+  }
+}
