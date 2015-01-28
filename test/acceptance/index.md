@@ -4,16 +4,16 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ## Terminology
 
-- [ ] **MQTT-1.1.0-1**:
+- [x] (SKIPPED) **MQTT-1.1.0-1**:
   A Session can contain more than one Subscription. Each Subscription within a session MUST have a different Topic Filter.
 
-- [ ] **MQTT-1.4.0-1**:
+- [x] (SKIPPED) **MQTT-1.4.0-1**:
   The encoded data MUST be well-formed UTF-8 as defined by the Unicode spec and restated in RFC 3629. In particular the encoded data MUST NOT include encodings of code points between U+D800 and U+DFFF. If a receiver (Server or Client) receives a control packet containing ill-formed UTF-8 it MUST close the network connection.
 
-- [ ] **MQTT-1.4.0-2**:
+- [x] (SKIPPED) **MQTT-1.4.0-2**:
   The UTF-8 encoded string MUST NOT include an encoding of the null character U+0000. If a receiver (Server or Client) receives a control packet containing U+0000 it MUST close the network connection.
 
-- [ ] **MQTT-1.4.0-3**:
+- [x] (SKIPPED) **MQTT-1.4.0-3**:
   The UTF-8 encoded sequence 0xEF 0xBB 0xBF is always to be interpreted to mean U+FEFF ("ZERO WIDTH NO-BREAK SPACE") wherever it appears in a string and MUST NOT be skipped over or stripped off by a packet receiver.
 
 ## Control Packet Format
