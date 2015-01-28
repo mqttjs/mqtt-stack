@@ -19,7 +19,6 @@
     "url": "https://github.com/mqttjs/mqtt-stack/issues"
   },
   "devDependencies": {
-    "dotenv": "0.5.1",
     "mocha": "2.1.0",
     "mqemitter": "0.2.1",
     "mqtt": "1.0.5",

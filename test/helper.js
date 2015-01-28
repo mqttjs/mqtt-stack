@@ -1,7 +1,6 @@
-var dotenv = require('dotenv');
-
-process.env.NODE_ENV = 'test';
-dotenv.load();
+if(!process.env.PORT) {
+  process.env.PORT = 9000;
+}
 
 var FakeBroker = require('./support/fake_broker');
 
