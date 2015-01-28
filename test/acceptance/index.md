@@ -60,8 +60,8 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-2.3.1-1**:
   SUBSCRIBE, UNSUBSCRIBE, and PUBLISH (in cases where QoS > 0) Control Packets MUST contain a non-zero 16-bit Packet Identifier.
 
-- [ ] **MQTT-2.3.1-4**:
-  The same conditions - [ ] **MQTT-2.3.1-3] **apply to a Server when it sends a PUBLISH with QoS >0.
+- [ ] **MQTT-2.3.1-4 MQTT-2.3.1-3**:
+  The same conditions - apply to a Server when it sends a PUBLISH with QoS >0.
 
 - [ ] **MQTT-2.3.1-5**:
   A PUBLISH Packet MUST NOT contain a Packet Identifier if its QoS value is set to 0.
