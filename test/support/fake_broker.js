@@ -23,17 +23,29 @@ var FakeBroker = function(port){
 
   this.stack.use(new stack.LastWill());
 
+  function closeOldSession(ctx) {
+    if(self.sessions[ctx.clientId]) {
+      self.sessions[ctx.clientId].client.destroy();
+    }
+  }
+
   this.stack.use(new stack.SessionManager({
     newSession: function(ctx, callback) {
+      closeOldSession(ctx);
+
       ctx.client._session = self.sessions[ctx.clientId] = {
+        client: ctx.client,
         subscriptions: [],
         listeners: {}
       };
       callback(null, false);
     },
     resumeSession: function(ctx, callback) {
+      closeOldSession(ctx);
+
       ctx.client._session = self.sessions[ctx.clientId];
       if(self.client._session) {
+        self.sessions[ctx.clientId].client = ctx.client;
         // load session and subscriptions
         // forward retained messages
         callback(null, true);
