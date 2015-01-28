@@ -17,6 +17,17 @@ var FakeBroker = function(port){
     forceMQTT4: true
   }));
 
+  this.stack.use({
+    install: function(client) {
+      client._forwarder = function(packet) {
+        client.emit('forwardMessage', packet);
+      }
+    },
+    handle: function(_, __, next) {
+      next();
+    }
+  });
+
   this.stack.use(new stack.KeepAlive({
     defaultTimeout: 1
   }));
@@ -34,9 +45,7 @@ var FakeBroker = function(port){
       closeOldSession(ctx);
 
       ctx.client._session = self.sessions[ctx.clientId] = {
-        client: ctx.client,
-        subscriptions: [],
-        listeners: {}
+        client: ctx.client
       };
       callback(null, false);
     },
@@ -67,18 +76,11 @@ var FakeBroker = function(port){
 
   this.stack.use(new stack.SubscriptionManager({
     subscribeTopic: function(ctx, callback) {
-      if(!ctx.client._session.listeners[ctx.topic]) {
-        ctx.client._session.listeners[ctx.topic] = self.pubsub.on(ctx.topic, function(packet){
-          ctx.client.emit('forwardMessage', packet);
-        });
-      }
+      self.pubsub.on(ctx.topic, ctx.client._forwarder);
       callback(null, ctx.qos);
     },
     unsubscribeTopic: function(ctx, callback) {
-      if(ctx.client._session.listeners[ctx.topic]) {
-        self.pubsub.removeListener(ctx.topic, ctx.client._session.listeners[ctx.topic]);
-        delete ctx.client._session.listeners[ctx.topic];
-      }
+      self.pubsub.removeListener(ctx.topic, ctx.client._forwarder);
       callback(null);
     }
   }));

@@ -172,53 +172,37 @@ describe('Imported Mosca Tests', function(){
     }, d);
   });
 
-  /*it('should support publishing big messages', function(done) {
-    var d = donner(2, done);
+  it('should support publishing big messages', function(done) {
+    var d = f.countDone(2, done);
+
     var bigPayload = new Buffer(5 * 1024);
     bigPayload.fill('42');
-    buildAndConnect(d, function(client1) {
 
-      var messageId = Math.floor(65535 * Math.random());
-      var subscriptions = [{
-        topic: 'hello',
-        qos: 0
-      }
-      ];
-
-      client1.on('publish', function(packet) {
-        expect(packet.topic).to.be.equal('hello');
-        expect(packet.payload.length).to.be.equal(bigPayload.length);
-        client1.disconnect();
+    f.client(function(client1){
+      client1.on('message', function(topic, payload) {
+        expect(topic).to.be.eql('hello');
+        expect(payload.length).to.be.eql(bigPayload.length);
+        client1.end();
       });
 
-      client1.on('suback', function() {
-        buildAndConnect(d, function(client2) {
-          client2.publish({
-            topic: 'hello',
-            payload: bigPayload,
-            messageId: messageId
-          });
-          client2.disconnect();
-        });
+      client1.subscribe('hello', 0, function(){
+        f.client(function(client2){
+          client2.publish('hello', bigPayload);
+          client2.end();
+        }, d);
       });
-
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
+    }, d);
   });
 
   it('should support unsubscribing', function(done) {
-    buildAndConnect(done, function(client) {
+    f.rawClient(function(client, opts){
+      client.connect(opts);
 
-      var messageId = Math.floor(65535 * Math.random());
+      var messageId = f.mid();
       var subscriptions = [{
         topic: 'hello',
         qos: 1
-      }
-      ];
-
+      }];
 
       client.on('unsuback', function(packet) {
         expect(packet).to.have.property('messageId', messageId);
@@ -236,179 +220,99 @@ describe('Imported Mosca Tests', function(){
         subscriptions: subscriptions,
         messageId: messageId
       });
-    });
+    }, done);
   });
 
   it('should unsubscribe for real', function(done) {
-    buildAndConnect(done, function(client) {
-
-      client.on('publish', function(packet) {
-        client.disconnect();
-        throw new Error('a message could not have been published');
+    f.client(function(client){
+      client.on('message', function() {
+        client.end();
+        throw new Error('this message should not have been published');
       });
 
-      client.on('unsuback', function(packet) {
-        client.publish({
-          topic: 'hello',
-          payload: 'data'
-        });
-        client.disconnect();
-      });
-
-      client.on('suback', function(packet) {
-        client.unsubscribe({
-          unsubscriptions: ['hello'],
-          messageId: messageId
+      client.subscribe('hello', function(){
+        client.unsubscribe('hello', function(){
+          client.publish('hello', 'data');
+          client.end();
         });
       });
-
-      var messageId = Math.floor(65535 * Math.random());
-      var subscriptions = [{
-        topic: 'hello',
-        qos: 1
-      }
-      ];
-      client.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
+    }, done);
   });
 
   it('should unsubscribe from topics with multiple wildcards', function(done) {
-    buildAndConnect(done, function(client) {
-
-      client.on('publish', function(packet) {
-        client.disconnect();
-        throw new Error('a message could not have been published');
+    f.client(function(client){
+      client.on('message', function() {
+        client.end();
+        throw new Error('this message should not have been published');
       });
 
-      client.on('unsuback', function(packet) {
-        client.publish({
-          topic: 'hello/foo/there/bar',
-          payload: 'data'
-        });
-        client.disconnect();
-      });
-
-      client.on('suback', function(packet) {
-        client.unsubscribe({
-          unsubscriptions: ['hello/#/there/#'],
-          messageId: messageId
+      client.subscribe('hello/#/there/#', function(){
+        client.unsubscribe('hello/#/there/#', function(){
+          client.publish('hello/foo/there/bar', 'data');
+          client.end();
         });
       });
-
-      var messageId = Math.floor(65535 * Math.random());
-      var subscriptions = [{
-        topic: 'hello/#/there/#',
-        qos: 1
-      }
-      ];
-      client.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
+    }, done);
   });
 
   it('should support subscribing to # wildcard', function(done) {
-    var d = donner(2, done);
-    buildAndConnect(d, function(client1) {
+    var d = f.countDone(2, done);
 
-      client1.on('publish', function(packet) {
-        expect(packet.topic).to.be.equal('hello/world');
-        expect(packet.payload).to.be.equal('some data');
-        client1.disconnect();
+    f.client(function(client1){
+      client1.on('message', function(topic, payload) {
+        expect(topic).to.be.eql('hello/world');
+        expect(payload.toString()).to.be.eql('some data');
+        client1.end();
       });
 
-      client1.on('suback', function() {
-        buildAndConnect(d, function(client2) {
-          client2.publish({
-            topic: 'hello/world',
-            payload: 'some data'
-          });
-
-          client2.disconnect();
-        });
+      client1.subscribe('hello/#', function(){
+        f.client(function(client2){
+          client2.publish('hello/world', 'some data');
+          client2.end();
+        }, d);
       });
-
-      var subscriptions = [{
-        topic: 'hello/#',
-        qos: 0
-      }
-      ];
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: 42
-      });
-    });
+    }, d);
   });
 
   it('should support subscribing to + wildcard', function(done) {
-    var d = donner(2, done);
-    buildAndConnect(d, function(client1) {
+    var d = f.countDone(2, done);
 
-      client1.on('publish', function(packet) {
-        expect(packet.topic).to.be.equal('hello/world');
-        expect(packet.payload).to.be.equal('some data');
-        client1.disconnect();
+    f.client(function(client1){
+      client1.on('message', function(topic, payload) {
+        expect(topic).to.be.eql('hello/world');
+        expect(payload.toString()).to.be.eql('some data');
+        client1.end();
       });
 
-      client1.on('suback', function() {
-        buildAndConnect(d, function(client2) {
-          client2.publish({
-            topic: 'hello/world',
-            payload: 'some data'
-          });
-          client2.disconnect();
-        });
+      client1.subscribe('hello/+', function(){
+        f.client(function(client2){
+          client2.publish('hello/world', 'some data');
+          client2.end();
+        }, d);
       });
-
-      var subscriptions = [{
-        topic: 'hello/+',
-        qos: 0
-      }
-      ];
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: 42
-      });
-    });
+    }, d);
   });
 
   it('should support subscribing to topics with multiple wildcards', function(done) {
-    var d = donner(2, done);
-    buildAndConnect(d, function(client1) {
+    var d = f.countDone(2, done);
 
-      client1.on('publish', function(packet) {
-        expect(packet.topic).to.be.equal('hello/foo/world/bar');
-        expect(packet.payload).to.be.equal('some data');
-        client1.disconnect();
+    f.client(function(client1){
+      client1.on('message', function(topic, payload) {
+        expect(topic).to.be.eql('hello/foo/world/bar');
+        expect(payload.toString()).to.be.eql('some data');
+        client1.end();
       });
 
-      client1.on('suback', function() {
-        buildAndConnect(d, function(client2) {
-          client2.publish({
-            topic: 'hello/foo/world/bar',
-            payload: 'some data'
-          });
-          client2.disconnect();
-        });
+      client1.subscribe('hello/+/world/#', function(){
+        f.client(function(client2){
+          client2.publish('hello/foo/world/bar', 'some data');
+          client2.end();
+        }, d);
       });
-
-      var subscriptions = [{
-        topic: 'hello/#/world/#',
-        qos: 0
-      }
-      ];
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: 42
-      });
-    });
+    }, d);
   });
 
-  it('should support unsubscribing a single client', function(done) {
+  /*it('should support unsubscribing a single client', function(done) {
     var d = donner(3, done);
 
     async.waterfall([

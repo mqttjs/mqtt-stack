@@ -64,7 +64,7 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
       self.config.unsubscribeTopic({
         client: client,
         packet: packet,
-        topic: us.topic
+        topic: us
       }, function(err){
         i++;
         if(err) return next(err);
