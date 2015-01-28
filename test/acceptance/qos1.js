@@ -2,7 +2,7 @@ var mqtt = require('mqtt');
 var assert = require('assert');
 
 describe('QoS1', function(){
-  it('should broadcast and forward message', function(done){
+  it('should relay and forward message', function(done){
     var client1 = mqtt.connect('mqtt://0.0.0.0:' + process.env['PORT']);
     var client2 = mqtt.connect('mqtt://0.0.0.0:' + process.env['PORT']);
 

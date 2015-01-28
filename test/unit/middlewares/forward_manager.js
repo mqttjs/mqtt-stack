@@ -1,9 +1,9 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
-var ForwardManager = require('../../../src/middlewares/forward_manager');
+var OutboundManager = require('../../../src/middlewares/outbound_manager');
 
-describe('ForwardManager', function(){
+describe('OutboundManager', function(){
   it('should forward packets emitted to "forwardMessage"', function(done){
     var stream = new EventEmitter();
 
@@ -14,7 +14,7 @@ describe('ForwardManager', function(){
       qos: 0
     };
 
-    var middleware = new ForwardManager();
+    var middleware = new OutboundManager();
 
     stream.publish = function(_packet){
       assert.equal(_packet.topic, packet.topic);
@@ -42,7 +42,7 @@ describe('ForwardManager', function(){
       messageId: 10
     };
 
-    var middleware = new ForwardManager({
+    var middleware = new OutboundManager({
       deleteMessage: function(ctx){
         assert.equal(packet2, ctx.packet);
         assert.equal(stream, ctx.client);

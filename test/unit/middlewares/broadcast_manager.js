@@ -1,10 +1,10 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
-var BroadcastManager = require('../../../src/middlewares/broadcast_manager');
+var InboundManager = require('../../../src/middlewares/inbound_manager');
 
-describe('BroadcastManager', function(){
-  it('should call "storeMessage" and "broadcastMessage"', function(done){
+describe('InboundManager', function(){
+  it('should call "storeMessage" and "relayMessage"', function(done){
     var stream = new EventEmitter();
 
     var packet = {
@@ -15,7 +15,7 @@ describe('BroadcastManager', function(){
 
     var stored;
 
-    var middleware = new BroadcastManager({
+    var middleware = new InboundManager({
       storeMessage: function(ctx, callback){
         assert.equal(stream, ctx.client);
         assert.equal(packet, ctx.packet);
@@ -24,7 +24,7 @@ describe('BroadcastManager', function(){
         stored = true;
         callback();
       },
-      broadcastMessage: function(ctx){
+      relayMessage: function(ctx){
         assert.equal(stream, ctx.client);
         assert.equal(packet, ctx.packet);
         assert.equal(packet.topic, ctx.topic);
@@ -49,7 +49,7 @@ describe('BroadcastManager', function(){
       qos: 1
     };
 
-    var middleware = new BroadcastManager();
+    var middleware = new InboundManager();
     middleware.handle(stream, packet);
   });
 });

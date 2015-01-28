@@ -4,7 +4,7 @@ var MQEmitter = require('mqemitter');
 
 var stack = require('../../index');
 
-var Broker = function(){
+var FakeBroker = function(port){
   var self = this;
 
   this.sessions = {};
@@ -44,14 +44,14 @@ var Broker = function(){
     }
   }));
 
-  this.stack.use(new stack.PublishManager({
-    broadcastMessage: function(ctx, callback){
+  this.stack.use(new stack.InboundManager({
+    relayMessage: function(ctx, callback){
       self.pubsub.emit(ctx.packet);
       callback();
     }
   }));
 
-  this.stack.use(new stack.ForwardManager());
+  this.stack.use(new stack.OutboundManager());
 
   this.stack.use(new stack.SubscriptionManager({
     subscribeTopic: function(ctx, callback) {
@@ -71,17 +71,22 @@ var Broker = function(){
     }
   }));
 
-  this.server = mqtt.createServer({
+  this.server = mqtt({
+    mqtt: {
+      protocol: 'tcp',
+      port: port
+    }
+  }, {
     emitEvents: false
   }, this.stack.handle.bind(this.stack));
 };
 
-Broker.prototype.listen = function(port, done) {
-  this.server.listen(port, done);
+FakeBroker.prototype.listen = function(done) {
+  this.server.listen(done);
 };
 
-Broker.prototype.destroy = function() {
-  this.server.close();
+FakeBroker.prototype.close = function() {
+  this.server.destroy();
 };
 
-module.exports = Broker;
+module.exports = FakeBroker;

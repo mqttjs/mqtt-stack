@@ -3,15 +3,15 @@ var dotenv = require('dotenv');
 process.env.NODE_ENV = 'test';
 dotenv.load();
 
-var Broker = require('./support/broker');
+var FakeBroker = require('./support/fake_broker');
 
 var broker;
 
 before(function(done){
-  broker = new Broker();
-  broker.listen(process.env['PORT'], done)
+  broker = new FakeBroker(process.env['PORT']);
+  broker.listen(done)
 });
 
 after(function(){
-  broker.destroy();
+  broker.close();
 });

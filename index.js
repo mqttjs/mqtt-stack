@@ -7,5 +7,5 @@ module.exports.Connection = require('./src/middlewares/connection');
 module.exports.PacketEmitter = require('./src/middlewares/packt_emitter');
 module.exports.SessionManager = require('./src/middlewares/session_manager');
 module.exports.SubscriptionManager = require('./src/middlewares/subscription_manager');
-module.exports.PublishManager = require('./src/middlewares/broadcast_manager');
-module.exports.ForwardManager = require('./src/middlewares/forward_manager');
+module.exports.InboundManager = require('./src/middlewares/inbound_manager');
+module.exports.OutboundManager = require('./src/middlewares/outbound_manager');

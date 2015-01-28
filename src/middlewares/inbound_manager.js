@@ -1,9 +1,9 @@
 var _ = require('underscore');
 
 /**
- * BroadcastManager Middleware
+ * InboundManager Middleware
  *
- * - broadcast messages published by the client
+ * - relays messages published by the client
  * - handles 'puback' in QoS1 flow
  *
  * TODO: Storing and deleting of messages
@@ -12,28 +12,28 @@ var _ = require('underscore');
  * @param {Object} config
  *
  * @example
- * stack.use(new PublishManager({
+ * stack.use(new InboundManager({
  *   storeMessage: function(ctx, callback) {
  *     database.put(ctx.packet);
  *   },
- *   broadcastMessage: function(ctx, callback) {
+ *   relayMessage: function(ctx, callback) {
  *     cluster.relay(ctx.packet);
  *   }
  * }));
  */
 
-var PublishManager = function(config){
+var InboundManager = function(config){
   this.config = _.defaults(config || {}, {
     storeMessage: function(ctx, callback) {
       callback();
     },
-    broadcastMessage: function(ctx, callback) {
+    relayMessage: function(ctx, callback) {
       callback();
     }
   });
 };
 
-PublishManager.prototype.handle = function(client, packet, next){
+InboundManager.prototype.handle = function(client, packet, next){
   var self = this;
   if(packet.cmd == 'publish') {
     this.config.storeMessage({
@@ -43,7 +43,7 @@ PublishManager.prototype.handle = function(client, packet, next){
       payload: packet.payload
     }, function(err){
       if(err) return next(err);
-      self.config.broadcastMessage({
+      self.config.relayMessage({
         client: client,
         packet: packet,
         topic: packet.topic,
@@ -62,4 +62,4 @@ PublishManager.prototype.handle = function(client, packet, next){
   }
 };
 
-module.exports = PublishManager;
+module.exports = InboundManager;
