@@ -381,12 +381,12 @@ describe('Imported Mosca Tests', function(){
         client2.disconnect();
       }
     ]);
-  });
+  });*/
 
   it('should support send a puback when publishing QoS 1 messages', function(done) {
-    buildAndConnect(done, function(client) {
-
-      var messageId = Math.floor(65535 * Math.random());
+    f.rawClient(function(client, opts){
+      client.connect(opts);
+      var messageId = f.mid();
 
       client.on('puback', function(packet) {
         expect(packet).to.have.property('messageId', messageId);
@@ -398,13 +398,13 @@ describe('Imported Mosca Tests', function(){
         qos: 1,
         messageId: messageId
       });
-    });
+    }, done);
   });
 
   it('should support subscribing to QoS 1', function(done) {
-    buildAndConnect(done, function(client) {
-
-      var messageId = Math.floor(65535 * Math.random());
+    f.rawClient(function(client, opts){
+      client.connect(opts);
+      var messageId = f.mid();
       var subscriptions = [{
         topic: 'hello',
         qos: 1
@@ -412,7 +412,7 @@ describe('Imported Mosca Tests', function(){
       ];
 
       client.on('suback', function(packet) {
-        expect(packet.granted).to.be.deep.equal([1]);
+        expect(packet.granted).to.be.eql([1]);
         client.disconnect();
       });
 
@@ -420,39 +420,23 @@ describe('Imported Mosca Tests', function(){
         subscriptions: subscriptions,
         messageId: messageId
       });
-    });
+    }, done);
   });
 
-  it('should receive all messages at QoS 0 if a subscription is done with QoS 0', function(done) {
-    buildAndConnect(done, function(client) {
-
-      client.once('publish', function(packet) {
-        expect(packet.qos).to.be.equal(0);
-        client.disconnect();
+  it('should receive all messages at QoS 1 if a subscription is done with QoS 0', function(done) {
+    f.client(function(client){
+      client.once('message', function(_, __, packet) {
+        expect(packet.qos).to.be.eql(0);
+        client.end();
       });
 
-      client.on('suback', function(packet) {
-        client.publish({
-          topic: 'hello',
-          qos: 1,
-          messageId: 24
-        });
+      client.subscribe('hello', function(){
+        client.publish('hello', 'hello', 1);
       });
-
-      var subscriptions = [{
-        topic: 'hello',
-        qos: 0
-      }
-      ];
-
-      client.subscribe({
-        subscriptions: subscriptions,
-        messageId: 42
-      });
-    });
+    }, done);
   });
 
-  function maxInflightMessageTest(max, done) {
+  /*function maxInflightMessageTest(max, done) {
     buildAndConnect(done, function (client) {
 
       var counter = max + 1;
@@ -491,36 +475,24 @@ describe('Imported Mosca Tests', function(){
 
   it('should disconnect a client if it has more thant 1024 inflight messages', function (done) {
     maxInflightMessageTest(1024, done);
-  });
+  });*/
 
   it('QoS 1 wildcard subscriptions should receive QoS 1 messages at QoS 1', function (done) {
-    buildAndConnect(done, function (client) {
-      client.on('publish', function(packet) {
-        expect(packet.qos).to.be.equal(1);
-        client.disconnect();
+    f.client(function(client){
+      client.once('message', function(_, __, packet) {
+        expect(packet.qos).to.be.eql(1);
+        client.end();
       });
 
-      client.on('suback', function(packet) {
-        client.publish({
-          topic: 'hello/foo',
-          qos: 1,
-          messageId: 24
+      client.subscribe({'hello/#': 1}, function(){
+        client.publish('hello/foo', 'hello', {
+          qos: 1
         });
       });
-
-      var subscriptions = [{
-        topic: 'hello/#',
-        qos: 1
-      }];
-
-      client.subscribe({
-        subscriptions: subscriptions,
-        messageId: 42
-      });
-    });
+    }, done);
   });
 
-  it('should support will message', function(done) {
+  /*it('should support will message', function(done) {
 
     async.waterfall([
 
