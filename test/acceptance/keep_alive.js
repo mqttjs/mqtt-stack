@@ -1,19 +1,16 @@
-var net = require('net');
-var mqtt = require('mqtt-connection');
+var f = require('../support/factory');
 
 describe('KeepAlive', function(){
   it('should terminate connection when ping is missing', function(done){
     this.timeout(3000);
 
-    var conn = net.createConnection(process.env['PORT'], '0.0.0.0', function(){
-      var client = mqtt(conn);
-
+    f.rawClient(function(client){
       client.connect({
         keepalive: 1,
         clientId: 'test1'
       });
 
-      conn.on('close', function(){
+      client.on('close', function(){
         done();
       })
     });
