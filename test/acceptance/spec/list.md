@@ -148,7 +148,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.1.3-1**:
   These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password.
 
-- [ ] **MQTT-3.1.3-2**:
+- [x] _SKIPPED_ **MQTT-3.1.3-2**:
   The ClientId MUST be used by Clients and by Servers to identify state that they hold relating to this MQTT connection between the Client and the Server
 
 - [x] _SKIPPED_ **MQTT-3.1.3-3**:
@@ -179,7 +179,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _TESTED_ **MQTT-3.1.4-2**:
   If the ClientId represents a Client already connected to the Server then the Server MUST disconnect the existing Client.
 
-- [ ] **MQTT-3.1.4-3**:
+- [x] _SKIPPED_ **MQTT-3.1.4-3**:
   If the Server rejects the CONNECT, it MUST NOT process any data sent by the Client after the CONNECT Packet.
 
 ### Connack
@@ -187,7 +187,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.2.0-1**:
   The first packet sent from the Server to the Client MUST be a CONNACK Packet.
 
-- [ ] **MQTT-3.2.2-1**:
+- [x] _SKIPPED_ **MQTT-3.2.2-1**:
   If a server sends a CONNACK packet containing a non-zero return code it MUST then close the Network Connection.
 
 - [x] _SKIPPED_ **MQTT-3.2.2-2**:
@@ -234,16 +234,16 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3-8.3-2]**:
   The Server MUST treat a SUBSCRIBE packet as malformed and close the Network Connection if any of Reserved bits in the payload are non-zero.
 
-- [ ] **MQTT-3.8.4-1**:
+- [x] _TESTED_ **MQTT-3.8.4-1**:
   When the Server receives a SUBSCRIBE Packet from a Client, the Server MUST respond with a SUBACK Packet.
 
-- [ ] **MQTT-3.8.4-2**:
+- [x] _TESTED_ **MQTT-3.8.4-2**:
   The SUBACK Packet MUST have the same Packet Identifier as the SUBSCRIBE Packet.
 
 - [ ] **MQTT-3.8.4-3**:
   A subscribe request which contains a Topic Filter that is identical to an existing Subscription’s Topic Filter completely replaces that existing Subscription with a new Subscription. The Topic Filter in the new Subscription will be identical to that in the previous Subscription, although its maximum QoS value could be different. Any existing retained publications matching the Topic Filter are resent, but the flow of publications is not interrupted.
 
-- [ ] **MQTT-3.8.4-4**:
+- [x] _SKIPPED_ **MQTT-3.8.4-4**:
   If a Server receives a SUBSCRIBE packet that contains multiple Topic Filters it MUST handle that packet as if it had received a sequence of multiple SUBSCRIBE packets, except that it combines their responses into a single SUBACK response.
 
 - [ ] **MQTT-3.8.4-5**:
@@ -254,7 +254,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 
 ## Suback
 
-- [ ] **MQTT-3.9.3-1]**:
+- [x] _TESTED_ **MQTT-3.9.3-1**:
   The order of return codes in the SUBACK Packet MUST match the order of Topic Filters in the SUBSCRIBE Packet.
 
 - [x] _SKIPPED_ **MQTT-3.9.3-2**:
@@ -265,22 +265,22 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.10.1-1**:
   Bits 3,2,1 and 0 of the fixed header of the UNSUBSCRIBE Control Packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection.
 
-- [ ] **MQTT-3.10.3-1**:
+- [x] _SKIPEPD_ **MQTT-3.10.3-1**:
   The Topic Filter (whether containing a wild-card or not) supplied in an UNSUBSCRIBE packet MUST be compared byte-for-byte with the current set of Topic Filters held by the Server for the Client. If any filter matches exactly then it is deleted, otherwise no additional processing occurs.
 
-- [ ] **MQTT-3.10.3-2**:
+- [x] _TESTED_ **MQTT-3.10.3-2**:
   The Server sends an UNSUBACK Packet to the Client in response to an UNSUBSCRIBE Packet, The Server MUST stop adding any new messages for delivery to the Client.
 
 - [ ] **MQTT-3.10.3-3**:
   The Server sends an UNSUBACK Packet to the Client in response to an UNSUBSCRIBE Packet, The Server MUST complete the delivery of any QoS 1 or QoS 2 messages which it has started to send to the Client.
 
-- [ ] **MQTT-3.10.3-4**:
+- [x] _TESTED_ **MQTT-3.10.3-4**:
   The Server sends an UNSUBACK Packet to the Client in response to an UNSUBSCRIBE Packet, The Server MUST send an UNSUBACK packet. The UNSUBACK Packet MUST have the same Packet Identifier as the UNSUBSCRIBE Packet.
 
-- [ ] **MQTT-3.10.3-5**:
+- [x] _TESTED_ **MQTT-3.10.3-5**:
   Even where no Topic Filters are deleted, the Server MUST respond with an UNSUBACK.
 
-- [ ] **MQTT-3.10.3-6**:
+- [x] _SKIPPED_ **MQTT-3.10.3-6**:
   If a Server receives an UNSUBSCRIBE packet that contains multiple Topic Filters it MUST handle that packet as if it had received a sequence of multiple UNSUBSCRIBE packets, except that it sends just one UNSUBACK response.
 
 ### Pingreq

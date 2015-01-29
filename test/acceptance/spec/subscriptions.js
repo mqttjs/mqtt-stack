@@ -3,7 +3,7 @@ var expect = require('expect.js');
 var f = require('../../support/factory');
 
 describe('Subscriptions', function(){
-  it('should support subscribing', function(done) {
+  it('should support subscribing and send suback (MQTT-3.8.4-1, MQTT-3.8.4-2)', function(done) {
     f.rawClient(function(client, opts){
       client.connect(opts);
 
@@ -25,7 +25,7 @@ describe('Subscriptions', function(){
     }, done);
   });
 
-  it('should support subscribing to multiple topics', function(done) {
+  it('should support subscribing to multiple topics (MQTT-3.9.3-1)', function(done) {
     f.rawClient(function(client, opts){
       client.connect(opts);
 
@@ -50,7 +50,7 @@ describe('Subscriptions', function(){
     }, done);
   });
 
-  it('should support unsubscribing', function(done) {
+  it('should support unsubscribing (MQTT-3.10.3-4)', function(done) {
     f.rawClient(function(client, opts){
       client.connect(opts);
 
@@ -65,7 +65,7 @@ describe('Subscriptions', function(){
         client.disconnect();
       });
 
-      client.on('suback', function(packet) {
+      client.on('suback', function() {
         client.unsubscribe({
           unsubscriptions: ['hello'],
           messageId: messageId
@@ -79,7 +79,25 @@ describe('Subscriptions', function(){
     }, done);
   });
 
-  it('should unsubscribe for real', function(done) {
+  it('should support unsubscribing even if there is no subscription (MQTT-3.10.3-5)', function(done) {
+    f.rawClient(function(client, opts){
+      client.connect(opts);
+
+      var messageId = f.mid();
+
+      client.on('unsuback', function(packet) {
+        expect(packet).to.have.property('messageId', messageId);
+        client.disconnect();
+      });
+
+      client.unsubscribe({
+        unsubscriptions: ['hello'],
+        messageId: messageId
+      });
+    }, done);
+  });
+
+  it('should unsubscribe for real (MQTT-3.10.3-2)', function(done) {
     f.client(function(client){
       client.on('message', function() {
         client.end();
