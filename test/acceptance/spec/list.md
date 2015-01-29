@@ -106,7 +106,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-3.1.2-8**:
   If the Will Flag is set to 1 this indicates that a Will Message MUST be published by the Server when the Server detects that the Client is disconnected for any reason other than the Client flowing a DISCONNECT Packet.
 
-- [ ] **MQTT-3.1.2-9**:
+- [x] _SKIPPED_ **MQTT-3.1.2-9**:
   If the Will Flag is set to 1, the Will QoS and Will Retain fields in the Connect Flags will be used by the Server, and the Will Topic and Will Message fields MUST be present in the payload.
 
 - [ ] **MQTT-3.1.2-10**:
@@ -151,7 +151,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-3.1.3-2**:
   The ClientId MUST be used by Clients and by Servers to identify state that they hold relating to this MQTT connection between the Client and the Server
 
-- [ ] **MQTT-3.1.3-3**:
+- [x] _SKIPPED_ **MQTT-3.1.3-3**:
   The Client Identifier (ClientId) MUST be present and MUST be the first field in the payload.
 
 - [ ] **MQTT-3.1.3-4**:
@@ -285,7 +285,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 
 ### Pingreq
 
-- [ ] **MQTT-3.12.4-1**:
+- [x] _TESTED_ **MQTT-3.12.4-1**:
   The Server MUST send a PINGRESP Packet in response to a PINGREQ packet.
 
 ### Disconnect
@@ -293,7 +293,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.14.1-1**:
   The Server MUST validate that reserved bits are set to zero in DISCONNECT Control Packet, and disconnect the Client if they are not zero.
 
-- [ ] **MQTT-3.14.4-2**:
+- [x] _SKIPPED_ **MQTT-3.14.4-2**:
   After sending a DISCONNECT Packet the Client MUST NOT send any more Control Packets on that Network Connection.
 
 - [ ] **MQTT-3.14.4-3**:

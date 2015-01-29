@@ -74,18 +74,6 @@ describe('Imported Mosca Tests', function(){
     }, d);
   });
 
-  it('should send a pingresp when it receives a pingreq', function(done) {
-    f.rawClient(function(client, opts){
-      client.connect(opts);
-
-      client.on('pingresp', function() {
-        client.disconnect();
-      });
-
-      client.pingreq();
-    }, done);
-  });
-
   it('should support subscribing', function(done) {
     f.rawClient(function(client, opts){
       client.connect(opts);
@@ -766,52 +754,6 @@ describe('Imported Mosca Tests', function(){
     });
   });
 
-  it('should not forward packet if authorizeForward do not call the callback', function(done) {
-    var d = donner(2, done);
-    var that = this;
-
-    this.instance.authorizeForward = function(client, packet, callback) {
-      callback(null, packet.topic !== 'stop_forward');
-    };
-
-    buildAndConnect(d, buildOpts(), function(client1) {
-      var messageId = Math.floor(65535 * Math.random());
-
-      var subscriptions = [
-        { topic : 'stop_forward', qos : 1 },
-        { topic : 'go_forward', qos : 1 }
-      ];
-
-      client1.on('publish', function(packet) {
-        expect(packet.topic).to.equal('go_forward');
-      });
-      client1.on('suback', function() {
-        buildAndConnect(d, buildOpts(), function(client2) {
-          client2.on('puback', function(packet) {
-            client1.disconnect();
-            client2.disconnect();
-          });
-          client2.publish({
-            topic: 'stop_forward',
-            messageId: messageId,
-            qos: 1
-          });
-
-          client2.publish({
-            topic: 'go_forward',
-            messageId: messageId,
-            qos: 1
-          });
-        });
-      });
-
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
-  });
-
   it('should support retained messages', function(done) {
 
     async.waterfall([
@@ -1345,34 +1287,6 @@ describe('Imported Mosca Tests', function(){
     buildTest('$SYS/hello', '$SYS/hello');
     buildTest('$SYS/hello', '$SYS/hello');
     buildTest(['#', '$SYS/#'], '$SYS/hello');
-  });
-
-  it('should allow plugin authors to publish', function(done) {
-    buildAndConnect(done, function(client) {
-
-      var messageId = Math.floor(65535 * Math.random());
-      var subscriptions = [{
-        topic: 'hello',
-        qos: 1
-      }
-      ];
-
-      client.on('suback', function(packet) {
-        instance.publish({ topic: 'hello', payload: 'world', qos: 1 });
-      });
-
-      client.on('publish', function(packet) {
-        expect(packet).to.have.property('topic', 'hello');
-        expect(packet).to.have.property('payload', 'world');
-        expect(packet).to.have.property('qos', 1);
-        client.disconnect();
-      });
-
-      client.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
   });
 
   it("should support subscribing with overlapping topics and receiving message only once", function(done) {

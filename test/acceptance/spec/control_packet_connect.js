@@ -1,6 +1,6 @@
 var f = require('../../support/factory');
 
-describe('Controll Packet Connect', function(){
+describe('Control Packet Connect', function(){
   it('should close connection on not connect (MQTT-3.1.0-1)', function(done){
     f.rawClient(function(client){
       client.pingreq();
