@@ -1,6 +1,6 @@
 # MQTT Spec Matrix
 
-Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/interoperability/MQTT%20Tests.ods'.
+Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/interoperability/MQTT%20Tests.ods.
 
 ## Terminology
 
@@ -88,7 +88,7 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [x] _SKIPPED_ **MQTT-3.1.2-2**:
   The Server MUST respond to the CONNECT Packet with a CONNACK return code 0x01 (unacceptable protocol level) and then disconnect the Client if the Protocol Level is not supported by the Server.
 
-- [ ] _SKIPPED_ **MQTT-3.1.2-3**:
+- [x] _SKIPPED_ **MQTT-3.1.2-3**:
   The Server MUST validate that the reserved flag in the CONNECT Control Packet is set to zero and disconnect the Client if it is not zero.
 
 - [ ] **MQTT-3.1.2-4**:
