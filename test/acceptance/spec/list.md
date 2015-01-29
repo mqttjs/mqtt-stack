@@ -18,19 +18,19 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ## Control Packet Format
 
-- [ ] **MQTT-2.0.0-1**:
+- [x] _TESTED_ **MQTT-2.0.0-1**:
   Unless stated otherwise, if either the Server or Client receives a Control Packet which does not meet this specification, it MUST close the Network Connection.
 
-- [ ] **MQTT-2.1.2-1**:
+- [x] _SKIPPED_ **MQTT-2.1.2-1**:
   If invalid flags are received, the receiver MUST close the Network connection.
 
-- [ ] **MQTT-2.1.2-2**:
+- [x] _SKIPPED_ **MQTT-2.1.2-2**:
   If Dup is 0 then the flow is the first occasion that the Client or Server has attempted to send the MQTT PUBLISH Packet. If Dup is 1 then this indicates that the flow might be re-delivery of an earlier packet.
 
-- [ ] **MQTT-2.1.2-3**:
+- [x] _SKIPPED_ **MQTT-2.1.2-3**:
   The Dup flag MUST be set to 1 by the Client or Server when it attempts to re-deliver a PUBLISH Packet.
 
-- [ ] **MQTT-2.1.2-4**:
+- [x] _SKIPPED_ **MQTT-2.1.2-4**:
   The Dup flag MUST be 0 for all QoS 0 messages
 
 - [ ] **MQTT-2.1.2-5**:
@@ -76,19 +76,19 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ### Connect
 
-- [ ] **MQTT-3.1.0-1**:
+- [x] _TESTED_ **MQTT-3.1.0-1**:
   After a Network Connection is established by a Client to a Server, the first flow from the Client to the Server MUST be a CONNECT Packet.
 
-- [ ] **MQTT-3.1.0-2**:
+- [x] _TESTED_ **MQTT-3.1.0-2**:
   The Server MUST process a second CONNECT Packet sent from a Client as a protocol violation and disconnect the Client.
 
-- [ ] **MQTT-3.1.2-1**:
+- [x] _TESTED_ **MQTT-3.1.2-1**:
   If the protocol name is incorrect the Server MAY disconnect the Client, or it MAY continue processing the CONNECT packet in accordance with some other specification. In the latter case, the Server MUST NOT continue to process the CONNECT packet in line with this specification
 
-- [ ] **MQTT-3.1.2-2**:
+- [x] _SKIPPED_ **MQTT-3.1.2-2**:
   The Server MUST respond to the CONNECT Packet with a CONNACK return code 0x01 (unacceptable protocol level) and then disconnect the Client if the Protocol Level is not supported by the Server.
 
-- [ ] **MQTT-3.1.2-3**:
+- [ ] _SKIPPED_ **MQTT-3.1.2-3**:
   The Server MUST validate that the reserved flag in the CONNECT Control Packet is set to zero and disconnect the Client if it is not zero.
 
 - [ ] **MQTT-3.1.2-4**:
@@ -112,13 +112,13 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-3.1.2-10**:
   The will message MUST be removed from the stored Session state in the Server once it has been published or the Server has received a DISCONNECT packet from the Client. If the Will Flag is set to 0, no will message is published.
 
-- [ ] **MQTT-3.1.2-11**:
+- [x] _SKIPPED_ **MQTT-3.1.2-11**:
   If the Will Flag is set to 0, then the Will QoS MUST be set to 0 (0x00).
 
-- [ ] **MQTT-3.1.2-12**:
+- [x] _SKIPPED_ **MQTT-3.1.2-12**:
   If the Will Flag is set to 1, the value of Will QoS can be 0 (0x00), 1 (0x01), or 2 (0x02). It MUST NOT be 3 (0x03).
 
-- [ ] **MQTT-3.1.2-13**:
+- [x] _SKIPPED_ **MQTT-3.1.2-13**:
   If the Will Flag is set to 0, then the Will Retain Flag MUST be set to 0.
 
 - [ ] **MQTT-3.1.2-14**:
@@ -127,25 +127,25 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-3.1.2-15**:
   If the Will Flag is set to 1 and If Will Retain is set to 1, the Server MUST publish the will message as a retained publication.
 
-- [ ] **MQTT-3.1.2-16**:
+- [x] _SKIPPED_ **MQTT-3.1.2-16**:
   If the User Name Flag is set to 0, a user name MUST NOT be present in the payload.
 
-- [ ] **MQTT-3.1.2-17**:
+- [x] _SKIPPED_ **MQTT-3.1.2-17**:
   If the User Name Flag is set to 1, a user name MUST be present in the payload.
 
-- [ ] **MQTT-3.1.2-18**:
+- [x] _SKIPPED_ **MQTT-3.1.2-18**:
   If the Password Flag is set to 0, a password MUST NOT be present in the payload.
 
-- [ ] **MQTT-3.1.2-19**:
+- [x] _SKIPPED_ **MQTT-3.1.2-19**:
   If the Password Flag is set to 1, a password MUST be present in the payload.
 
-- [ ] **MQTT-3.1.2-20**:
+- [x] _SKIPPED_ **MQTT-3.1.2-20**:
   If the User Name Flag is set to 0 then the Password Flag MUST be set to 0.
 
 - [ ] **MQTT-3.1.2-22**:
   If the Server does not receive a Control Packet from the Client within one and a half times the Keep Alive time period, it MUST disconnect the Network Connection to the Client as if the network had failed.
 
-- [ ] **MQTT-3.1.3-1**:
+- [x] _SKIPPED_ **MQTT-3.1.3-1**:
   These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password.
 
 - [ ] **MQTT-3.1.3-2**:
@@ -173,7 +173,7 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-3.1.3-9**:
   If the Server rejects the ClientId it MUST respond to the CONNECT Packet with a CONNACK return code 0x02 (Identifier rejected) and then close the Network Connection.
 
-- [ ] **MQTT-3.1.4-1**:
+- [x] _SKIPPED_ **MQTT-3.1.4-1**:
   The Server MUST validate that the CONNECT Packet conforms to section and close the Network Connection without sending a CONNACK if it does not conform.
 
 - [ ] **MQTT-3.1.4-2**:
@@ -184,17 +184,18 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ### Connack
 
-- [ ] **MQTT-3.2.0-1**:
+- [x] _SKIPPED_ **MQTT-3.2.0-1**:
   The first packet sent from the Server to the Client MUST be a CONNACK Packet.
 
 - [ ] **MQTT-3.2.2-1**:
   If a server sends a CONNACK packet containing a non-zero return code it MUST then close the Network Connection.
 
-- [ ] **MQTT-3.2.2-2**:
+- [x] _SKIPPED_ **MQTT-3.2.2-2**:
   If none of these return codes are deemed applicable, then the Server MUST close the Network Connection without flowing a CONNACK.
+
 ### Publish
 
-- [ ] **MQTT-3.3.2-1**:
+- [x] _SKIPPED_ **MQTT-3.3.2-1**:
   The Topic Name MUST be a UTF-8 encoded string.
 
 - [ ] **MQTT-3.3.2-2**:
@@ -216,7 +217,7 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ### Pubrel
 
-- [ ] **MQTT-3.6.1-1**:
+- [x] _SKIPPED_ **MQTT-3.6.1-1**:
   Bits 3,2,1 and 0 of the fixed header in the PUBREL Control Packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection.
 
 - [ ] **MQTT-3.6.4-1**:
@@ -224,13 +225,13 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ### Subscribe
 
-- [ ] **MQTT-3.8.1-1**:
+- [x] _SKIPPED_ **MQTT-3.8.1-1**:
   Bits 3,2,1 and 0 of the fixed header of the SUBSCRIBE Control Packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection.
 
 - [ ] **MQTT-3.8.3-1**:
   The Payload of a SUBSCRIBE packet MUST contain at least one Topic Filter / QoS pair. A SUBSCRIBE packet with no payload is a protocol violation.
 
-- [ ] **MQTT-3-8.3-2]**:
+- [x] _SKIPPED_ **MQTT-3-8.3-2]**:
   The Server MUST treat a SUBSCRIBE packet as malformed and close the Network Connection if any of Reserved bits in the payload are non-zero.
 
 - [ ] **MQTT-3.8.4-1**:
@@ -256,12 +257,12 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-3.9.3-1]**:
   The order of return codes in the SUBACK Packet MUST match the order of Topic Filters in the SUBSCRIBE Packet.
 
-- [ ] **MQTT-3.9.3-2**:
+- [x] _SKIPPED_ **MQTT-3.9.3-2**:
   SUBACK return codes other than 0x00, 0x01, 0x02 and 0x80 are reserved and MUST NOT be used.
 
 ### Unsubscribe
 
-- [ ] **MQTT-3.10.1-1**:
+- [x] _SKIPPED_ **MQTT-3.10.1-1**:
   Bits 3,2,1 and 0 of the fixed header of the UNSUBSCRIBE Control Packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection.
 
 - [ ] **MQTT-3.10.3-1**:
@@ -289,7 +290,7 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 
 ### Disconnect
 
-- [ ] **MQTT-3.14.1-1**:
+- [x] _SKIPPED_ **MQTT-3.14.1-1**:
   The Server MUST validate that reserved bits are set to zero in DISCONNECT Control Packet, and disconnect the Client if they are not zero.
 
 - [ ] **MQTT-3.14.4-2**:
@@ -303,7 +304,7 @@ Taken from 'http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree
 - [ ] **MQTT-4.1.0-1**:
   The Client and Server MUST store data for at least as long as the Network Connection lasts.
 
-- [ ] **MQTT-4.2.0-1**:
+- [x] _SKIPPED_ **MQTT-4.2.0-1**:
   The network connection used to transport the MQTT protocol MUST be an ordered, lossless, stream of bytes from the Client to Server and Server to Client.
 
 - [ ] **MQTT-4.3.2-1**:
