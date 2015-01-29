@@ -103,13 +103,13 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-3.1.2.7**:
   Retained publications do not form part of the Session state in the Server, they MUST NOT be deleted when the Session ends.
 
-- [ ] **MQTT-3.1.2-8**:
+- [x] _TESTED_ **MQTT-3.1.2-8**:
   If the Will Flag is set to 1 this indicates that a Will Message MUST be published by the Server when the Server detects that the Client is disconnected for any reason other than the Client flowing a DISCONNECT Packet.
 
 - [x] _SKIPPED_ **MQTT-3.1.2-9**:
   If the Will Flag is set to 1, the Will QoS and Will Retain fields in the Connect Flags will be used by the Server, and the Will Topic and Will Message fields MUST be present in the payload.
 
-- [ ] **MQTT-3.1.2-10**:
+- [x] _TESTED_ **MQTT-3.1.2-10**:
   The will message MUST be removed from the stored Session state in the Server once it has been published or the Server has received a DISCONNECT packet from the Client. If the Will Flag is set to 0, no will message is published.
 
 - [x] _SKIPPED_ **MQTT-3.1.2-11**:
@@ -121,10 +121,10 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.1.2-13**:
   If the Will Flag is set to 0, then the Will Retain Flag MUST be set to 0.
 
-- [ ] **MQTT-3.1.2-14**:
+- [x] _TESTED_ **MQTT-3.1.2-14**:
   If the Will Flag is set to 1 and If Will Retain is set to 0, the Server MUST publish the will message as a non-retained publication.
 
-- [ ] **MQTT-3.1.2-15**:
+- [x] _TESTED_ **MQTT-3.1.2-15**:
   If the Will Flag is set to 1 and If Will Retain is set to 1, the Server MUST publish the will message as a retained publication.
 
 - [x] _SKIPPED_ **MQTT-3.1.2-16**:
@@ -142,7 +142,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.1.2-20**:
   If the User Name Flag is set to 0 then the Password Flag MUST be set to 0.
 
-- [ ] **MQTT-3.1.2-22**:
+- [x] _TESTED_ **MQTT-3.1.2-22**:
   If the Server does not receive a Control Packet from the Client within one and a half times the Keep Alive time period, it MUST disconnect the Network Connection to the Client as if the network had failed.
 
 - [x] _SKIPPED_ **MQTT-3.1.3-1**:
@@ -296,7 +296,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.14.4-2**:
   After sending a DISCONNECT Packet the Client MUST NOT send any more Control Packets on that Network Connection.
 
-- [ ] **MQTT-3.14.4-3**:
+- [x] _TESTED_ **MQTT-3.14.4-3**:
   On receipt of DISCONNECT the Server MUST discard the Will Message without publishing it.
 
 ## Operational Behaviour
