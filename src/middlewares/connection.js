@@ -49,7 +49,7 @@ Connection.prototype.handle = function(client, packet, next) {
   if(!client._sent_first) {
     client._sent_first = true;
     if(packet.cmd == 'connect') {
-      if(this.config.forceMQTT4 && packet.protocolVersion != 4 && packet.protocolId != 'MQTT') {
+      if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
         client._dead = true;
         return client.destroy();
       } else {
