@@ -32,7 +32,7 @@ module.exports.client = function(options, handler, done){
 
   if(done) {
     c.stream.once('close', function(){
-      setTimeout(done(), 0);
+      setTimeout(done, 0);
     });
   }
 
@@ -49,7 +49,7 @@ module.exports.rawClient = function(handler, done) {
 
     if(done) {
       c.once('close', function(){
-        setTimeout(done(), 0);
+        setTimeout(done, 0);
       });
     }
   });
@@ -59,7 +59,7 @@ module.exports.rawClient = function(handler, done) {
 module.exports.countDone = function(count, done) {
   return function() {
     count--;
-    if (count === 0) {
+    if(count === 0) {
       done();
     }
   };
