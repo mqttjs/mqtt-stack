@@ -8,7 +8,7 @@ sleep 2
 echo "===== START TESTS ====="
 
 export PORT=5000
-./node_modules/.bin/mocha --recursive --reporter list test/acceptance/*.js
+./node_modules/.bin/mocha --recursive --reporter list test/acceptance/**/*.js
 
 echo "===== STOPPING MOSQUITTO ====="
 

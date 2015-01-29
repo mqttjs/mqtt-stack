@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var crypto = require('crypto');
 
 /**
  * Connection Middleware
@@ -7,8 +8,10 @@ var _ = require('underscore');
  * - closes client and emits 'uncleanDisconnect' if connect gets received more than once
  * - closes client on 'disconnect' and emits 'cleanDisconnect'
  * - closes client on 'error' and emits 'uncleanDisconnect'
+ * - closes client if clientID is empty and clean = false
  * - emits 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
  * - manages the client._dead flag
+ * - assings a unique client_id when id is missing
  * - forces proper mqtt protocol version and Id if enabled (forceMQTT4)
  *
  * @param {Object} config
@@ -52,7 +55,13 @@ Connection.prototype.handle = function(client, packet, next) {
       if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
         client._dead = true;
         return client.destroy();
+      } else if((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
+        client._dead = true;
+        return client.destroy();
       } else {
+        if(!packet.clientId || packet.clientId.length === 0) {
+          packet.clientId = crypto.randomBytes(16).toString('hex');
+        }
         return next();
       }
     } else {

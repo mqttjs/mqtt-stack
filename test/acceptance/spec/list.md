@@ -154,29 +154,29 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.1.3-3**:
   The Client Identifier (ClientId) MUST be present and MUST be the first field in the payload.
 
-- [ ] **MQTT-3.1.3-4**:
+- [x] _TESTED_ **MQTT-3.1.3-4**:
   The ClientId MUST comprise only Unicode Unicode63 characters, and the length of the UTF-8 encoding MUST be at least zero bytes and no more than 65535 bytes.
 
-- [ ] **MQTT-3.1.3-5**:
+- [x] _SKIPPED_ **MQTT-3.1.3-5**:
   The Server MUST allow ClientIds which are between 1 and 23 UTF-8 encoded bytes in length, and that contain only the characters
 "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-- [ ] **MQTT-3.1.3-6**:
+- [x] _TESTED_ **MQTT-3.1.3-6**:
   A Server MAY allow a Client to supply a ClientId that has a length of zero bytes. However if it does so the Server MUST treat this as a special case and assign a unique ClientId to that Client. It MUST then process the CONNECT packet as if the Client had provided that unique ClientId.
 
-- [ ] **MQTT-3.1.3-7**:
+- [x] _TESTED_ **MQTT-3.1.3-7**:
   If the Client supplies a zero-byte ClientId, the Client MUST also set Clean Session to 1.
 
-- [ ] **MQTT-3.1.3-8**:
+- [x] _TESTED_ **MQTT-3.1.3-8**:
   If the Client supplies a zero-byte ClientId with Clean Session set to 0, the Server MUST respond to the CONNECT Packet with a CONNACK return code 0x02 (Identifier rejected) and then close the Network Connection.
 
-- [ ] **MQTT-3.1.3-9**:
+- [x] _SKIPPED_ **MQTT-3.1.3-9**:
   If the Server rejects the ClientId it MUST respond to the CONNECT Packet with a CONNACK return code 0x02 (Identifier rejected) and then close the Network Connection.
 
 - [x] _SKIPPED_ **MQTT-3.1.4-1**:
   The Server MUST validate that the CONNECT Packet conforms to section and close the Network Connection without sending a CONNACK if it does not conform.
 
-- [ ] **MQTT-3.1.4-2**:
+- [x] _TESTED_ **MQTT-3.1.4-2**:
   If the ClientId represents a Client already connected to the Server then the Server MUST disconnect the existing Client.
 
 - [ ] **MQTT-3.1.4-3**:

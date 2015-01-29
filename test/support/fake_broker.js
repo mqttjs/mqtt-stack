@@ -53,7 +53,7 @@ var FakeBroker = function(port){
       closeOldSession(ctx);
 
       ctx.client._session = self.sessions[ctx.clientId];
-      if(self.client._session) {
+      if(ctx.client._session) {
         self.sessions[ctx.clientId].client = ctx.client;
         // load session and subscriptions
         // forward retained messages

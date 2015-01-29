@@ -66,7 +66,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should send a connack packet with returnCode 0 if the clientId is 65535 chars', function(done) {
+  it('should send a connack packet with returnCode 0 if the clientId is 65535 chars (MQTT-3.1.3-4)', function(done) {
     f.rawClient(function(client, opts){
       var clientId = [];
 
@@ -97,7 +97,31 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should close the first client if a second client with the same clientId connects', function(done) {
+  it('should send a connack packet with returnCode 0 if clientId is empty (MQTT-3.1.3-6)', function(done) {
+    f.rawClient(function(client, opts){
+      opts.clientId = new Buffer('');
+      client.connect(opts);
+
+      client.on('connack', function(packet) {
+        expect(packet.returnCode).to.eql(0);
+        client.disconnect();
+      });
+    }, done);
+  });
+
+  it('should send a connack packet with returnCode 2 if clientId is empty and not clean (MQTT-3.1.3-7, MQTT-3.1.3-8)', function(done) {
+    f.rawClient(function(client, opts){
+      opts.clientId = new Buffer('');
+      opts.clean = false;
+      client.connect(opts);
+
+      client.on('connack', function(packet) {
+        expect(packet.returnCode).to.eql(2);
+      });
+    }, done);
+  });
+
+  it('should close the first client if a second client with the same clientId connects (MQTT-3.1.4-2)', function(done) {
     var d = f.countDone(2, done);
     f.client({
       clientId: 'same'
