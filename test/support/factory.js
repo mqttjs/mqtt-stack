@@ -7,7 +7,7 @@ var cid = module.exports.cid = function(){
   return 'spec_' + crypto.randomBytes(8).toString('hex');
 };
 
-module.exports.mid = function(){
+module.exports.m = function(){
   return Math.floor(65535 * Math.random());
 };
 

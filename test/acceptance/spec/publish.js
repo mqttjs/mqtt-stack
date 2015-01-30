@@ -7,7 +7,7 @@ var f = require('../../support/factory');
 describe('Publish', function(){
   it('should support subscribing and publishing', function(done) {
     var d = f.countDone(2, done);
-    var m = f.mid();
+    var m = f.m();
     var t = f.t();
     var p = f.p();
 
@@ -134,7 +134,7 @@ describe('Publish', function(){
   });
 
   it('should support send a puback when publishing QoS 1 messages', function(done) {
-    var m = f.mid();
+    var m = f.m();
     var t = f.t();
     f.rawClient(function(client, opts){
       client.connect(opts);

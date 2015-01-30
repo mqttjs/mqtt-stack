@@ -5,7 +5,7 @@ var f = require('../../support/factory');
 
 describe('Subscriptions', function(){
   it('should support subscribing and send suback (MQTT-3.8.4-1, MQTT-3.8.4-2)', function(done) {
-    var m = f.mid();
+    var m = f.m();
     f.rawClient(function(client, opts){
       client.connect(opts);
       client.on('suback', function(packet) {
@@ -23,7 +23,7 @@ describe('Subscriptions', function(){
   });
 
   it('should support subscribing to multiple topics (MQTT-3.9.3-1)', function(done) {
-    var m = f.mid();
+    var m = f.m();
     f.rawClient(function(client, opts){
       client.connect(opts);
       client.on('suback', function(packet) {
@@ -45,7 +45,7 @@ describe('Subscriptions', function(){
   });
 
   it('should support unsubscribing (MQTT-3.10.3-4)', function(done) {
-    var m = f.mid();
+    var m = f.m();
     var t = f.t();
     f.rawClient(function(client, opts){
       client.connect(opts);
@@ -72,7 +72,7 @@ describe('Subscriptions', function(){
   });
 
   it('should support unsubscribing even if there is no subscription (MQTT-3.10.3-5)', function(done) {
-    var m = f.mid();
+    var m = f.m();
     var t = f.t();
     f.rawClient(function(client, opts){
       client.connect(opts);
@@ -179,7 +179,7 @@ describe('Subscriptions', function(){
 
   it('should support subscribing to QoS 1', function(done) {
     var t = f.t();
-    var m = f.mid();
+    var m = f.m();
     f.rawClient(function(client, opts){
       client.connect(opts);
       client.on('suback', function(packet) {
