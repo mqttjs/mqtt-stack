@@ -1,6 +1,7 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
+var stackHelper = require('../../support/stack_helper');
 var SessionManager = require('../../../src/middlewares/session_manager');
 
 describe('SessionManager', function(){
@@ -17,6 +18,8 @@ describe('SessionManager', function(){
     };
 
     var middleware = new SessionManager();
+
+    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet);
   });
@@ -35,6 +38,8 @@ describe('SessionManager', function(){
     };
 
     var middleware = new SessionManager();
+
+    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet);
   });
@@ -58,6 +63,8 @@ describe('SessionManager', function(){
       }
     });
 
+    stackHelper.executeOnSelf(middleware);
+
     middleware.handle(stream, packet);
   });
 
@@ -80,8 +87,12 @@ describe('SessionManager', function(){
       }
     });
 
+    stackHelper.executeOnSelf(middleware);
+
     middleware.handle(stream, packet);
-    stream.emit('uncleanDisconnect');
+    middleware.uncleanDisconnect({
+      client: stream
+    });
   });
 
   it('should call "storeSession" with clean flag on "cleanDisconnect"', function(done){
@@ -98,12 +109,16 @@ describe('SessionManager', function(){
       resumeSession: function(ctx, callback) {
         callback(null, false);
       },
-      storeSession: function(ctx) {
+      storeSession: function() {
         done();
       }
     });
 
+    stackHelper.executeOnSelf(middleware);
+
     middleware.handle(stream, packet);
-    stream.emit('cleanDisconnect');
+    middleware.cleanDisconnect({
+      client: stream
+    });
   });
 });

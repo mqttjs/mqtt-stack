@@ -50,13 +50,17 @@ Stack.prototype.runStack = function(client, packet) {
 };
 
 Stack.prototype.execute = function(fn, data, callback){
-  async.map(this.middlewares, function(m, cb){
+  var tasks = [];
+
+  _.each(this.middlewares, function(m){
     if(m[fn]) {
-      m[fn](data, cb);
-    } else {
-      cb();
+      tasks.push(function(cb){
+        m[fn](data, cb);
+      });
     }
-  }, callback);
+  });
+
+  async.parallel(tasks, callback);
 };
 
 module.exports = Stack;

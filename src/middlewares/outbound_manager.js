@@ -27,6 +27,10 @@ var OutboundManager = function(config){
   });
 };
 
+OutboundManager.prototype.deleteMessage = function(ctx, callback) {
+  this.config.deleteMessage(ctx, callback);
+};
+
 OutboundManager.prototype.forwardMessage = function(ctx, callback) {
   ctx.client.publish({
     topic: ctx.packet.topic,
@@ -39,7 +43,7 @@ OutboundManager.prototype.forwardMessage = function(ctx, callback) {
 
 OutboundManager.prototype.handle = function(client, packet, next){
   if(packet.cmd == 'puback') {
-    this.config.deleteMessage({
+    this.stack.execute('deleteMessage', {
       client: client,
       packet: packet,
       messageId: packet.messageId

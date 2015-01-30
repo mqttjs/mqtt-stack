@@ -5,6 +5,7 @@ var _ = require('underscore');
  *
  * - handles 'subscribe' packet
  * - handles 'unsubscribe' packets
+ * - executes 'subscribeTopic' and 'unsubscribeTopic'
  *
  * TODO: Support QoS2
  * TODO: Forward retained messages for new subscriptions.
@@ -37,18 +38,28 @@ var SubscriptionManager = function(config){
   });
 };
 
+SubscriptionManager.prototype.subscribeTopic = function(ctx, callback) {
+  this.config.subscribeTopic(ctx, callback);
+};
+
+SubscriptionManager.prototype.unsubscribeTopic = function(ctx, callback) {
+  this.config.unsubscribeTopic(ctx, callback);
+};
+
 SubscriptionManager.prototype.handle = function(client, packet, next){
   var self = this;
   if(packet.cmd == 'subscribe') {
     var granted = [];
     _.each(packet.subscriptions, function(s) {
-      self.config.subscribeTopic({
+      self.stack.execute('subscribeTopic', {
         client: client,
         packet: packet,
         topic: s.topic,
         qos: s.qos
-      }, function(err, grant){
+      }, function(err, results){
         if(err) return next(err);
+
+        var grant = Math.min.apply(null, _.flatten(results));
         granted.push(grant === false ? 128 : Math.min(grant, 1));
         if(granted.length == packet.subscriptions.length) {
           return client.suback({
@@ -61,7 +72,7 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
   } else if(packet.cmd == 'unsubscribe') {
     var i = 0;
     _.each(packet.unsubscriptions, function(us){
-      self.config.unsubscribeTopic({
+      self.stack.execute('unsubscribeTopic', {
         client: client,
         packet: packet,
         topic: us

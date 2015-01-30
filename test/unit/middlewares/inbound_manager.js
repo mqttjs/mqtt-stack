@@ -1,6 +1,7 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
+var stackHelper = require('../../support/stack_helper');
 var InboundManager = require('../../../src/middlewares/inbound_manager');
 
 describe('InboundManager', function(){
@@ -34,6 +35,8 @@ describe('InboundManager', function(){
       }
     });
 
+    stackHelper.executeOnSelf(middleware);
+
     middleware.handle(stream, packet);
   });
 
@@ -50,6 +53,9 @@ describe('InboundManager', function(){
     };
 
     var middleware = new InboundManager();
+
+    stackHelper.executeOnSelf(middleware);
+
     middleware.handle(stream, packet);
   });
 });

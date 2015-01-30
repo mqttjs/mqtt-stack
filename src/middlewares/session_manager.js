@@ -4,6 +4,7 @@ var _ = require('underscore');
  * SessionManager Middleware
  *
  * - manages the clients session
+ * - executes 'newSession', 'resumeSession' and 'storeSession'
  *
  * TODO: [MQTT-3.1.4-2] disconnect connected clients using the same clientId
  *
@@ -40,11 +41,40 @@ var SessionManager = function(config){
   })
 };
 
+SessionManager.prototype.newSession = function(ctx, callback) {
+  this.config.newSession(ctx, callback);
+};
+
+SessionManager.prototype.resumeSession = function(ctx, callback) {
+  this.config.resumeSession(ctx, callback);
+};
+
+SessionManager.prototype.storeSession = function(ctx, callback) {
+  this.config.storeSession(ctx, callback);
+};
+
+SessionManager.prototype.cleanDisconnect = function(ctx, callback) {
+  if(ctx.client._managed_session) {
+    this.stack.execute('storeSession', ctx, callback);
+  } else {
+    if(callback) callback();
+  }
+};
+
+SessionManager.prototype.uncleanDisconnect = function(ctx, callback) {
+  if(ctx.client._managed_session) {
+    this.stack.execute('storeSession', ctx, callback);
+  } else {
+    if(callback) callback();
+  }
+};
+
 SessionManager.prototype.handle = function(client, packet, next) {
   var self = this;
   if(packet.cmd == 'connect') {
     if(packet.clean) {
-      this.config.newSession({
+      client._managed_session = false;
+      this.stack.execute('newSession', {
         client: client,
         packet: packet,
         clientId: packet.clientId
@@ -56,22 +86,13 @@ SessionManager.prototype.handle = function(client, packet, next) {
         });
       });
     } else {
-      this.config.resumeSession({
+      client._managed_session = true;
+      self.stack.execute('resumeSession', {
         client: client,
         packet: packet,
         clientId: packet.clientId
       }, function(err, resumed){
         if(err) return next(err);
-        client.on('cleanDisconnect', function(){
-          self.config.storeSession(client, function(){
-            if(err) return next(err);
-          });
-        });
-        client.on('uncleanDisconnect', function(){
-          self.config.storeSession(client, function(){
-            if(err) return next(err);
-          });
-        });
         client.connack({
           returnCode: 0,
           sessionPresent: resumed

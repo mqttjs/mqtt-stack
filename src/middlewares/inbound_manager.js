@@ -33,17 +33,25 @@ var InboundManager = function(config){
   });
 };
 
+InboundManager.prototype.storeMessage = function(ctx, callback) {
+  this.config.storeMessage(ctx, callback);
+};
+
+InboundManager.prototype.relayMessage = function(ctx, callback) {
+  this.config.relayMessage(ctx, callback);
+};
+
 InboundManager.prototype.handle = function(client, packet, next){
   var self = this;
   if(packet.cmd == 'publish') {
-    this.config.storeMessage({
+    this.stack.execute('storeMessage', {
       client: client,
       packet: packet,
       topic: packet.topic,
       payload: packet.payload
     }, function(err){
       if(err) return next(err);
-      self.config.relayMessage({
+      self.stack.execute('relayMessage',{
         client: client,
         packet: packet,
         topic: packet.topic,
