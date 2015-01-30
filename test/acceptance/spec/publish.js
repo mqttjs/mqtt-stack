@@ -43,6 +43,45 @@ describe('Publish', function(){
     }, d);
   });
 
+  it('should relay and forward QoS 0 message', function(done){
+    f.client(function(client1){
+      f.client(function(client2){
+        client1.subscribe('/qos-0', function(){
+          client2.publish('/qos-0', 'hello');
+        });
+        client1.on('message', function(topic, payload, packet){
+          assert.equal(topic, '/qos-0');
+          assert.equal(payload, 'hello');
+          assert.equal(packet.qos, 0);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should relay and forward QoS 1 message', function(done){
+    f.client(function(client1) {
+      f.client(function (client2) {
+        client1.on('message', function(topic, payload, packet){
+          assert.equal(topic, '/qos-1');
+          assert.equal(payload, 'hello');
+          assert.equal(packet.qos, 1);
+          done();
+        });
+
+        client1.subscribe({
+          '/qos-1': 1
+        }, function(){
+          client2.publish('/qos-1', 'hello', {
+            qos: 1
+          }, function(){
+            // assert sent
+          });
+        });
+      });
+    });
+  });
+
   it('should not publish topic with wildcards (MQTT-3.3.2-2)', function(done){
     f.client(function(client){
       client.on('message', function(){
