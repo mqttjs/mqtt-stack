@@ -9,7 +9,7 @@ var Timer = require('../utils/timer');
  * - starts timer with settings read from 'connect' packet
  * - resets timer on any client activity
  * - handles and dismisses 'pingreq' packets
- * - emits 'uncleanDisconnect' and calls client.destroy() if client misses a ping
+ * - executes 'closeClient' if client misses a ping
  *
  * TODO: add min and max values for client keepalive?
  * TODO: flag to discard 0 keepalive?
@@ -29,22 +29,26 @@ var KeepAlive = function(config){
 };
 
 KeepAlive.prototype.install = function(client) {
+  var self = this;
   if(this.config.defaultTimeout) {
     client._keep_alive_timer = new Timer(this.config.defaultTimeout * 1000, function(){
-      client.destroy();
-      client.emit('uncleanDisconnect');
+      return self.stack.execute('closeClient', {
+        client: client
+      });
     });
   }
 };
 
 KeepAlive.prototype.handle = function(client, packet, next) {
+  var self = this;
   if(packet.cmd == 'connect') {
     if(client._keep_alive_timer) {
       client._keep_alive_timer.clear();
     }
     client._keep_alive_timer = new Timer(packet.keepalive * 2000, function(){
-      client.destroy();
-      client.emit('uncleanDisconnect');
+      return self.stack.execute('closeClient', {
+        client: client
+      });
     });
     return next();
   } else {

@@ -5,14 +5,15 @@ var crypto = require('crypto');
  * Connection Middleware
  *
  * - closes client if first packet is not a 'connect' packet
- * - closes client and emits 'uncleanDisconnect' if connect gets received more than once
- * - closes client on 'disconnect' and emits 'cleanDisconnect'
- * - closes client on 'error' and emits 'uncleanDisconnect'
  * - closes client if clientID is empty and clean = false
- * - emits 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
+ * - closes client and executes 'uncleanDisconnect' if connect gets received more than once
+ * - closes client on 'disconnect' and executes 'cleanDisconnect'
+ * - closes client on 'error' and executes 'uncleanDisconnect'
+ * - executes 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
  * - manages the client._dead flag
- * - assings a unique client_id when id is missing
+ * - assigns a unique client_id when id is missing
  * - forces proper mqtt protocol version and Id if enabled (forceMQTT4)
+ * - handles 'closeClient' calls
  *
  * @param {Object} config
  *
@@ -28,7 +29,15 @@ var Connection = function(config) {
   });
 };
 
+Connection.prototype.closeClient = function(ctx, callback){
+  ctx.client._dead = true;
+  ctx.client.destroy();
+  if(callback) callback();
+};
+
 Connection.prototype.install = function(client) {
+  var self = this;
+
   client._sent_first = false;
   client._sent_disconnect = false;
   client._dead = false;
@@ -37,18 +46,23 @@ Connection.prototype.install = function(client) {
     if(!client._sent_disconnect) {
       client._dead = true;
       client.destroy();
-      client.emit('uncleanDisconnect');
+      return self.stack.execute('uncleanDisconnect', {
+        client: client
+      });
     }
   });
   client.on('close', function(){
     if(!client._sent_disconnect) {
       client._dead = true;
-      client.emit('uncleanDisconnect');
+      return self.stack.execute('uncleanDisconnect', {
+        client: client
+      });
     }
   });
 };
 
 Connection.prototype.handle = function(client, packet, next) {
+  var self = this;
   if(!client._sent_first) {
     client._sent_first = true;
     if(packet.cmd == 'connect') {
@@ -72,12 +86,16 @@ Connection.prototype.handle = function(client, packet, next) {
     if(packet.cmd == 'connect') {
       client._dead = true;
       client.destroy();
-      return client.emit('uncleanDisconnect');
+      return self.stack.execute('uncleanDisconnect', {
+        client: client
+      });
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
       client._dead = true;
       client.destroy();
-      return client.emit('cleanDisconnect');
+      return self.stack.execute('cleanDisconnect', {
+        client: client
+      });
     } else {
       return next();
     }

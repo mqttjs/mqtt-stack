@@ -28,7 +28,6 @@ describe('Connection', function(){
 
     client.destroy = function() {
       assert(client._dead);
-      client.on('uncleanDisconnect', done);
     };
 
     var middleware = new Connection();
@@ -36,6 +35,14 @@ describe('Connection', function(){
     middleware.install(client);
 
     assert(!client._dead);
+
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert.equal(fn, 'uncleanDisconnect');
+        assert.equal(ctx.client, client);
+        done();
+      }
+    };
 
     middleware.handle(client, {
       cmd: 'connect'
@@ -51,7 +58,6 @@ describe('Connection', function(){
 
     client.destroy = function() {
       assert(client._dead);
-      client.on('cleanDisconnect', done);
     };
 
     var middleware = new Connection();
@@ -59,6 +65,14 @@ describe('Connection', function(){
     middleware.install(client);
 
     assert(!client._dead);
+
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert.equal(fn, 'cleanDisconnect');
+        assert.equal(ctx.client, client);
+        done();
+      }
+    };
 
     middleware.handle(client, {
       cmd: 'connect'
@@ -72,16 +86,20 @@ describe('Connection', function(){
   it("should emit 'uncleanDisconnect' on 'close' event", function(done){
     var client = new EventEmitter();
 
-    client.on('uncleanDisconnect', function(){
-      assert(client._dead);
-      done();
-    });
-
     var middleware = new Connection();
 
     middleware.install(client);
 
     assert(!client._dead);
+
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert(ctx.client._dead);
+        assert.equal(fn, 'uncleanDisconnect');
+        assert.equal(ctx.client, client);
+        done();
+      }
+    };
 
     client.emit('close');
   });
@@ -91,7 +109,6 @@ describe('Connection', function(){
 
     client.destroy = function() {
       assert(client._dead);
-      client.on('uncleanDisconnect', done);
     };
 
     var middleware = new Connection();
@@ -99,6 +116,13 @@ describe('Connection', function(){
     middleware.install(client);
 
     assert(!client._dead);
+
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert.equal(fn, 'uncleanDisconnect');
+        done();
+      }
+    };
 
     client.emit('error');
   });
@@ -123,5 +147,18 @@ describe('Connection', function(){
       cmd: 'connet',
       protocolId: 'hello'
     }, function(){});
+  });
+
+  it('should close client if "closeClient" has been called', function(done){
+    var middleware = new Connection();
+
+    middleware.closeClient({
+      client: {
+        destroy: function(){
+          assert(this._dead);
+          done();
+        }
+      }
+    });
   });
 });

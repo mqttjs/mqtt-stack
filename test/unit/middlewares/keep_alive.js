@@ -1,3 +1,4 @@
+var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
 var KeepAlive = require('../../../src/middlewares/keep_alive');
@@ -26,6 +27,14 @@ describe('KeepAlive', function(){
       defaultTimeout: 0.001
     });
 
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert.equal(fn, 'closeClient');
+        assert.equal(ctx.client, client);
+        done();
+      }
+    };
+
     middleware.install(client);
   });
 
@@ -37,6 +46,14 @@ describe('KeepAlive', function(){
     };
 
     var middleware = new KeepAlive();
+
+    middleware.stack = {
+      execute: function(fn, ctx){
+        assert.equal(fn, 'closeClient');
+        assert.equal(ctx.client, client);
+        done();
+      }
+    };
 
     middleware.handle(client, {
       cmd: 'connect',
