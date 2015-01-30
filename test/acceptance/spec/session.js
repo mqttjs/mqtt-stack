@@ -1,3 +1,8 @@
+var expect = require('expect.js');
+var async = require('async');
+
+var f = require('../../support/factory');
+
 describe('Session', function(){
   it('should restore subscriptions for uncleaned clients', function(done) {
     async.series([

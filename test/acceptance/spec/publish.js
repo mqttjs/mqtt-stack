@@ -1,4 +1,5 @@
 var expect = require('expect.js');
+var async = require('async');
 
 var f = require('../../support/factory');
 
@@ -119,5 +120,36 @@ describe('Publish', function(){
         client.publish('hello', 'hello', 1);
       });
     }, done);
+  });
+
+  xit('should support retained messages', function(done) {
+    async.waterfall([
+      function(cb) {
+        f.client(function(client){
+          client.publish('retained', 'hello world', {
+            qos: 1,
+            retain: true
+          }, function(){
+            client.publish('retained', 'world world', {
+              qos: 1,
+              retain: true
+            }, function(){
+              client.end();
+            });
+          });
+        }, cb);
+      },
+      function(cb) {
+        f.client(function(client){
+          client.on('message', function(topic, payload, packet) {
+            expect(topic).to.be.eql('hello');
+            expect(payload.toString()).to.be.eql('world world');
+            expect(packet.retained).to.be.ok();
+            client.end();
+          });
+          client.subscribe('retained');
+        }, cb);
+      }
+    ], done);
   });
 });
