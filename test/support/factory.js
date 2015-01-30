@@ -11,6 +11,14 @@ module.exports.mid = function(){
   return Math.floor(65535 * Math.random());
 };
 
+module.exports.t = function(){
+  return '/topic_' + crypto.randomBytes(8).toString('hex');
+};
+
+module.exports.p = function(){
+  return 'payload-' + crypto.randomBytes(8).toString('hex');
+};
+
 module.exports.client = function(options, handler, done){
   if(typeof options == 'function') {
     done = handler;

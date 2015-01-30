@@ -123,11 +123,12 @@ describe('Connection', function(){
 
   it('should close the first client if a second client with the same clientId connects (MQTT-3.1.4-2)', function(done) {
     var d = f.countDone(2, done);
+    var c = f.cid();
     f.client({
-      clientId: 'same'
+      clientId: c
     }, function(){
       f.client({
-        clientId: 'same'
+        clientId: c
       }, function(client2){
         client2.end();
       }, d);
@@ -137,11 +138,9 @@ describe('Connection', function(){
   it('should terminate connection when ping is missing (MQTT-3.1.2-22)', function(done){
     this.timeout(3000);
 
-    f.rawClient(function(client){
-      client.connect({
-        keepalive: 1,
-        clientId: 'test1'
-      });
+    f.rawClient(function(client, opts){
+      opts.keepalive = 1;
+      client.connect(opts);
 
       client.on('close', function(){
         done();
@@ -166,8 +165,8 @@ describe('Connection', function(){
 
       setTimeout(function() {
         client.publish({
-          topic: "hello",
-          payload: "some data"
+          topic: f.t(),
+          payload: f.p()
         });
       }, 1000);
 
@@ -180,21 +179,23 @@ describe('Connection', function(){
 
   it('should send last will if requested (MQTT-3.1.2-8, MQTT-3.1.2-10, MQTT-3.1.2-14)', function(done){
     var d = f.countDone(2, done);
+    var t = f.t();
+    var p = f.p();
 
     f.client({
       will: {
-        topic: '/last-will-1',
-        payload: 'hello'
+        topic: t,
+        payload: p
       }
     }, function(client1){
       f.client(function(client2){
         client2.on('message', function(topic, payload, packet){
-          expect(topic).to.be.eql('/last-will-1');
-          expect(payload.toString()).to.be.eql('hello');
+          expect(topic).to.be.eql(t);
+          expect(payload.toString()).to.be.eql(p);
           expect(packet.retain).to.not.be.ok();
           client2.end();
         });
-        client2.subscribe('/last-will-1', function(){
+        client2.subscribe(t, function(){
           client1.stream.end();
         });
       }, d);
@@ -203,22 +204,24 @@ describe('Connection', function(){
 
   it('should send last will if requested and keep retain (MQTT-3.1.2-15)', function(done){
     var d = f.countDone(2, done);
+    var t = f.t();
+    var p = f.p();
 
     f.client({
       will: {
-        topic: '/last-will-1',
-        payload: 'hello',
+        topic: t,
+        payload: p,
         retain: true
       }
     }, function(client1){
       f.client(function(client2){
         client2.on('message', function(topic, payload, packet){
-          expect(topic).to.be.eql('/last-will-1');
-          expect(payload.toString()).to.be.eql('hello');
+          expect(topic).to.be.eql(t);
+          expect(payload.toString()).to.be.eql(p);
           expect(packet.retain).to.not.ok();
           client2.end();
         });
-        client2.subscribe('/last-will-1', function(){
+        client2.subscribe(t, function(){
           client1.stream.end();
         });
       }, d);
@@ -227,12 +230,13 @@ describe('Connection', function(){
 
   it('should not send will on proper disconnect (MQTT-3.14.4-3)', function(done){
     var d = f.countDone(2, done);
+    var t = f.t();
+    var p = f.p();
 
     f.client({
       will: {
-        topic: '/last-will-1',
-        payload: 'hello',
-        retain: true
+        topic: t,
+        payload: p
       }
     }, function(client1){
       f.client(function(client2){
@@ -240,7 +244,7 @@ describe('Connection', function(){
           client2.end();
           throw new Error('this message should not have been published');
         });
-        client2.subscribe('/last-will-1', function(){
+        client2.subscribe(t, function(){
           client1.end();
           client2.end();
         });
