@@ -103,6 +103,15 @@ describe('Stack', function(){
     });
   });
 
+  it('should execute a function on all middlewares and even is there are none', function(done){
+    var stack = new Stack();
+
+    stack.execute('testFunction', 1, function(_, result){
+      assert.equal(result.length, 0);
+      done();
+    });
+  });
+
   it('should execute a function on all middlewares and catch errors', function(done){
     var stack = new Stack();
 
