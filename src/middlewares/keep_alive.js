@@ -1,7 +1,3 @@
-var _ = require('underscore');
-
-var Timer = require('../utils/timer');
-
 /**
  * KeepAlive Middleware
  *
@@ -21,6 +17,10 @@ var Timer = require('../utils/timer');
  *   defaultTimeout: 60
  * }));
  */
+
+var _ = require('underscore');
+
+var Timer = require('../utils/timer');
 
 var KeepAlive = function(config){
   this.config = _.defaults(config, {

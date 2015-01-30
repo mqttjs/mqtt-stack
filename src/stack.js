@@ -1,6 +1,3 @@
-var _ = require('underscore');
-var async = require('async');
-
 /**
  * Stack Class
  *
@@ -8,6 +5,9 @@ var async = require('async');
  *
  * @param {Function} errorHandler
  */
+
+var _ = require('underscore');
+var async = require('async');
 
 var Stack = function(errorHandler){
   this.middlewares = [];

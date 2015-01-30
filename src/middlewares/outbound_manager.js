@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 /**
  * OutboundManager Middleware
  *
@@ -18,6 +16,8 @@ var _ = require('underscore');
  *   }
  * }));
  */
+
+var _ = require('underscore');
 
 var OutboundManager = function(config){
   this.config = _.defaults(config || {}, {

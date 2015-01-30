@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 /**
  * LastWill Middleware
  *
@@ -11,6 +9,8 @@ var _ = require('underscore');
  * @example
  * stack.use(new LastWill());
  */
+
+var _ = require('underscore');
 
 var LastWill = function() {};
 

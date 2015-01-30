@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 /**
  * SubscriptionManager Middleware
  *
@@ -26,6 +24,8 @@ var _ = require('underscore');
  *   }
  * }));
  */
+
+var _ = require('underscore');
 
 var SubscriptionManager = function(config){
   this.config = _.defaults(config || {}, {

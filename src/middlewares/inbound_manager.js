@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 /**
  * InboundManager Middleware
  *
@@ -21,6 +19,8 @@ var _ = require('underscore');
  *   }
  * }));
  */
+
+var _ = require('underscore');
 
 var InboundManager = function(config){
   this.config = _.defaults(config || {}, {

@@ -1,6 +1,3 @@
-var _ = require('underscore');
-var crypto = require('crypto');
-
 /**
  * Connection Middleware
  *
@@ -22,6 +19,9 @@ var crypto = require('crypto');
  *   forceMQTT4: true
  * }));
  */
+
+var _ = require('underscore');
+var crypto = require('crypto');
 
 var Connection = function(config) {
   this.config = _.defaults(config || {}, {

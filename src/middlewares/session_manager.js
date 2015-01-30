@@ -1,12 +1,8 @@
-var _ = require('underscore');
-
 /**
  * SessionManager Middleware
  *
  * - manages the clients session
  * - executes 'newSession', 'resumeSession' and 'storeSession'
- *
- * TODO: [MQTT-3.1.4-2] disconnect connected clients using the same clientId
  *
  * @param {Object} config
  *
@@ -26,6 +22,8 @@ var _ = require('underscore');
  *   }
  * }));
  */
+
+var _ = require('underscore');
 
 var SessionManager = function(config){
   this.config = _.defaults(config || {}, {
