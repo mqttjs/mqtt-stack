@@ -20,8 +20,12 @@ var FakeBroker = function(port){
 
   this.stack.use({
     install: function(client) {
+      var self = this;
       client._forwarder = function(packet) {
-        client.emit('forwardMessage', packet);
+        self.stack.execute('forwardMessage', {
+          client: client,
+          packet: packet
+        });
       }
     },
     handle: function(_, __, next) {

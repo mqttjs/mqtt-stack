@@ -2,7 +2,7 @@ if(!process.env.PORT) {
   process.env.PORT = 9000;
 }
 
-var FakeBroker = require('./support/fake_broker');
+var FakeBroker = require('./../support/fake_broker');
 
 var broker;
 

@@ -4,7 +4,7 @@ var _ = require('underscore');
  * LastWill Middleware
  *
  * - reads lastWill from 'connect' packet
- * - injects the lastWill 'publish' packet on 'uncleanDisconnect'
+ * - injects the lastWill 'publish' packet when 'uncleanDisconnect' is executed
  *
  * TODO: [MQTT-3.14.1-1] Store will in state and clear it on a 'cleanDisconnect'
  *
@@ -14,20 +14,20 @@ var _ = require('underscore');
 
 var LastWill = function() {};
 
-LastWill.prototype.install = function(client) {
+LastWill.prototype.uncleanDisconnect = function(ctx, callback){
   var self = this;
 
-  client.on('uncleanDisconnect', function(){
-    if(client._last_will) {
-      var packet = _.defaults(client._last_will, {
-        cmd: 'publish'
-      });
+  if(ctx.client._last_will) {
+    var packet = _.defaults(ctx.client._last_will, {
+      cmd: 'publish'
+    });
 
-      setImmediate(function(){
-        self.stack.runStack(client, packet);
-      });
-    }
-  });
+    setImmediate(function(){
+      self.stack.runStack(ctx.client, packet);
+    });
+  }
+
+  if(callback) callback();
 };
 
 LastWill.prototype.handle = function(client, packet, next) {

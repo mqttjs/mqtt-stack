@@ -4,7 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var OutboundManager = require('../../../src/middlewares/outbound_manager');
 
 describe('OutboundManager', function(){
-  it('should forward packets emitted to "forwardMessage"', function(done){
+  it('should forward packets when "forwardMessage" is executed', function(done){
     var stream = new EventEmitter();
 
     var packet = {
@@ -23,8 +23,10 @@ describe('OutboundManager', function(){
       done();
     };
 
-    middleware.install(stream);
-    stream.emit('forwardMessage', packet);
+    middleware.forwardMessage({
+      client: stream,
+      packet: packet
+    });
   });
 
   it('should handle "puback" on QoS 1 and call "deleteMessage"', function(done){
@@ -55,7 +57,9 @@ describe('OutboundManager', function(){
       middleware.handle(stream, packet2);
     };
 
-    middleware.install(stream);
-    stream.emit('forwardMessage', packet);
+    middleware.forwardMessage({
+      client: stream,
+      packet: packet
+    });
   });
 });

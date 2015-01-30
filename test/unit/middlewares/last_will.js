@@ -16,8 +16,6 @@ describe('LastWill', function(){
 
     var middleware = new LastWill();
 
-    middleware.install(client);
-
     middleware.stack = {
       runStack: function(_client, _packet) {
         assert(_client, client);
@@ -27,6 +25,8 @@ describe('LastWill', function(){
     };
 
     middleware.handle(client, packet, function(){});
-    client.emit('uncleanDisconnect');
+    middleware.uncleanDisconnect({
+      client: client
+    });
   });
 });
