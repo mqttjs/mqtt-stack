@@ -30,7 +30,7 @@ var _ = require('underscore');
 var SubscriptionManager = function(config){
   this.config = _.defaults(config || {}, {
     subscribeTopic: function(ctx, callback) {
-      callback(ctx.qos);
+      callback(0);
     },
     unsubscribeTopic: function(ctx, callback) {
       callback();
