@@ -36,6 +36,7 @@ OutboundManager.prototype.forwardMessage = function(ctx, callback) {
     topic: ctx.packet.topic,
     payload: ctx.packet.payload,
     qos: ctx.packet.qos,
+    retain: ctx.packet.retain,
     messageId: Math.random()*60000
   });
   if(callback) callback();

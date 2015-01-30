@@ -36,19 +36,19 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-2.1.2-5**:
   The value of the Dup flag from an incoming PUBLISH packet is not propagated when the PUBLISH Packet is sent to subscribers by the Server. The Dup flag in the outgoing PUBLISH packet MUST BE set independently to the incoming PUBLISH packet.
 
-- [ ] **MQTT-2.1.2-6**:
+- [x] _TESTED_ **MQTT-2.1.2-6**:
   If the retain flag is set to 1, in a PUBLISH Packet sent by a Client to a Server, the Server MUST store the application message and its QoS, so that it can be delivered to future subscribers whose subscriptions match its topic name.
 
-- [ ] **MQTT-2.1.2-7**:
+- [x] _TESTED_ **MQTT-2.1.2-7**:
   When a new subscription is established, the last retained message, if any, on each matching topic name MUST be sent to the subscriber.
 
-- [ ] **MQTT-2.1.2-8**:
+- [x] _SKIPPED_ **MQTT-2.1.2-8**:
   If the Server receives a QoS 0 message with the RETAIN flag set to 1 it MUST discard any message previously retained for that topic. It SHOULD store the new QoS 0 message as the new retained message for that topic, but MAY discard it at any time. If this happens there will be no retained message for that topic.
 
-- [ ] **MQTT-2.1.2-9**:
-  When sending a PUBLISH Packet to a Client the Server MUST set the RETAIN flag to 1 if a message is sent as a result of a new subscription being made by a Client .
+- [x] _TESTED_ **MQTT-2.1.2-9**:
+  When sending a PUBLISH Packet to a Client the Server MUST set the RETAIN flag to 1 if a message is sent as a result of a new subscription being made by a Client.
 
-- [ ] **MQTT-2.1.2-10**:
+- [x] _TESTED_ **MQTT-2.1.2-10**:
   It MUST set the RETAIN flag to 0 when a PUBLISH Packet is sent to a Client because it matches an established subscription regardless of how the flag was set in the message it received
 
 - [ ] **MQTT-2.1.2-11**:

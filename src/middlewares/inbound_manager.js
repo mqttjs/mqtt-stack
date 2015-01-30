@@ -53,7 +53,9 @@ InboundManager.prototype.handle = function(client, packet, next){
       if(err) return next(err);
       self.stack.execute('relayMessage',{
         client: client,
-        packet: packet,
+        packet: _.extend(packet, {
+          retain: false
+        }),
         topic: packet.topic,
         payload: packet.payload
       }, function(err){

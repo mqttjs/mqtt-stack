@@ -218,7 +218,7 @@ describe('Connection', function(){
         client2.on('message', function(topic, payload, packet){
           expect(topic).to.be.eql(t);
           expect(payload.toString()).to.be.eql(p);
-          expect(packet.retain).to.not.ok();
+          expect(packet.retain).to.not.be.ok();
           client2.end();
         });
         client2.subscribe(t, function(){
