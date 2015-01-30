@@ -89,4 +89,35 @@ describe('Publish', function(){
       });
     }, done);
   });
+
+  it('should support send a puback when publishing QoS 1 messages', function(done) {
+    f.rawClient(function(client, opts){
+      client.connect(opts);
+      var messageId = f.mid();
+
+      client.on('puback', function(packet) {
+        expect(packet).to.have.property('messageId', messageId);
+        client.disconnect();
+      });
+
+      client.publish({
+        topic: 'hello',
+        qos: 1,
+        messageId: messageId
+      });
+    }, done);
+  });
+
+  it('should receive all messages at QoS 1 if a subscription is done with QoS 0', function(done) {
+    f.client(function(client){
+      client.once('message', function(_, __, packet) {
+        expect(packet.qos).to.be.eql(0);
+        client.end();
+      });
+
+      client.subscribe('hello', function(){
+        client.publish('hello', 'hello', 1);
+      });
+    }, done);
+  });
 });

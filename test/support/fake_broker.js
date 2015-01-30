@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var mqtt = require('mqtt-server');
 var MQEmitter = require('mqemitter');
+var _ = require('underscore');
 
 var stack = require('../../index');
 
@@ -45,7 +46,8 @@ var FakeBroker = function(port){
       closeOldSession(ctx);
 
       ctx.client._session = self.sessions[ctx.clientId] = {
-        client: ctx.client
+        client: ctx.client,
+        subscriptions: {}
       };
       callback(null, false);
     },
@@ -55,7 +57,9 @@ var FakeBroker = function(port){
       ctx.client._session = self.sessions[ctx.clientId];
       if(ctx.client._session) {
         self.sessions[ctx.clientId].client = ctx.client;
-        // load session and subscriptions
+        _.each(ctx.client._session.subscriptions, function(_, s){
+          self.pubsub.on(s, ctx.client._forwarder);
+        });
         // forward retained messages
         callback(null, true);
         // forward offline messages
@@ -76,10 +80,12 @@ var FakeBroker = function(port){
 
   this.stack.use(new stack.SubscriptionManager({
     subscribeTopic: function(ctx, callback) {
+      ctx.client._session.subscriptions[ctx.topic] = 1;
       self.pubsub.on(ctx.topic, ctx.client._forwarder);
       callback(null, ctx.qos);
     },
     unsubscribeTopic: function(ctx, callback) {
+      delete ctx.client._session.subscriptions[ctx.topic];
       self.pubsub.removeListener(ctx.topic, ctx.client._forwarder);
       callback(null);
     }
