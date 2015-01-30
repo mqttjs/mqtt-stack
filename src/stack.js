@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var async = require('async');
 
 /**
  * Stack Class
@@ -46,6 +47,16 @@ Stack.prototype.runStack = function(client, packet) {
     }
   }
   next();
+};
+
+Stack.prototype.execute = function(fn, data, callback){
+  async.map(this.middlewares, function(m, cb){
+    if(m[fn]) {
+      m[fn](data, cb);
+    } else {
+      cb();
+    }
+  }, callback);
 };
 
 module.exports = Stack;

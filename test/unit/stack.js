@@ -80,4 +80,49 @@ describe('Stack', function(){
     stack.use(middleware);
     assert(middleware.stack, stack);
   });
+
+  it('should execute a function on all middlewares and collect responses', function(done){
+    var stack = new Stack();
+
+    stack.use({
+      testFunction: function(n, callback) {
+        callback(null, n + 1);
+      }
+    });
+
+    stack.use({
+      testFunction: function(n, callback) {
+        callback(null, n + 2);
+      }
+    });
+
+    stack.execute('testFunction', 1, function(_, result){
+      assert.equal(result[0], 2);
+      assert.equal(result[1], 3);
+      done();
+    });
+  });
+
+  it('should execute a function on all middlewares and catch errors', function(done){
+    var stack = new Stack();
+
+    stack.use({
+      testFunction: function(ctx, callback) {
+        callback(null, 1 + 1);
+      }
+    });
+
+    stack.use({
+      testFunction: function(_, callback) {
+        callback(new Error('fail'));
+      }
+    });
+
+    stack.execute('testFunction', 1, function(err, result){
+      assert(err);
+      assert.equal(result[0], 2);
+      assert.equal(result[1], undefined);
+      done();
+    });
+  });
 });
