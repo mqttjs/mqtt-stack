@@ -162,7 +162,7 @@ describe('Publish', function(){
     }, done);
   });
 
-  xit('should support retained messages', function(done) {
+  it('should support retained messages', function(done) {
     async.waterfall([
       function(cb) {
         f.client(function(client){
@@ -182,9 +182,8 @@ describe('Publish', function(){
       function(cb) {
         f.client(function(client){
           client.on('message', function(topic, payload, packet) {
-            expect(topic).to.be.eql('hello');
+            expect(topic).to.be.eql('retained');
             expect(payload.toString()).to.be.eql('world world');
-            expect(packet.retained).to.be.ok();
             client.end();
           });
           client.subscribe('retained');
