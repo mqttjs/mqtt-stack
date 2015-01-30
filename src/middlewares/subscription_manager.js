@@ -59,7 +59,10 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
       }, function(err, results){
         if(err) return next(err);
 
-        var grant = Math.min.apply(null, _.flatten(results));
+        var grant = Math.min.apply(null, _.filter(_.flatten(results), function(r) {
+          return r === false || typeof r === 'number';
+        }));
+
         granted.push(grant === false ? 128 : Math.min(grant, 1));
         if(granted.length == packet.subscriptions.length) {
           return client.suback({
