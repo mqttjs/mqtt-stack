@@ -1,10 +1,12 @@
 var MQEmitter = require('mqemitter');
+var mqttRegex = require('mqtt-regex');
 var _ = require('underscore');
 
 var MemoryBackend = function(config) {
   this.config = config;
   this.sessions = {};
   this.pubsub = new MQEmitter();
+  this.retainedMessages = {};
 };
 
 MemoryBackend.prototype.install = function(client) {
@@ -14,13 +16,22 @@ MemoryBackend.prototype.install = function(client) {
       client: client,
       packet: packet
     });
-  }
+  };
 };
 
 MemoryBackend.prototype.closeOldSession = function(id) {
   if(this.sessions[id]) {
     this.sessions[id].client.destroy();
   }
+};
+
+MemoryBackend.prototype.forwardRetainedMessages = function(topic, client) {
+  var regex = mqttRegex(topic).regex;
+  _.each(this.retainedMessages, function(p, t) {
+    if(t.search(regex) >= 0) {
+      client._forwarder(p);
+    }
+  });
 };
 
 MemoryBackend.prototype.newSession = function(ctx, callback) {
@@ -40,8 +51,8 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
     this.sessions[ctx.clientId].client = ctx.client;
     _.each(ctx.client._session.subscriptions, function(_, s){
       self.pubsub.on(s, ctx.client._forwarder);
+      self.forwardRetainedMessages(s, ctx.client);
     });
-    // TODO: forward retained messages
     callback(null, true);
     // TODO: forward offline messages
   } else {
@@ -50,6 +61,9 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
 };
 
 MemoryBackend.prototype.storeMessage = function(ctx, callback){
+  if(ctx.packet.retain) {
+    this.retainedMessages[ctx.topic] = ctx.packet;
+  }
   if(callback) callback();
 };
 
@@ -61,6 +75,7 @@ MemoryBackend.prototype.relayMessage = function(ctx, callback){
 MemoryBackend.prototype.subscribeTopic = function(ctx, callback) {
   ctx.client._session.subscriptions[ctx.topic] = 1;
   this.pubsub.on(ctx.topic, ctx.client._forwarder);
+  this.forwardRetainedMessages(ctx.topic, ctx.client);
   if(callback) callback(null, ctx.qos);
 };
 
