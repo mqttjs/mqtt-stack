@@ -237,4 +237,32 @@ describe('Subscriptions', function(){
       }
     ], done);
   });
+
+  xit('should support subscribing with overlapping topics and receiving message only once', function(done) {
+    var d = f.countDone(2, done);
+    var called = 0;
+
+    f.client(function(client1){
+      client1.on('message', function(topic, payload) {
+        called++;
+        expect(topic).to.be.eql('a/b');
+        expect(payload.toString()).to.be.eql('some other data');
+        expect(called).to.be.eql(1);
+      });
+      client1.subscribe({
+        'a/+': 1,
+        '+/b': 1,
+        'a/b': 1
+      }, function(){
+        f.client(function(client2){
+          client2.publish('a/b', 'some other data', {
+            qos: 1
+          }, function(){
+            client1.end();
+            client2.end();
+          });
+        }, d);
+      });
+    }, d);
+  });
 });

@@ -556,56 +556,6 @@ describe('Imported Mosca Tests', function(){
     buildTest(['#', '$SYS/#'], '$SYS/hello');
   });
 
-  it("should support subscribing with overlapping topics and receiving message only once", function(done) {
-    var d = donner(2, done);
-    var that = this;
-    buildAndConnect(d, this.instance, buildOpts(), function(client1) {
-
-      var messageId = Math.floor(65535 * Math.random());
-      var subscriptions = [{
-        topic: "a/+",
-        qos: 1
-      }, {
-        topic: "+/b",
-        qos: 1
-      }, {
-        topic: "a/b",
-        qos: 1
-      }
-      ];
-      var called = 0;
-
-      client1.on("publish", function(packet) {
-        client1.puback({ messageId: packet.messageId });
-        expect(packet.topic).to.equal("a/b");
-        expect(packet.payload).to.equal("some other data");
-        expect(called++).to.equal(0);
-      });
-
-      client1.on("suback", function() {
-        buildAndConnect(d, that.instance, buildOpts(), function(client2) {
-
-          client2.on("puback", function() {
-            client1.disconnect();
-            client2.disconnect();
-          });
-
-          client2.publish({
-            topic: "a/b",
-            payload: "some other data",
-            messageId: messageId,
-            qos: 1
-          });
-        });
-      });
-
-      client1.subscribe({
-        subscriptions: subscriptions,
-        messageId: messageId
-      });
-    });
-  });
-
   it("should support subscribing correctly to wildcards in a tree-based topology", function(done) {
     var d = donner(3, done);
 
