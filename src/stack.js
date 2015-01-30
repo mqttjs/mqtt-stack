@@ -42,7 +42,11 @@ Stack.prototype.runStack = function(client, packet) {
     } else {
       i++;
       if(i < l) {
-        return self.middlewares[i].handle(client, packet, next);
+        if(self.middlewares[i].handle) {
+          return self.middlewares[i].handle(client, packet, next);
+        } else {
+          return next();
+        }
       }
     }
   }
