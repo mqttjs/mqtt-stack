@@ -121,8 +121,8 @@ describe('Subscriptions', function(){
         throw new Error('this message should not have been published');
       });
 
-      client.subscribe('hello/#/there/#', function(){
-        client.unsubscribe('hello/#/there/#', function(){
+      client.subscribe('hello/+/there/#', function(){
+        client.unsubscribe('hello/+/there/#', function(){
           client.publish('hello/foo/there/bar', 'data');
           client.end();
         });
