@@ -42,6 +42,17 @@ describe('Publish', function(){
     }, d);
   });
 
+  it('should not publish topic with wildcards (MQTT-3.3.2-2)', function(done){
+    f.client(function(client){
+      client.on('message', function(){
+        client.end();
+        throw new Error('this message should not have been published');
+      });
+      client.publish('/hello/+');
+      client.end();
+    }, done);
+  });
+
   it('should support publishing big messages', function(done) {
     var d = f.countDone(2, done);
 

@@ -198,16 +198,16 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.3.2-1**:
   The Topic Name MUST be a UTF-8 encoded string.
 
-- [ ] **MQTT-3.3.2-2**:
+- [x] _TESTED_ **MQTT-3.3.2-2**:
   The Topic Name in the PUBLISH Packet MUST NOT contain wildcard characters.
 
-- [ ] **MQTT-3.3.2-3**:
+- [x] _SKIPPED_ **MQTT-3.3.2-3**:
   The Topic Name sent to a subscribing Client MUST match the Subscription’s Topic Filter.
 
-- [ ] **MQTT-3.3.5-1**:
+- [x] _SKIPPED_ **MQTT-3.3.5-1**:
   The Server MUST deliver the message to the Client respecting the maximum QoS of all the matching subscriptions. In addition, the Server MAY deliver further copies of the message, one for each additional matching subscription and respecting the subscriptions QoS in each case.
 
-- [ ] **MQTT-3.3.5-2**:
+- [x] _SKIPPED_ **MQTT-3.3.5-2**:
   If a Server implementation does not authorize a PUBLISH to be performed by a Client; it has no way of informing that Client. It MUST either make a positive acknowledgement, according to the normal QoS rules or disconnect the TCP session.
 
 ### Pubrec
