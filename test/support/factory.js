@@ -3,7 +3,7 @@ var mqttConn = require('mqtt-connection');
 var mqtt = require('mqtt');
 var crypto = require('crypto');
 
-var cid = module.exports.cid = function(){
+var cid = module.exports.c = function(){
   return 'spec_' + crypto.randomBytes(8).toString('hex');
 };
 

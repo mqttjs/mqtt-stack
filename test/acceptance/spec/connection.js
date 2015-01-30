@@ -123,7 +123,7 @@ describe('Connection', function(){
 
   it('should close the first client if a second client with the same clientId connects (MQTT-3.1.4-2)', function(done) {
     var d = f.countDone(2, done);
-    var c = f.cid();
+    var c = f.c();
     f.client({
       clientId: c
     }, function(){

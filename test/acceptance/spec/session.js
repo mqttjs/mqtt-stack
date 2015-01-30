@@ -5,7 +5,7 @@ var f = require('../../support/factory');
 
 describe('Session', function(){
   it('should restore subscriptions for uncleaned clients', function(done) {
-    var cid = f.cid();
+    var cid = f.c();
     var t = f.t();
     var p = f.p();
     async.series([
