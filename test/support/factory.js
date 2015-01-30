@@ -3,7 +3,7 @@ var mqttConn = require('mqtt-connection');
 var mqtt = require('mqtt');
 var crypto = require('crypto');
 
-var cid = module.exports.c = function(){
+module.exports.c = function(){
   return 'spec_' + crypto.randomBytes(8).toString('hex');
 };
 
@@ -27,7 +27,7 @@ module.exports.client = function(options, handler, done){
   }
 
   if(!options.clientId) {
-    options.clientId = cid()
+    options.clientId = this.c()
   }
 
   var c = mqtt.connect('mqtt://0.0.0.0:' + process.env['PORT'], options);
@@ -48,9 +48,10 @@ module.exports.client = function(options, handler, done){
 };
 
 module.exports.rawClient = function(handler, done) {
+  var self = this;
   var c = net.createConnection(process.env['PORT'], '0.0.0.0', function(){
     handler(mqttConn(c), {
-      clientId: cid(),
+      clientId: self.c(),
       protocolId: 'MQTT',
       protocolVersion: 4
     });
