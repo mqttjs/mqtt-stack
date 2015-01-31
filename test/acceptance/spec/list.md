@@ -228,7 +228,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.8.1-1**:
   Bits 3,2,1 and 0 of the fixed header of the SUBSCRIBE Control Packet are reserved and MUST be set to 0,0,1 and 0 respectively. The Server MUST treat any other value as malformed and close the Network Connection.
 
-- [ ] **MQTT-3.8.3-1**:
+- [x] _SKIPPED_ **MQTT-3.8.3-1**:
   The Payload of a SUBSCRIBE packet MUST contain at least one Topic Filter / QoS pair. A SUBSCRIBE packet with no payload is a protocol violation.
 
 - [x] _SKIPPED_ **MQTT-3-8.3-2]**:
@@ -246,7 +246,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _SKIPPED_ **MQTT-3.8.4-4**:
   If a Server receives a SUBSCRIBE packet that contains multiple Topic Filters it MUST handle that packet as if it had received a sequence of multiple SUBSCRIBE packets, except that it combines their responses into a single SUBACK response.
 
-- [ ] **MQTT-3.8.4-5**:
+- [x] _TESTED_ **MQTT-3.8.4-5**:
   The SUBACK Packet sent by the Server to the Client MUST contain a return code for each Topic Filter/QoS pair. This return code MUST either show the maximum QoS that was granted for that Subscription or indicate that the subscription failed.
 
 - [ ] **MQTT-3.8.4-6**:

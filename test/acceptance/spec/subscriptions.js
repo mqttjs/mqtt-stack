@@ -22,7 +22,7 @@ describe('Subscriptions', function(){
     }, done);
   });
 
-  it('should support subscribing to multiple topics (MQTT-3.9.3-1)', function(done) {
+  it('should support subscribing to multiple topics (MQTT-3.9.3-1, MQTT-3.8.4-5)', function(done) {
     var m = f.m();
     f.rawClient(function(client, opts){
       client.connect(opts);
