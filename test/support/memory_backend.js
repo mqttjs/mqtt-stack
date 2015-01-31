@@ -19,19 +19,21 @@ MemoryBackend.prototype.install = function(client) {
   };
 };
 
+//MemoryBackend.prototype.forwardRetainedMessages = function(topic, client) {
+//  var regex = mqttRegex(topic).regex;
+//  _.each(this.retainedMessages, function(p, t) {
+//    if(t.search(regex) >= 0) {
+//      client._forwarder(p);
+//    }
+//  });
+//};
+
+/* SessionManager */
+
 MemoryBackend.prototype.closeOldSession = function(id) {
   if(this.sessions[id]) {
     this.sessions[id].client.destroy();
   }
-};
-
-MemoryBackend.prototype.forwardRetainedMessages = function(topic, client) {
-  var regex = mqttRegex(topic).regex;
-  _.each(this.retainedMessages, function(p, t) {
-    if(t.search(regex) >= 0) {
-      client._forwarder(p);
-    }
-  });
 };
 
 MemoryBackend.prototype.newSession = function(ctx, callback) {
@@ -51,7 +53,7 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
     this.sessions[ctx.clientId].client = ctx.client;
     _.each(ctx.client._session.subscriptions, function(_, s){
       self.pubsub.on(s, ctx.client._forwarder);
-      self.forwardRetainedMessages(s, ctx.client);
+      //self.forwardRetainedMessages(s, ctx.client);
     });
     callback(null, true);
     // TODO: forward offline messages
@@ -60,22 +62,34 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
   }
 };
 
-MemoryBackend.prototype.storeMessage = function(ctx, callback){
-  if(ctx.packet.retain) {
-    this.retainedMessages[ctx.topic] = ctx.packet;
-  }
+/* RetainManager */
+
+MemoryBackend.prototype.storeRetainedMessage = function(ctx, callback){
+  this.retainedMessages[ctx.topic] = ctx.packet;
   if(callback) callback();
 };
+
+MemoryBackend.prototype.lookupRetainedMessages = function(ctx, callback) {
+  var regex = mqttRegex(ctx.topic).regex;
+  callback(null, _.filter(this.retainedMessages, function(p, t) {
+    return t.search(regex) >= 0;
+  }));
+};
+
+/* InboundManager */
 
 MemoryBackend.prototype.relayMessage = function(ctx, callback){
   this.pubsub.emit(ctx.packet);
   if(callback) callback();
 };
 
+//MemoryBackend.prototype.storeMessage;
+
+/* SubscriptionManager */
+
 MemoryBackend.prototype.subscribeTopic = function(ctx, callback) {
   ctx.client._session.subscriptions[ctx.topic] = 1;
   this.pubsub.on(ctx.topic, ctx.client._forwarder);
-  this.forwardRetainedMessages(ctx.topic, ctx.client);
   if(callback) callback(null, ctx.qos);
 };
 

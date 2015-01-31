@@ -18,6 +18,7 @@ var FakeBroker = function(port){
 
   this.stack.use(new stack.LastWill());
   this.stack.use(new stack.SessionManager());
+  this.stack.use(new stack.RetainManager());
   this.stack.use(new stack.InboundManager());
   this.stack.use(new stack.OutboundManager());
   this.stack.use(new stack.SubscriptionManager());
