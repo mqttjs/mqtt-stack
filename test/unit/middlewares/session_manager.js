@@ -15,7 +15,8 @@ describe('SessionManager', function(){
 
     var packet = {
       cmd: 'connect',
-      clean: true
+      clean: true,
+      clientId: 'foo'
     };
 
     var middleware = new SessionManager();

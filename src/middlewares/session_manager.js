@@ -40,10 +40,10 @@ SessionManager.prototype.subscribeTopic = function(ctx, callback) {
 SessionManager.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'connect') {
     if(packet.clean) {
-      client._client_id = packet.clientId;
+      client._client_id = false;
       this._handleCleanClient(client, packet, next);
     } else {
-      client._client_id = false;
+      client._client_id = packet.clientId;
       this._handleUncleanClient(client, packet, next);
     }
   } else {
