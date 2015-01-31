@@ -19,15 +19,6 @@ MemoryBackend.prototype.install = function(client) {
   };
 };
 
-//MemoryBackend.prototype.forwardRetainedMessages = function(topic, client) {
-//  var regex = mqttRegex(topic).regex;
-//  _.each(this.retainedMessages, function(p, t) {
-//    if(t.search(regex) >= 0) {
-//      client._forwarder(p);
-//    }
-//  });
-//};
-
 /* SessionManager */
 
 MemoryBackend.prototype.closeOldSession = function(id) {
@@ -45,6 +36,15 @@ MemoryBackend.prototype.newSession = function(ctx, callback) {
   callback(null, false);
 };
 
+MemoryBackend.prototype.forwardRetainedMessages = function(topic, client) {
+  var regex = mqttRegex(topic).regex;
+  _.each(this.retainedMessages, function(p, t) {
+    if(t.search(regex) >= 0) {
+      client._forwarder(p);
+    }
+  });
+};
+
 MemoryBackend.prototype.resumeSession = function(ctx, callback) {
   var self = this;
   this.closeOldSession(ctx.clientId);
@@ -53,7 +53,7 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
     this.sessions[ctx.clientId].client = ctx.client;
     _.each(ctx.client._session.subscriptions, function(_, s){
       self.pubsub.on(s, ctx.client._forwarder);
-      //self.forwardRetainedMessages(s, ctx.client);
+      self.forwardRetainedMessages(s, ctx.client);
     });
     callback(null, true);
     // TODO: forward offline messages
@@ -65,7 +65,12 @@ MemoryBackend.prototype.resumeSession = function(ctx, callback) {
 /* RetainManager */
 
 MemoryBackend.prototype.storeRetainedMessage = function(ctx, callback){
-  this.retainedMessages[ctx.topic] = ctx.packet;
+  if(ctx.packet.payload == '') {
+    delete this.retainedMessages[ctx.topic];
+  } else {
+    this.retainedMessages[ctx.topic] = ctx.packet;
+  }
+
   if(callback) callback();
 };
 

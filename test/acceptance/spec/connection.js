@@ -192,33 +192,6 @@ describe('Connection', function(){
         client2.on('message', function(topic, payload, packet){
           expect(topic).to.be.eql(t);
           expect(payload.toString()).to.be.eql(p);
-          expect(packet.retain).to.not.be.ok();
-          client2.end();
-        });
-        client2.subscribe(t, function(){
-          client1.stream.end();
-        });
-      }, d);
-    }, d);
-  });
-
-  it('should send last will if requested and keep retain (MQTT-3.1.2-15)', function(done){
-    var d = f.countDone(2, done);
-    var t = f.t();
-    var p = f.p();
-
-    f.client({
-      will: {
-        topic: t,
-        payload: p,
-        retain: true
-      }
-    }, function(client1){
-      f.client(function(client2){
-        client2.on('message', function(topic, payload, packet){
-          expect(topic).to.be.eql(t);
-          expect(payload.toString()).to.be.eql(p);
-          expect(packet.retain).to.not.be.ok();
           client2.end();
         });
         client2.subscribe(t, function(){

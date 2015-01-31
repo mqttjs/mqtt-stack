@@ -51,10 +51,10 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _TESTED_ **MQTT-2.1.2-10**:
   It MUST set the RETAIN flag to 0 when a PUBLISH Packet is sent to a Client because it matches an established subscription regardless of how the flag was set in the message it received
 
-- [ ] **MQTT-2.1.2-11**:
+- [x] _TESTED_ **MQTT-2.1.2-11**:
   A PUBLISH Packet with a retain flag set to 1 and a payload containing zero bytes will be processed as normal by the Server and sent to Clients with a subscription matching the topic name. Additionally any existing retained message with the same topic name MUST be removed and any future subscribers for the topic will not receive a retained message.
 
-- [ ] **MQTT-2.1.2-12**:
+- [x] _TESTED_ **MQTT-2.1.2-12**:
   If the RETAIN flag is 0, in a PUBLISH Packet sent by a Client to a Server, the Server MUST NOT store the message and MUST NOT remove or replace any existing retained message.
 
 - [ ] **MQTT-2.3.1-1**:
@@ -100,7 +100,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-3.1.2-6**:
   If set to 1, the Client and Server MUST discard any previous Session and start a new one. This Session lasts as long as the Network Connection. State data associated with this session MUST NOT be reused in any subsequent Session
 
-- [ ] **MQTT-3.1.2.7**:
+- [x] _SKIPPED_ **MQTT-3.1.2.7**:
   Retained publications do not form part of the Session state in the Server, they MUST NOT be deleted when the Session ends.
 
 - [x] _TESTED_ **MQTT-3.1.2-8**:
@@ -240,7 +240,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [x] _TESTED_ **MQTT-3.8.4-2**:
   The SUBACK Packet MUST have the same Packet Identifier as the SUBSCRIBE Packet.
 
-- [ ] **MQTT-3.8.4-3**:
+- [ ] _PARTIAL_ **MQTT-3.8.4-3**:
   A subscribe request which contains a Topic Filter that is identical to an existing Subscription’s Topic Filter completely replaces that existing Subscription with a new Subscription. The Topic Filter in the new Subscription will be identical to that in the previous Subscription, although its maximum QoS value could be different. Any existing retained publications matching the Topic Filter are resent, but the flow of publications is not interrupted.
 
 - [x] _SKIPPED_ **MQTT-3.8.4-4**:
