@@ -109,7 +109,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should send a connack packet with returnCode 2 if clientId is empty and not clean (MQTT-3.1.3-7, MQTT-3.1.3-8)', function(done) {
+  it('should reject when clientId is empty and not clean (MQTT-3.1.3-7, MQTT-3.1.3-8)', function(done) {
     f.rawClient(function(client, opts){
       opts.clientId = new Buffer('');
       opts.clean = false;
@@ -121,7 +121,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should close the first client if a second client with the same clientId connects (MQTT-3.1.4-2)', function(done) {
+  it('should close already connected clients with same clientId (MQTT-3.1.4-2)', function(done) {
     var d = f.countDone(2, done);
     var c = f.c();
     f.client({
