@@ -152,7 +152,7 @@ describe('Publish', function(){
     }, done);
   });
 
-  xit('should receive all messages at QoS 1 if a subscription is done with QoS 0', function(done) {
+  it('should receive all messages at QoS 1 if a subscription is done with QoS 0', function(done) {
     var t = f.t();
     var p = f.p();
     f.client(function(client){

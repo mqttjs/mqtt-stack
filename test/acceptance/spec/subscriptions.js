@@ -196,7 +196,7 @@ describe('Subscriptions', function(){
     }, done);
   });
 
-  xit('should support subscribing with overlapping topics and receiving message only once', function(done) {
+  it('should support subscribing with overlapping topics and receiving message only once', function(done) {
     var d = f.countDone(2, done);
     var p = f.p();
     var called = 0;
