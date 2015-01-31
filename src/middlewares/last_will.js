@@ -1,18 +1,21 @@
+var _ = require('underscore');
+
 /**
  * LastWill Middleware
  *
- * - reads lastWill from 'connect' packet
- * - injects the lastWill 'publish' packet when 'uncleanDisconnect' is executed
+ * Manages will packet.
  *
- * @example
- * stack.use(new LastWill());
+ * Required callbacks:
+ *  - uncleanDisconnect
  */
-
-var _ = require('underscore');
-
 var LastWill = function() {};
 
-LastWill.prototype.uncleanDisconnect = function(ctx, callback){
+/**
+ * Injects will packet if availabe on 'uncleanDisconnect'.
+ *
+ * @param ctx
+ */
+LastWill.prototype.uncleanDisconnect = function(ctx){
   var self = this;
 
   if(ctx.client._last_will) {
@@ -24,10 +27,15 @@ LastWill.prototype.uncleanDisconnect = function(ctx, callback){
       self.stack.runStack(ctx.client, packet);
     });
   }
-
-  if(callback) callback();
 };
 
+/**
+ * Looks for a will packet and stores it.
+ *
+ * @param client
+ * @param packet
+ * @param next
+ */
 LastWill.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'connect') {
     if(packet.will) {

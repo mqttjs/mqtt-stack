@@ -1,62 +1,48 @@
+var _ = require('underscore');
+var async = require('async');
+
 /**
  * RetainManager Middleware
  *
  * - executes "storeRetainedMessage" for retained messages and resets flag
  * - lookups retained messages on "subscribeTopic" and executes "forwardMessage"
- *
- * @param {Object} config
- *
- * @example
- * stack.use(new RetainManager({
- *   storeRetainedMessage: function(ctx, callback) {
- *     // store retained message (topic, payload, qos)
- *   },
- *   lookupRetainedMessages: function(ctx, callback) {
- *     // lookup retained messages (topic, payload, qos)
- *   }
- * }));
  */
+var RetainManager = function(){};
 
-var _ = require('underscore');
-
-var RetainManager = function(config){
-  this.config = _.defaults(config || {}, {
-    storeRetainedMessage: function(ctx, callback){
-      if(callback) callback();
-    },
-    lookupRetainedMessages: function(ctx, callback){
-      callback(null, []);
-    }
-  });
-};
-
-RetainManager.prototype.storeRetainedMessage = function(ctx, callback){
-  this.config.storeRetainedMessage(ctx, callback);
-};
-
-RetainManager.prototype.lookupRetainedMessages = function(ctx, callback){
-  this.config.lookupRetainedMessages(ctx, callback);
-};
-
+/**
+ * Checks for every subscription if there are any retained messages. Executes
+ * 'lookupRetainedMessages' and 'forwardMessage' with each result.
+ *
+ * @param ctx
+ * @param callback
+ */
 RetainManager.prototype.subscribeTopic = function(ctx, callback) {
   var self = this;
+
+  var store = [];
   this.stack.execute('lookupRetainedMessages', {
     client: ctx.client,
     topic: ctx.topic
-  }, function(err, results){
+  }, store, function(err){
     if(err) callback(err);
 
-    _.each(_.flatten(results), function(p){
+    async.mapSeries(store, function(p, cb){
       self.stack.execute('forwardMessage', {
         client: ctx.client,
         packet: p
-      });
-    });
-
-    callback();
+      }, cb);
+    }, callback);
   });
 };
 
+/**
+ * Checks for retained publish packets, stores them and rests retained flag.
+ * Executes 'storeRetainedMessage'.
+ *
+ * @param client
+ * @param packet
+ * @param next
+ */
 RetainManager.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'publish') {
     if(packet.retain) {

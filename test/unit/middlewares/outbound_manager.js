@@ -30,7 +30,7 @@ describe('OutboundManager', function(){
     });
   });
 
-  it('should handle "puback" on QoS 1 and call "deleteMessage"', function(done){
+  it('should handle "puback" on QoS 1', function(done){
     var stream = new EventEmitter();
 
     var packet = {
@@ -45,19 +45,11 @@ describe('OutboundManager', function(){
       messageId: 10
     };
 
-    var middleware = new OutboundManager({
-      deleteMessage: function(ctx){
-        assert.equal(packet2, ctx.packet);
-        assert.equal(stream, ctx.client);
-        assert.equal(packet2.messageId, ctx.messageId);
-        done();
-      }
-    });
-
-    stackHelper.executeOnSelf(middleware);
+    var middleware = new OutboundManager();
 
     stream.publish = function(){
       middleware.handle(stream, packet2);
+      done();
     };
 
     middleware.forwardMessage({

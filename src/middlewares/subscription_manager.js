@@ -50,6 +50,7 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
   var self = this;
   if(packet.cmd == 'subscribe') {
     var granted = [];
+    //TODO: use async
     _.each(packet.subscriptions, function(s) {
       self.stack.execute('subscribeTopic', {
         client: client,
@@ -74,6 +75,7 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
     });
   } else if(packet.cmd == 'unsubscribe') {
     var i = 0;
+    //TODO: use async
     _.each(packet.unsubscriptions, function(us){
       self.stack.execute('unsubscribeTopic', {
         client: client,

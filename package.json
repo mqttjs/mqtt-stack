@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "expect.js": "0.3.1",
+    "jsdoc": "^3.3.0-beta1",
     "mocha": "2.1.0",
     "mqemitter": "0.2.1",
     "mqtt": "1.0.5",

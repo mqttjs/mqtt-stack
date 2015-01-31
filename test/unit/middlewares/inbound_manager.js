@@ -5,7 +5,7 @@ var stackHelper = require('../../support/stack_helper');
 var InboundManager = require('../../../src/middlewares/inbound_manager');
 
 describe('InboundManager', function(){
-  it('should call "storeMessage" and "relayMessage"', function(done){
+  it('should call "relayMessage"', function(done){
     var stream = new EventEmitter();
 
     var packet = {
@@ -14,28 +14,17 @@ describe('InboundManager', function(){
       payload: 'cool'
     };
 
-    var stored;
+    var middleware = new InboundManager();
 
-    var middleware = new InboundManager({
-      storeMessage: function(ctx, callback){
-        assert.equal(stream, ctx.client);
-        assert.equal(packet, ctx.packet);
-        assert.equal(packet.topic, ctx.topic);
-        assert.equal(packet.payload, ctx.payload);
-        stored = true;
-        callback();
-      },
+    stackHelper.mockExecute(middleware, {
       relayMessage: function(ctx){
         assert.equal(stream, ctx.client);
         assert.equal(packet, ctx.packet);
         assert.equal(packet.topic, ctx.topic);
         assert.equal(packet.payload, ctx.payload);
-        assert(stored);
         done();
       }
     });
-
-    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet);
   });
@@ -54,7 +43,11 @@ describe('InboundManager', function(){
 
     var middleware = new InboundManager();
 
-    stackHelper.executeOnSelf(middleware);
+    stackHelper.mockExecute(middleware, {
+      relayMessage: function(ctx, callback) {
+        callback();
+      }
+    });
 
     middleware.handle(stream, packet);
   });

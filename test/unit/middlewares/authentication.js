@@ -1,6 +1,7 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
+var stackHelper = require('../../support/stack_helper');
 var Authentication = require('../../../src/middlewares/authentication');
 
 describe('Authentication', function(){
@@ -18,10 +19,15 @@ describe('Authentication', function(){
       cmd: 'connect'
     };
 
-    var middleware = new Authentication(function(ctx, callback){
-      assert.equal(ctx.client, client);
-      assert.equal(ctx.packet, packet);
-      callback(null, false);
+    var middleware = new Authentication();
+
+    stackHelper.mockExecute(middleware, {
+      authenticateConnection: function(ctx, store, callback){
+        assert.equal(ctx.client, client);
+        assert.equal(ctx.packet, packet);
+        store.valid = false;
+        callback();
+      }
     });
 
     middleware.handle(client, packet);
@@ -37,10 +43,15 @@ describe('Authentication', function(){
       password: 'pass'
     };
 
-    var middleware = new Authentication(function(ctx, callback){
-      assert.equal(ctx.username, 'user');
-      assert.equal(ctx.password, 'pass');
-      callback(null, true);
+    var middleware = new Authentication();
+
+    stackHelper.mockExecute(middleware, {
+      authenticateConnection: function(ctx, store, callback){
+        assert.equal(ctx.username, 'user');
+        assert.equal(ctx.password, 'pass');
+        store.valid = true;
+        callback();
+      }
     });
 
     middleware.handle(client, packet, done);
@@ -53,8 +64,12 @@ describe('Authentication', function(){
       cmd: 'connect'
     };
 
-    var middleware = new Authentication(function(ctx, callback){
-      callback(true);
+    var middleware = new Authentication();
+
+    stackHelper.mockExecute(middleware, {
+      authenticateConnection: function(ctx, store, callback){
+        callback(true);
+      }
     });
 
     middleware.handle(client, packet, function(err){

@@ -1,38 +1,43 @@
 /**
  * Authentication Middleware
  *
- * - calls authentication callback for every 'connect' until
- *   the client has been succesfully authenticated
- * - sends 'connack' with 'returnCode: 4' and dismisses packet if
- *   authentication fails
+ * Manges connection level authentication.
  *
- * @param {function} authenticationCallback
- *
- * @example
- * stack.use(new Authentication(function(ctx, callback){
- *   callback(null, ctx.username == 'root' && ctx.password == 'root');
- * });
+ * Enabled callbacks:
+ * - authenticateConnection
  */
 
-var Authentication = function(authenticationCallback){
-  this.authenticationCallback = authenticationCallback;
-};
+var Authentication = function(){};
 
+/**
+ * Flags all clients as not authenticated first.
+ * @param client
+ */
 Authentication.prototype.install = function(client){
   client._authenticated = false;
 };
 
+/**
+ * Executes 'authenticateConnection' for every new 'connect'. Sends
+ * 'connack' with 'returnCode: 4' and dismisses packet if authentication
+ * fails
+ *
+ * @param client
+ * @param packet
+ * @param next
+ */
 Authentication.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'connect') {
     if(!client._authenticated) {
-      this.authenticationCallback({
+      var store = {};
+      this.stack.execute('authenticateConnection', {
         client: client,
         packet: packet,
         username: packet.username,
         password: packet.password
-      }, function(err, valid){
+      }, store, function(err){
         if(err) return next(err);
-        if(valid) {
+        if(store.valid) {
           client._authenticated = true;
           return next();
         } else {

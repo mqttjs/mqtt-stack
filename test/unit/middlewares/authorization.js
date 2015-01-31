@@ -1,6 +1,7 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
+var stackHelper = require('../../support/stack_helper');
 var Authorization = require('../../../src/middlewares/authorization');
 
 describe('Authorization', function(){
@@ -11,11 +12,14 @@ describe('Authorization', function(){
       cmd: 'test'
     };
 
-    var middleware = new Authorization({
-      test: function(ctx, callback){
+    var middleware = new Authorization();
+
+    stackHelper.mockExecute(middleware, {
+      authorizePacket: function(ctx, store, callback){
         assert.equal(ctx.client, client);
         assert.equal(ctx.packet, packet);
-        callback(null, true);
+        store.valid = true;
+        callback();
       }
     });
 
@@ -29,11 +33,13 @@ describe('Authorization', function(){
       cmd: 'test'
     };
 
-    var middleware = new Authorization({
-      test: function(ctx, callback){
+    var middleware = new Authorization();
+
+    stackHelper.mockExecute(middleware, {
+      authorizePacket: function(ctx, store, callback){
         assert.equal(ctx.client, client);
         assert.equal(ctx.packet, packet);
-        callback(null, false);
+        callback();
         done();
       }
     });

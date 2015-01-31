@@ -1,6 +1,7 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
+var stackHelper = require('../../support/stack_helper');
 var Connection = require('../../../src/middlewares/connection');
 
 describe('Connection', function(){
@@ -151,6 +152,10 @@ describe('Connection', function(){
 
   it('should close client if "closeClient" has been called', function(done){
     var middleware = new Connection();
+
+    stackHelper.mockExecute(middleware, {
+      uncleanDisconnect: function(ctx) {}
+    });
 
     middleware.closeClient({
       client: {

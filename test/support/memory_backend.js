@@ -63,15 +63,17 @@ MemoryBackend.prototype.storeRetainedMessage = function(ctx, callback){
   } else {
     this.retainedMessages[ctx.topic] = ctx.packet;
   }
-
-  if(callback) callback();
+  callback();
 };
 
-MemoryBackend.prototype.lookupRetainedMessages = function(ctx, callback) {
+MemoryBackend.prototype.lookupRetainedMessages = function(ctx, store, callback) {
   var regex = mqttRegex(ctx.topic).regex;
-  callback(null, _.filter(this.retainedMessages, function(p, t) {
-    return t.search(regex) >= 0;
-  }));
+  _.each(this.retainedMessages, function(p, t) {
+    if(t.search(regex) >= 0) {
+      store.push(p);
+    }
+  });
+  callback();
 };
 
 /* InboundManager */
@@ -81,11 +83,10 @@ MemoryBackend.prototype.relayMessage = function(ctx, callback){
   if(callback) callback();
 };
 
-//MemoryBackend.prototype.storeMessage;
-
 /* SubscriptionManager */
 
 MemoryBackend.prototype.subscribeTopic = function(ctx, callback) {
+  console.log(ctx.topic);
   this.pubsub.on(ctx.topic, ctx.client._forwarder);
   if(callback) callback(null, ctx.qos);
 };

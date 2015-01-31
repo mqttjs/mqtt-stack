@@ -7,12 +7,12 @@ var async = require('async');
  * Manages the clients session and calls callbacks to manage
  * the stored subscriptions for clean and unclean clients.
  *
- * Own Callbacks:
+ * Enabled Callbacks:
  * - storeSubscription
  * - lookupSubscriptions
  * - clearSubscriptions
  *
- * Dependent Callbacks:
+ * Required Callbacks:
  *  - subscribeTopic
  */
 var SessionManager = function(){};

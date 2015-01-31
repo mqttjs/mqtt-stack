@@ -16,13 +16,13 @@ describe('RetainManager', function(){
       retain: true
     };
 
-    var middleware = new RetainManager({
+    var middleware = new RetainManager();
+
+    stackHelper.mockExecute(middleware, {
       storeRetainedMessage: function(ctx) {
         assert.deepEqual(ctx.packet, packet);
       }
     });
-
-    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet, function(){
       assert.equal(packet.retain, false);
@@ -40,17 +40,18 @@ describe('RetainManager', function(){
       retain: true
     };
 
-    var middleware = new RetainManager({
-      lookupRetainedMessages: function(ctx, callback) {
-        callback(null, [packet]);
+    var middleware = new RetainManager();
+
+    stackHelper.mockExecute(middleware, {
+      lookupRetainedMessages: function(ctx, store, callback) {
+        store.push(packet);
+        callback();
       },
       forwardMessage: function(ctx){
         assert.deepEqual(ctx.packet, packet);
         done();
       }
     });
-
-    stackHelper.executeOnSelf(middleware);
 
     middleware.subscribeTopic({
       client: stream,

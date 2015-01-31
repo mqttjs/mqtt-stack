@@ -1,40 +1,46 @@
-/**
- * Connection Middleware
- *
- * - closes client if first packet is not a 'connect' packet
- * - closes client if clientID is empty and clean = false
- * - closes client and executes 'uncleanDisconnect' if connect gets received more than once
- * - closes client on 'disconnect' and executes 'cleanDisconnect'
- * - closes client on 'error' and executes 'uncleanDisconnect'
- * - executes 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
- * - manages the client._dead flag
- * - assigns a unique client_id when id is missing
- * - forces proper mqtt protocol version and Id if enabled (forceMQTT4)
- * - handles 'closeClient' calls
- *
- * @param {Object} config
- *
- * @example
- * stack.use(new Connection({
- *   forceMQTT4: true
- * }));
- */
-
 var _ = require('underscore');
 var crypto = require('crypto');
 
+/**
+ * Connection Middleware
+ *
+ * Manages the basic connection.
+ *
+ * Enabled callbacks:
+ * - closeClient
+ * - uncleanDisconnect
+ * - cleanDisconnect
+ *
+ * @param config.forceMQTT4 - enable to force newest protocol
+ */
 var Connection = function(config) {
   this.config = _.defaults(config || {}, {
     forceMQTT4: false
   });
 };
 
-Connection.prototype.closeClient = function(ctx, callback){
+/**
+ * Execute to immediately close the client and execute
+ * 'uncleanDisconnect' right after.
+ *
+ * @param ctx
+ */
+Connection.prototype.closeClient = function(ctx){
   ctx.client._dead = true;
   ctx.client.destroy();
-  if(callback) callback();
+  this.stack.execute('uncleanDisconnect', ctx);
 };
 
+/**
+ * Will manage the client._dead flag and execute 'uncleanDisconnect'
+ * on 'close' and 'error'
+ *
+ * - closes client on 'error' and executes 'uncleanDisconnect'
+ * - executes 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
+ * - manages the client._dead flag
+ *
+ * @param client
+ */
 Connection.prototype.install = function(client) {
   var self = this;
 
@@ -61,6 +67,20 @@ Connection.prototype.install = function(client) {
   });
 };
 
+/**
+ * Handles 'connect' and 'disconnet' packets.
+ *
+ * - closes client if first packet is not a 'connect' packet
+ * - closes client if clientID is empty and clean = false
+ * - closes client and executes 'uncleanDisconnect' if connect gets received more than once
+ * - closes client on 'disconnect' and executes 'cleanDisconnect'
+ * - assigns a unique client_id when id is missing
+ * - forces proper mqtt protocol version and Id if enabled (forceMQTT4)
+ *
+ * @param client
+ * @param packet
+ * @param next
+ */
 Connection.prototype.handle = function(client, packet, next) {
   var self = this;
   if(!client._sent_first) {
