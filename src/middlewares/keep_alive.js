@@ -23,7 +23,7 @@ var _ = require('underscore');
 var Timer = require('../utils/timer');
 
 var KeepAlive = function(config){
-  this.config = _.defaults(config, {
+  this.config = _.defaults(config || {}, {
     defaultTimeout: 30,
     grace: 2
   })
