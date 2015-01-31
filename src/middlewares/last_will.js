@@ -4,8 +4,6 @@
  * - reads lastWill from 'connect' packet
  * - injects the lastWill 'publish' packet when 'uncleanDisconnect' is executed
  *
- * TODO: [MQTT-3.14.1-1] Store will in state and clear it on a 'cleanDisconnect'
- *
  * @example
  * stack.use(new LastWill());
  */
