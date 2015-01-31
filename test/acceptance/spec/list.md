@@ -328,29 +328,29 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 - [ ] **MQTT-4.4.0-2**:
   The PUBLISH packet MUST have the Dup flag set to 1 when it is redelivered.
 
-- [ ] **MQTT-4.6.0-5**:
+- [x] _SKIPPED_ **MQTT-4.6.0-5**:
   A Server MUST by default treat each Topic as an "Ordered Topic". It MAY provide an administrative or other mechanism to allow one or more Topics to be treated as an "Unordered Topic".
 
-- [ ] **MQTT-4.6.0-6**:
+- [x] _SKIPPED_ **MQTT-4.6.0-6**:
   When a Server processes a message that has been published to an Ordered Topic, it MUST follow the rules listed above when delivering messages to each of its subscribers. In addition it MUST send PUBLISH packets to consumers (for the same Topic and QoS) in the order that they were received from any given Client.
 
-- [ ] **MQTT-4.7.1-1**:
+- [x] _TESTED_ **MQTT-4.7.1-1**:
   The wildcard characters can be used in Topic Filters, but MUST NOT be used within a Topic Name.
 
-- [ ] **MQTT-4.7.1-2**:
+- [x] _TESTED_ **MQTT-4.7.1-2**:
   The multi-level wildcard character MUST be specified either on its own or following a topic level separator. In either case it MUST be the last character specified in the Topic Filter.
 
-- [ ] **MQTT-4.7.1-3**:
+- [x] _TESTED_ **MQTT-4.7.1-3**:
   The single-level wildcard can be used at any level in the Topic Filter, including first and last levels. Where it is used it MUST occupy an entire level of the filter.
 
-- [ ] **MQTT-4.7.3-1**:
+- [x] _SKIPPED_ **MQTT-4.7.3-1**:
   All Topic Names and Topic Filters MUST be at least one character long.
 
-- [ ] **MQTT-4.7.3-2**:
+- [x] _SKIPPED_ **MQTT-4.7.3-2**:
   Topic Names and Topic Filters MUST NOT include the null character (Unicode U+0000).
 
-- [ ] **MQTT-4.7.3-3**:
+- [x] _SKIPPED_ **MQTT-4.7.3-3**:
   Topic Names and Topic Filters are UTF-8 encoded strings, they MUST NOT encode to more than 65535 bytes.
 
-- [ ] **MQTT-4.8.0-1**:
+- [x] _SKIPPED_ **MQTT-4.8.0-1**:
   If the Client or Server encounters a transient error while processing an inbound Control Packet it MUST close Network Connection which was used to send the packet.
