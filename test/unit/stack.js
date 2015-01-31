@@ -86,24 +86,24 @@ describe('Stack', function(){
 
     stack.use({
       testFunction: function(n, callback) {
-        callback(null, n + 1);
+        callback(null, n + 1, n + 2);
       }
     });
 
     stack.use({
       testFunction: function(n, callback) {
-        callback(null, n + 2);
+        callback(null, n + 3, n + 4);
       }
     });
 
     stack.execute('testFunction', 1, function(_, result){
-      assert.equal(result[0], 2);
-      assert.equal(result[1], 3);
+      assert.deepEqual(result[0], [2, 3]);
+      assert.deepEqual(result[1], [4, 5]);
       done();
     });
   });
 
-  it('should execute a function on all middlewares and even is there are none', function(done){
+  it('should execute a function on all middlewares even if there are none', function(done){
     var stack = new Stack();
 
     stack.execute('testFunction', 1, function(_, result){
