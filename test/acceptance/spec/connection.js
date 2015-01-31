@@ -147,10 +147,12 @@ describe('Connection', function(){
   });
 
   it('should correctly renew the keepalive window after any transmission', function(done) {
+    this.timeout(3000);
+
     var ok = false;
 
     f.rawClient(function(client, opts){
-      opts.keepalive = 1;
+      opts.keepalive = 2;
       client.connect(opts);
 
       client.on('close', function() {
@@ -164,12 +166,12 @@ describe('Connection', function(){
           topic: f.t(),
           payload: f.p()
         });
-      }, 600 * global.speed);
+      }, 1600 * global.speed);
 
       setTimeout(function(){
         ok = true;
         client.disconnect();
-      }, 1200 * global.speed);
+      }, 2200 * global.speed);
     }, done);
   });
 

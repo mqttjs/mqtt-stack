@@ -10,15 +10,17 @@ if(process.env['NORMAL_SPEED']) {
   global.speed = 1;
 }
 
-var FakeBroker = require('./../support/fake_broker');
-
 var broker;
 
-before(function(done){
-  broker = new FakeBroker(global.port);
-  broker.listen(done)
-});
+if(!process.env['EXTERN']) {
+  var FakeBroker = require('./../support/fake_broker');
 
-after(function(){
-  broker.close();
-});
+  before(function(done){
+    broker = new FakeBroker(global.port);
+    broker.listen(done)
+  });
+
+  after(function(){
+    broker.close();
+  });
+}

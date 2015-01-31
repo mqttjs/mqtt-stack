@@ -38,7 +38,8 @@ var buildTest = function(subscribed, published, expected) {
   });
 };
 
-describe('Topic Filter (MQTT-4.7.1-1, MQTT-4.7.1-2, MQTT-4.7.1-3)', function(){
+describe('Topic Filter', function(){
+  // (MQTT-4.7.1-1, MQTT-4.7.1-2, MQTT-4.7.1-3)
   buildTest('#', 'test/topic');
   buildTest('#', '/test/topic');
   buildTest('foo/#', 'foo/bar/baz');
@@ -49,6 +50,6 @@ describe('Topic Filter (MQTT-4.7.1-1, MQTT-4.7.1-2, MQTT-4.7.1-3)', function(){
   buildTest('+/+/+/+/+/+/+/+/+/+/test', 'one/two/three/four/five/six/seven/eight/nine/ten/test');
   buildTest('/test/topic', 'test/topic', false);
   buildTest('/test//topic', '/test/topic', false);
+  buildTest('/test/+/topic', '/test//topic');
   buildTest('/test//topic', '/test//topic');
-  buildTest('/test/+/topic', '/test//topic', false);
 });
