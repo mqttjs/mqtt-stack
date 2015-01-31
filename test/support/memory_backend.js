@@ -35,7 +35,10 @@ MemoryBackend.prototype._ensureSession = function(ctx) {
 
 MemoryBackend.prototype.storeSubscription = function(ctx, callback) {
   this._ensureSession(ctx);
-  this.sessions[ctx.client._client_id].push(ctx.packet);
+  this.sessions[ctx.client._client_id].push({
+    topic: ctx.topic,
+    qos: ctx.qos
+  });
   callback();
 };
 

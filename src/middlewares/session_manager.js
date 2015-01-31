@@ -24,7 +24,7 @@ var SessionManager = function(){};
  * @param callback
  */
 SessionManager.prototype.subscribeTopic = function(ctx, callback) {
-  if(ctx.client._client_id) {
+  if(ctx.client._managed_session) {
     this.stack.execute('storeSubscription', ctx, callback);
   }
 };
@@ -39,11 +39,12 @@ SessionManager.prototype.subscribeTopic = function(ctx, callback) {
  */
 SessionManager.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'connect') {
+    client._client_id = packet.clientId;
     if(packet.clean) {
-      client._client_id = false;
+      client._managed_session = false;
       this._handleCleanClient(client, packet, next);
     } else {
-      client._client_id = packet.clientId;
+      client._managed_session = true;
       this._handleUncleanClient(client, packet, next);
     }
   } else {
