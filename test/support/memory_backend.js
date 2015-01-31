@@ -86,7 +86,6 @@ MemoryBackend.prototype.relayMessage = function(ctx, callback){
 /* SubscriptionManager */
 
 MemoryBackend.prototype.subscribeTopic = function(ctx, callback) {
-  console.log(ctx.topic);
   this.pubsub.on(ctx.topic, ctx.client._forwarder);
   if(callback) callback(null, ctx.qos);
 };
