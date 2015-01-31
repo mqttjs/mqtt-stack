@@ -301,7 +301,7 @@ Taken from http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.testing.git/tree/
 
 ## Operational Behaviour
 
-- [ ] **MQTT-4.1.0-1**:
+- [x] _SKIPPED_ **MQTT-4.1.0-1**:
   The Client and Server MUST store data for at least as long as the Network Connection lasts.
 
 - [x] _SKIPPED_ **MQTT-4.2.0-1**:
