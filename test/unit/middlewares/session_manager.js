@@ -5,7 +5,7 @@ var stackHelper = require('../../support/stack_helper');
 var SessionManager = require('../../../src/middlewares/session_manager');
 
 describe('SessionManager', function(){
-  it('should call "newSession" with clean flag', function(done){
+  it('should call clearSubscriptions for clean client', function(done){
     var stream = new EventEmitter();
 
     stream.connack = function(){
@@ -14,37 +14,24 @@ describe('SessionManager', function(){
     };
 
     var packet = {
-      cmd: 'connect'
-    };
-
-    var middleware = new SessionManager();
-
-    stackHelper.executeOnSelf(middleware);
-
-    middleware.handle(stream, packet);
-  });
-
-  it('should call "resumeSession" with clean flag', function(done){
-    var stream = new EventEmitter();
-
-    stream.connack = function(packet){
-      assert(!packet.sessionPresent);
-      done();
-    };
-
-    var packet = {
       cmd: 'connect',
-      clean: false
+      clean: true
     };
 
     var middleware = new SessionManager();
 
-    stackHelper.executeOnSelf(middleware);
+    stackHelper.mockExecute(middleware, {
+      clearSubscriptions: function(ctx, callback) {
+        assert(ctx.client, stream);
+        assert(ctx.packet, packet);
+        callback();
+      }
+    });
 
     middleware.handle(stream, packet);
   });
 
-  it('should call "resumeSession" with clean flag', function(done){
+  it('should call lookupSubscriptions for unclean client', function(done){
     var stream = new EventEmitter();
 
     stream.connack = function(packet){
@@ -54,71 +41,66 @@ describe('SessionManager', function(){
 
     var packet = {
       cmd: 'connect',
+      clientId: 'foo',
       clean: false
     };
 
-    var middleware = new SessionManager({
-      resumeSession: function(ctx, callback) {
-        callback(null, true);
+    var packet2 = {
+      topic: 'bar',
+      qos: 0
+    };
+
+    var middleware = new SessionManager();
+
+    stackHelper.mockExecute(middleware, {
+      lookupSubscriptions: function(ctx, store, callback) {
+        assert(ctx.client, stream);
+        assert(ctx.packet, packet);
+        store.push(packet2);
+        callback();
+      },
+      subscribeTopic: function(ctx, callback) {
+        assert(ctx.client, stream);
+        assert(ctx.packet, packet2);
+        callback();
       }
     });
-
-    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet);
   });
 
-  it('should call "storeSession" with clean flag on "uncleanDisconnect"', function(done){
+  it('should call storeSubscriptions for new subscriptions', function(done){
     var stream = new EventEmitter();
 
     stream.connack = function(){};
 
     var packet = {
-      cmd: 'connect',
-      clean: false
+      topic: 'bar',
+      qos: 0
     };
 
-    var middleware = new SessionManager({
-      resumeSession: function(ctx, callback) {
-        callback(null, false);
+    var middleware = new SessionManager();
+
+    stackHelper.mockExecute(middleware, {
+      lookupSubscriptions: function(ctx, store, callback) {
+        callback();
       },
-      storeSession: function(ctx) {
-        done();
+      storeSubscription: function(ctx, callback) {
+        assert(ctx.client, stream);
+        assert(ctx.packet, packet);
+        callback();
       }
     });
 
-    stackHelper.executeOnSelf(middleware);
-
-    middleware.handle(stream, packet);
-    middleware.uncleanDisconnect({
-      client: stream
-    });
-  });
-
-  it('should call "storeSession" with clean flag on "cleanDisconnect"', function(done){
-    var stream = new EventEmitter();
-
-    stream.connack = function(){};
-
-    var packet = {
+    middleware.handle(stream, {
       cmd: 'connect',
+      clientId: 'foo',
       clean: false
-    };
-
-    var middleware = new SessionManager({
-      resumeSession: function(ctx, callback) {
-        callback(null, false);
-      },
-      storeSession: function() {
-        done();
-      }
     });
 
-    stackHelper.executeOnSelf(middleware);
-
-    middleware.handle(stream, packet);
-    middleware.cleanDisconnect({
-      client: stream
-    });
+    middleware.subscribeTopic({
+      client: stream,
+      packet: packet
+    }, done);
   });
 });
