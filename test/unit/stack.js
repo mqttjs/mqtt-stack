@@ -134,4 +134,30 @@ describe('Stack', function(){
       done();
     });
   });
+
+  it('should execute a function on all middlewares and provide common store', function(done){
+    var stack = new Stack();
+
+    stack.use({
+      testFunction: function(_, store, callback) {
+        store[0]++;
+        callback();
+      }
+    });
+
+    stack.use({
+      testFunction: function(_, store, callback) {
+        store[0]++;
+        callback();
+      }
+    });
+
+    var store = [1];
+
+    stack.execute('testFunction', 1, store, function(err){
+      assert(!err);
+      assert.equal(store, 3);
+      done();
+    });
+  });
 });

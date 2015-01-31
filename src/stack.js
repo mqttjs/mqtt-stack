@@ -53,13 +53,22 @@ Stack.prototype.runStack = function(client, packet) {
   next();
 };
 
-Stack.prototype.execute = function(fn, data, callback){
+Stack.prototype.execute = function(fn, data, store, callback){
+  if(typeof store === 'function') {
+    callback = store;
+    store = null;
+  }
+
   var tasks = [];
 
   _.each(this.middlewares, function(m){
     if(m[fn]) {
       tasks.push(function(cb){
-        m[fn](data, cb);
+        if(store) {
+          m[fn](data, store, cb);
+        } else {
+          m[fn](data, cb);
+        }
       });
     }
   });
