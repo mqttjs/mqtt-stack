@@ -30,7 +30,7 @@ module.exports.client = function(options, handler, done){
     options.clientId = this.c()
   }
 
-  var c = mqtt.connect('mqtt://0.0.0.0:' + process.env['PORT'], options);
+  var c = mqtt.connect('mqtt://0.0.0.0:' + global.port, options);
 
   if(handler) {
     c.once('connect', function(){
@@ -49,7 +49,7 @@ module.exports.client = function(options, handler, done){
 
 module.exports.rawClient = function(handler, done) {
   var self = this;
-  var c = net.createConnection(process.env['PORT'], '0.0.0.0', function(){
+  var c = net.createConnection(global.port, '0.0.0.0', function(){
     handler(mqttConn(c), {
       clientId: self.c(),
       protocolId: 'MQTT',

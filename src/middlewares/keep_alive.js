@@ -24,7 +24,8 @@ var Timer = require('../utils/timer');
 
 var KeepAlive = function(config){
   this.config = _.defaults(config, {
-    defaultTimeout: 30
+    defaultTimeout: 30,
+    grace: 2
   })
 };
 
@@ -45,7 +46,8 @@ KeepAlive.prototype.handle = function(client, packet, next) {
     if(client._keep_alive_timer) {
       client._keep_alive_timer.clear();
     }
-    client._keep_alive_timer = new Timer(packet.keepalive * 2000, function(){
+    var timeout = packet.keepalive * 1000 * this.config.grace;
+    client._keep_alive_timer = new Timer(timeout, function(){
       return self.stack.execute('closeClient', {
         client: client
       });

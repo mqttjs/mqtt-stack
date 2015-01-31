@@ -21,13 +21,13 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should close connection on not connect (MQTT-3.1.0-1)', function(done){
+  it('should close connection on not connect packet (MQTT-3.1.0-1)', function(done){
     f.rawClient(function(client){
       client.pingreq();
     }, done);
   });
 
-  it('should close connection on duplicate connect (MQTT-3.1.0-2)', function(done){
+  it('should close connection on multiple connect packets (MQTT-3.1.0-2)', function(done){
     f.rawClient(function(client, opts){
       client.connect(opts);
       client.connect(opts);
@@ -66,7 +66,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should send a connack packet with returnCode 0 if the clientId is 65535 chars (MQTT-3.1.3-4)', function(done) {
+  it('should accept clientIds with 65535 chars (MQTT-3.1.3-4)', function(done) {
     f.rawClient(function(client, opts){
       var clientId = [];
 
@@ -85,7 +85,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should send a connack packet with returnCode 0 if the clientId is 1 char', function(done) {
+  it('should accept clientIds with 1 char', function(done) {
     f.rawClient(function(client, opts){
       opts.clientId = 'i';
       client.connect(opts);
@@ -97,7 +97,7 @@ describe('Connection', function(){
     }, done);
   });
 
-  it('should send a connack packet with returnCode 0 if clientId is empty (MQTT-3.1.3-6)', function(done) {
+  it('should accept empty clientIds (MQTT-3.1.3-6)', function(done) {
     f.rawClient(function(client, opts){
       opts.clientId = new Buffer('');
       client.connect(opts);
@@ -136,8 +136,6 @@ describe('Connection', function(){
   });
 
   it('should terminate connection when ping is missing (MQTT-3.1.2-22)', function(done){
-    this.timeout(3000);
-
     f.rawClient(function(client, opts){
       opts.keepalive = 1;
       client.connect(opts);
@@ -149,9 +147,7 @@ describe('Connection', function(){
   });
 
   it('should correctly renew the keepalive window after any transmission', function(done) {
-    this.timeout(4000);
-
-    var ok;
+    var ok = false;
 
     f.rawClient(function(client, opts){
       opts.keepalive = 1;
@@ -168,12 +164,12 @@ describe('Connection', function(){
           topic: f.t(),
           payload: f.p()
         });
-      }, 1000);
+      }, 600 * global.speed);
 
       setTimeout(function(){
         ok = true;
         client.disconnect();
-      }, 3000);
+      }, 1200 * global.speed);
     }, done);
   });
 
