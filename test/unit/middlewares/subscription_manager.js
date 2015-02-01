@@ -5,7 +5,7 @@ var stackHelper = require('../../support/stack_helper');
 var SubscriptionManager = require('../../../src/middlewares/subscription_manager');
 
 describe('SubscriptionManager', function(){
-  it('should execute "subscribeTopic" for each subscription', function(done){
+  it('should execute "subscribeTopic" for one subscription', function(done){
     var stream = new EventEmitter();
 
     var packet = {
@@ -17,20 +17,53 @@ describe('SubscriptionManager', function(){
     };
 
     stream.suback = function(packet) {
-      assert(packet.granted, [1]);
+      assert.deepEqual(packet.granted, [1]);
       done();
     };
 
-    var middleware = new SubscriptionManager({
-      subscribeTopic: function(ctx, callback){
+    var middleware = new SubscriptionManager();
+
+    stackHelper.mockExecute(middleware, {
+      subscribeTopic: function(ctx, store, callback){
         assert.equal(ctx.client, stream);
         assert.equal(ctx.topic, 'foo');
         assert.equal(ctx.qos, 1);
-        callback(null, 1);;
+        callback();
       }
     });
 
-    stackHelper.executeOnSelf(middleware);
+    middleware.handle(stream, packet);
+  });
+
+  it('should execute "subscribeTopic" for multiple subscription', function(done){
+    var stream = new EventEmitter();
+
+    var packet = {
+      cmd: 'subscribe',
+      subscriptions: [{
+        topic: 'foo',
+        qos: 1
+      }, {
+        topic: 'bar',
+        qos: 0
+      }, {
+        topic: 'baz',
+        qos: 2
+      }]
+    };
+
+    stream.suback = function(packet) {
+      assert.deepEqual(packet.granted, [1, 0, 2]);
+      done();
+    };
+
+    var middleware = new SubscriptionManager();
+
+    stackHelper.mockExecute(middleware, {
+      subscribeTopic: function(ctx, store, callback){
+        callback();
+      }
+    });
 
     middleware.handle(stream, packet);
   });
@@ -47,15 +80,15 @@ describe('SubscriptionManager', function(){
       done();
     };
 
-    var middleware = new SubscriptionManager({
+    var middleware = new SubscriptionManager();
+
+    stackHelper.mockExecute(middleware, {
       unsubscribeTopic: function(ctx, callback){
         assert.equal(ctx.client, stream);
         assert.equal(ctx.topic, 'foo');
-        callback(null, 1);
+        callback();
       }
     });
-
-    stackHelper.executeOnSelf(middleware);
 
     middleware.handle(stream, packet);
   });

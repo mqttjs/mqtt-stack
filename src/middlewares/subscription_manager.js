@@ -1,99 +1,93 @@
+var _ = require('underscore');
+var async = require('async');
+
 /**
  * SubscriptionManager Middleware
  *
- * - handles 'subscribe' packet
- * - handles 'unsubscribe' packets
- * - executes 'subscribeTopic' and 'unsubscribeTopic'
+ * Handles sunscription and unsubscriptions.
  *
- * TODO: Support QoS2
- * TODO: Forward retained messages for new subscriptions.
+ * Enabled callbacks:
+ * - subscribeTopic
+ * - unsubscribeTopic
+ *
  * TODO: Forward messages according to the subscriptions and messages max QoS.
  * TODO: On Unsubscribe ensure that all QoS1 and QoS2 get completed
- *
- * @param {Object} config
- *
- * @example
- * stack.use(new SubscriptionManager({
- *   subscribeTopic: function(ctx, callback) {
- *     // make subscription
- *     callback(ctx.qos);
- *   },
- *   unsubscribeTopic: function(ctx, callback) {
- *     // make unsubscription
- *     callback();
- *   }
- * }));
  */
+var SubscriptionManager = function(){};
 
-var _ = require('underscore');
+/**
+ * Handles 'subscribe' and 'unsubscribe' packets.
+ *
+ * @param client
+ * @param packet
+ * @param next
+ */
+SubscriptionManager.prototype.handle = function(client, packet, next){
+  if(packet.cmd == 'subscribe') {
+    this._handleSubscription(client, packet, next);
+  } else if(packet.cmd == 'unsubscribe') {
+    this._handleUnsubscription(client, packet, next);
+  } else {
+    next();
+  }
+};
 
-var SubscriptionManager = function(config){
-  this.config = _.defaults(config || {}, {
-    subscribeTopic: function(ctx, callback) {
-      callback(0);
-    },
-    unsubscribeTopic: function(ctx, callback) {
-      callback();
-    }
+/**
+ * Executes 'subscribeTopic' for each individual subscription and sends a 'suback'.
+ * The callback can change the granted subscription by editing 'store.grant'.
+ *
+ * @param client
+ * @param packet
+ * @param next
+ * @private
+ */
+SubscriptionManager.prototype._handleSubscription = function(client, packet, next) {
+  var self = this;
+  async.mapSeries(packet.subscriptions, function(s, cb){
+    var store = { grant: s.qos };
+    self.stack.execute('subscribeTopic', {
+      client: client,
+      packet: packet,
+      topic: s.topic,
+      qos: s.qos
+    }, store, function(err){
+      if(err) return cb(err);
+
+      cb(null, store.grant === false ? 128 : store.grant);
+    });
+  }, function(err, results){
+    if(err) return next(err);
+
+    client.suback({
+      messageId: packet.messageId,
+      granted: results
+    });
   });
 };
 
-SubscriptionManager.prototype.subscribeTopic = function(ctx, callback) {
-  this.config.subscribeTopic(ctx, callback);
-};
-
-SubscriptionManager.prototype.unsubscribeTopic = function(ctx, callback) {
-  this.config.unsubscribeTopic(ctx, callback);
-};
-
-SubscriptionManager.prototype.handle = function(client, packet, next){
+/**
+ * Executes 'unsubscribeTopic' for each individual unsubscription and sends the 'unsuback'.
+ *
+ * @param client
+ * @param packet
+ * @param next
+ * @private
+ */
+SubscriptionManager.prototype._handleUnsubscription = function(client, packet, next) {
   var self = this;
-  if(packet.cmd == 'subscribe') {
-    var granted = [];
-    //TODO: use async
-    _.each(packet.subscriptions, function(s) {
-      self.stack.execute('subscribeTopic', {
-        client: client,
-        packet: packet,
-        topic: s.topic,
-        qos: s.qos
-      }, function(err, results){
-        if(err) return next(err);
+  async.mapSeries(packet.unsubscriptions, function(us, cb){
+    self.stack.execute('unsubscribeTopic', {
+      client: client,
+      packet: packet,
+      topic: us
+    }, cb);
+  }, function(err){
+    if(err) return next(err);
 
-        var grant = Math.min.apply(null, _.filter(_.flatten(results), function(r) {
-          return r === false || typeof r === 'number';
-        }));
-
-        granted.push(grant === false ? 128 : Math.min(grant, 1));
-        if(granted.length == packet.subscriptions.length) {
-          return client.suback({
-            messageId: packet.messageId,
-            granted: granted
-          });
-        }
-      });
+    client.unsuback({
+      messageId: packet.messageId
     });
-  } else if(packet.cmd == 'unsubscribe') {
-    var i = 0;
-    //TODO: use async
-    _.each(packet.unsubscriptions, function(us){
-      self.stack.execute('unsubscribeTopic', {
-        client: client,
-        packet: packet,
-        topic: us
-      }, function(err){
-        i++;
-        if(err) return next(err);
-        if(packet.unsubscriptions.length == i) {
-          return client.unsuback({
-            messageId: packet.messageId
-          });
-        }
-      });
-    });
-  } else {
-    return next();
-  }
+  });
 };
 
 module.exports = SubscriptionManager;

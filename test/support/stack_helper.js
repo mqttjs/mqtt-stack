@@ -2,7 +2,7 @@ module.exports.mockExecute = function(middleware, config) {
   middleware.stack = {
     execute: function(fn, ctx, store, cb){
       if(typeof store === 'function') {
-        cb= store;
+        cb = store;
         store = null;
       }
 
@@ -11,14 +11,6 @@ module.exports.mockExecute = function(middleware, config) {
       } else {
         config[fn](ctx, cb);
       }
-    }
-  };
-};
-
-module.exports.executeOnSelf = function(middleware) {
-  middleware.stack = {
-    execute: function(fn, args, cb){
-      middleware.config[fn](args, cb);
     }
   };
 };
