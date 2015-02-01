@@ -3,6 +3,9 @@ var async = require('async');
 
 var f = require('../../support/factory');
 
+/**
+ * Session related tests, that test storing a client state, eg. subscriptions and messages.
+ */
 describe('Session', function(){
   it('should restore subscriptions for uncleaned clients', function(done) {
     var cid = f.c();

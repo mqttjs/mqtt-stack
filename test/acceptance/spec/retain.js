@@ -4,6 +4,10 @@ var async = require('async');
 
 var f = require('../../support/factory');
 
+/**
+ * Tests related to retained messages.
+ * This feature can be ignored by brokers, that only want to support a subset.
+ */
 describe('Retain', function(){
   it('should support retained messages (MQTT-2.1.2-6, MQTT-2.1.2-7, MQTT-2.1.2-9)', function(done) {
     var t = f.t();

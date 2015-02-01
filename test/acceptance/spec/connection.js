@@ -2,6 +2,10 @@ var expect = require('expect.js');
 
 var f = require('../../support/factory');
 
+/**
+ * Basic connection related tests.
+ * These features should be implemented by all brokers the same way.
+ */
 describe('Connection', function(){
   it('should close client on corrupt packet (MQTT-2.0.0-1)', function(done){
     f.rawClient(function(client){
