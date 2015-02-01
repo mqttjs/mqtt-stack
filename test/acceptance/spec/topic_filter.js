@@ -38,6 +38,10 @@ var buildTest = function(subscribed, published, expected) {
   });
 };
 
+/**
+ * Topic filter related tests that check the support of proper wildcards.
+ * This should be implemented by all brokers the same way.
+ */
 describe('Topic Filter', function(){
   // (MQTT-4.7.1-1, MQTT-4.7.1-2, MQTT-4.7.1-3)
   buildTest('#', 'test/topic');

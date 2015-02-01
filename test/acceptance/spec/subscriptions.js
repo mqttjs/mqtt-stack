@@ -1,15 +1,15 @@
 var expect = require('expect.js');
-var async = require('async');
 
 var f = require('../../support/factory');
 
 describe('Subscriptions', function(){
-  it('should support subscribing and send suback (MQTT-3.8.4-1, MQTT-3.8.4-2)', function(done) {
+  it('should support subscribing and sending a suback (MQTT-3.8.4-1, MQTT-3.8.4-2)', function(done) {
     var m = f.m();
     f.rawClient(function(client, opts){
       client.connect(opts);
       client.on('suback', function(packet) {
         expect(packet.messageId).to.be.eql(m);
+        expect(packet.granted).to.be.eql([0]);
         client.disconnect();
       });
       client.subscribe({
