@@ -103,6 +103,6 @@ describe('SessionManager', function(){
     middleware.subscribeTopic({
       client: stream,
       packet: packet
-    }, done);
+    }, {}, done);
   });
 });

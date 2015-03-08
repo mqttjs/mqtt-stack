@@ -23,7 +23,7 @@ var SessionManager = function(){};
  * @param ctx
  * @param callback
  */
-SessionManager.prototype.subscribeTopic = function(ctx, callback) {
+SessionManager.prototype.subscribeTopic = function(ctx, store, callback) {
   if(ctx.client._managed_session) {
     this.stack.execute('storeSubscription', ctx, callback);
   }
