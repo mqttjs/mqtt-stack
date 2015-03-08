@@ -5,16 +5,20 @@ var _ = require('underscore');
 var MemoryBackend = function(config) {
   this.config = config;
   this.sessions = {};
-  this.pubsub = new MQEmitter();
+  this.pubsub = new MQEmitter({
+    concurrency: 100
+  });
   this.retainedMessages = {};
 };
 
 MemoryBackend.prototype.install = function(client) {
   var self = this;
   client._forwarder = function(packet) {
-    self.stack.execute('forwardMessage', {
-      client: client,
-      packet: packet
+    setImmediate(function(){
+      self.stack.execute('forwardMessage', {
+        client: client,
+        packet: packet
+      });
     });
   };
 };
@@ -85,9 +89,9 @@ MemoryBackend.prototype.relayMessage = function(ctx, callback){
 
 /* SubscriptionManager */
 
-MemoryBackend.prototype.subscribeTopic = function(ctx, callback) {
+MemoryBackend.prototype.subscribeTopic = function(ctx, store, callback) {
   this.pubsub.on(ctx.topic, ctx.client._forwarder);
-  if(callback) callback(null, ctx.qos);
+  if(callback) callback();
 };
 
 MemoryBackend.prototype.unsubscribeTopic = function(ctx, callback) {

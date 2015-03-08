@@ -14,9 +14,10 @@ var RetainManager = function(){};
  * 'lookupRetainedMessages' and 'forwardMessage' with each result.
  *
  * @param ctx
+ * @param _
  * @param callback
  */
-RetainManager.prototype.subscribeTopic = function(ctx, callback) {
+RetainManager.prototype.subscribeTopic = function(ctx, _, callback) {
   var self = this;
 
   var store = [];
@@ -26,17 +27,21 @@ RetainManager.prototype.subscribeTopic = function(ctx, callback) {
   }, store, function(err){
     if(err) callback(err);
 
-    async.mapSeries(store, function(p, cb){
-      self.stack.execute('forwardMessage', {
-        client: ctx.client,
-        packet: p
-      }, cb);
-    }, callback);
+    if(store.length > 0) {
+      async.mapSeries(store, function(p, cb){
+        self.stack.execute('forwardMessage', {
+          client: ctx.client,
+          packet: p
+        }, cb);
+      }, callback);
+    } else {
+      callback();
+    }
   });
 };
 
 /**
- * Checks for retained publish packets, stores them and rests retained flag.
+ * Checks for retained publish packets, stores them and clears retained flag.
  * Executes 'storeRetainedMessage'.
  *
  * @param client
