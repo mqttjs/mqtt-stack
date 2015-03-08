@@ -72,7 +72,7 @@ SessionManager.prototype._handleCleanClient = function(client, packet, next, don
   }, function(err){
     if(err) return next(err);
 
-    client.push({
+    client.write({
       cmd: 'connack',
       returnCode: 0,
       sessionPresent: false
@@ -113,7 +113,7 @@ SessionManager.prototype._handleUncleanClient = function(client, packet, next, d
     }, function(err){
       if(err) return next(err);
 
-      client.push({
+      client.write({
         cmd: 'connack',
         returnCode: 0,
         sessionPresent: (store.length > 0)

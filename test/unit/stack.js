@@ -26,7 +26,7 @@ describe('Stack', function(){
     });
 
     stack.handle(client);
-    client.push('hello');
+    client.write('hello');
   });
 
   it("should call error handler on error", function(done){
@@ -52,7 +52,7 @@ describe('Stack', function(){
     });
 
     stack.handle(client);
-    client.push('hello');
+    client.write('hello');
   });
 
   it("should call install for each client", function(done){

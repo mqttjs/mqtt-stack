@@ -27,7 +27,7 @@ InboundManager.prototype.handle = function(client, packet, next, done){
     }, function(err){
       if(err) return next(err);
       if(packet.qos == 1) {
-        client.push({
+        client.write({
           cmd: 'puback',
           messageId: packet.messageId
         });

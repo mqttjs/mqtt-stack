@@ -31,7 +31,7 @@ describe('InboundManager', function(){
   it('should send "puback" on QoS 1', function(done){
     var stream = {};
 
-    stream.push = function(){};
+    stream.write = function(){};
 
     var packet = {
       cmd: 'publish',
