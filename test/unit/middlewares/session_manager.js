@@ -8,7 +8,7 @@ describe('SessionManager', function(){
   it('should call clearSubscriptions for clean client', function(done){
     var stream = new EventEmitter();
 
-    stream.connack = function(){
+    stream.push = function(){
       assert(!packet.sessionPresent);
     };
 
@@ -34,7 +34,7 @@ describe('SessionManager', function(){
   it('should call lookupSubscriptions for unclean client', function(done){
     var stream = new EventEmitter();
 
-    stream.connack = function(packet){
+    stream.push = function(packet){
       assert(packet.sessionPresent);
     };
 
@@ -72,7 +72,7 @@ describe('SessionManager', function(){
   it('should call storeSubscriptions for new subscriptions', function(done){
     var stream = new EventEmitter();
 
-    stream.connack = function(){};
+    stream.push = function(){};
 
     var packet = {
       topic: 'bar',

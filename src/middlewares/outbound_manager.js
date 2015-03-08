@@ -17,7 +17,8 @@ var OutboundManager = function(){};
  * @param callback
  */
 OutboundManager.prototype.forwardMessage = function(ctx, callback) {
-  ctx.client.publish({
+  ctx.client.write({
+    cmd: 'publish',
     topic: ctx.packet.topic,
     payload: ctx.packet.payload,
     qos: ctx.packet.qos,

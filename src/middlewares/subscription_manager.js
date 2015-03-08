@@ -59,7 +59,8 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
   }, function(err, results){
     if(err) return next(err);
 
-    client.suback({
+    client.push({
+      cmd: 'suback',
       messageId: packet.messageId,
       granted: results
     });
@@ -87,7 +88,8 @@ SubscriptionManager.prototype._handleUnsubscription = function(client, packet, n
   }, function(err){
     if(err) return next(err);
 
-    client.unsuback({
+    client.push({
+      cmd: 'unsuback',
       messageId: packet.messageId
     });
 

@@ -5,9 +5,9 @@ var KeepAlive = require('../../../src/middlewares/keep_alive');
 
 describe('KeepAlive', function(){
   it('should respond to pingreq', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
-    client.pingresp = function(){};
+    client.push = function(){};
 
     var middleware = new KeepAlive();
 

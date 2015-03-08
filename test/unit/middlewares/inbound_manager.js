@@ -32,7 +32,7 @@ describe('InboundManager', function(){
   it('should send "puback" on QoS 1', function(done){
     var stream = new EventEmitter();
 
-    stream.puback = function(){};
+    stream.push = function(){};
 
     var packet = {
       cmd: 'publish',

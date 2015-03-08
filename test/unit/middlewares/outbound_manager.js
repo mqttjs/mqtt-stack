@@ -6,7 +6,7 @@ var OutboundManager = require('../../../src/middlewares/outbound_manager');
 
 describe('OutboundManager', function(){
   it('should forward packets when "forwardMessage" is executed', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'publish',
@@ -17,7 +17,7 @@ describe('OutboundManager', function(){
 
     var middleware = new OutboundManager();
 
-    stream.publish = function(_packet){
+    stream.write = function(_packet){
       assert.equal(_packet.topic, packet.topic);
       assert.equal(_packet.payload, packet.payload);
       assert.equal(_packet.qos, packet.qos);
@@ -31,7 +31,7 @@ describe('OutboundManager', function(){
   });
 
   it('should handle "puback" on QoS 1', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'publish',
@@ -47,7 +47,7 @@ describe('OutboundManager', function(){
 
     var middleware = new OutboundManager();
 
-    stream.publish = function(){
+    stream.write = function(){
       middleware.handle(stream, packet2, function(){}, done);
     };
 

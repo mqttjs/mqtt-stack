@@ -8,7 +8,7 @@ describe('Authentication', function(){
   it('should keep authenticating if unsuccesful', function(done){
     var client = new EventEmitter();
 
-    client.connack = function(packet){
+    client.push = function(packet){
       assert.equal(packet.returnCode, 4);
     };
 

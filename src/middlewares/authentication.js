@@ -42,7 +42,8 @@ Authentication.prototype.handle = function(client, packet, next, done) {
           client._authenticated = true;
           return next();
         } else {
-          client.connack({
+          client.push({
+            cmd: 'connack',
             returnCode: 4
           });
 

@@ -71,7 +71,9 @@ KeepAlive.prototype.handle = function(client, packet, next, done) {
       client._keep_alive_timer.reset();
     }
     if(packet.cmd == 'pingreq') {
-      client.pingresp();
+      client.push({
+        cmd: 'pingresp'
+      });
       return done();
     }
     return next();
