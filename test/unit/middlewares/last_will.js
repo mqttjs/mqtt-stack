@@ -17,7 +17,7 @@ describe('LastWill', function(){
     var middleware = new LastWill();
 
     middleware.stack = {
-      runStack: function(_client, _packet) {
+      process: function(_client, _packet) {
         assert(_client, client);
         assert.equal(_packet, packet.will);
         done();

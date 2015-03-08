@@ -37,7 +37,7 @@ Stack.prototype.handle = function(client) {
   });
 
   client.on('data', function(packet){
-    self.runStack(client, packet);
+    self.process(client, packet);
   });
 };
 
@@ -49,7 +49,7 @@ Stack.prototype.handle = function(client) {
  * @param client - the stream emitted the packet
  * @param packet - the packet that should be handled
  */
-Stack.prototype.runStack = function(client, packet) {
+Stack.prototype.process = function(client, packet) {
   var self = this;
   var l = this.middlewares.length;
   var i = -1;

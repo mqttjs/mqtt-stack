@@ -24,7 +24,7 @@ LastWill.prototype.uncleanDisconnect = function(ctx){
     });
 
     setImmediate(function(){
-      self.stack.runStack(ctx.client, packet);
+      self.stack.process(ctx.client, packet);
     });
   }
 };
