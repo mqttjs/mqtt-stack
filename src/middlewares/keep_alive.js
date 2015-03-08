@@ -16,7 +16,7 @@ var Timer = require('../utils/timer');
  */
 var KeepAlive = function(config){
   this.config = _.defaults(config || {}, {
-    defaultTimeout: 30,
+    defaultTimeout: false,
     grace: 2
   })
 };
