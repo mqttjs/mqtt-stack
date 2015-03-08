@@ -53,12 +53,17 @@ KeepAlive.prototype.handle = function(client, packet, next) {
     if(client._keep_alive_timer) {
       client._keep_alive_timer.clear();
     }
-    var timeout = packet.keepalive * 1000 * this.config.grace;
-    client._keep_alive_timer = new Timer(timeout, function(){
-      return self.stack.execute('closeClient', {
-        client: client
+
+    if(packet.keepalive > 0) {
+      var timeout = packet.keepalive * 1000 * this.config.grace;
+
+      client._keep_alive_timer = new Timer(timeout, function(){
+        return self.stack.execute('closeClient', {
+          client: client
+        });
       });
-    });
+    }
+
     return next();
   } else {
     if(client._keep_alive_timer) {
