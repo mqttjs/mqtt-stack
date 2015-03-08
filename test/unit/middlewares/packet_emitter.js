@@ -15,11 +15,10 @@ describe('PacketEmitter', function(){
     var middleware = new PacketEmitter(function(){
       client.on('test', function(_packet){
         assert.equal(_packet, packet);
-        done();
       });
     });
 
     middleware.install(client);
-    middleware.handle(client, packet);
+    middleware.handle(client, packet, function(){}, done);
   });
 });

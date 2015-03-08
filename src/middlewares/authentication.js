@@ -25,8 +25,9 @@ Authentication.prototype.install = function(client){
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-Authentication.prototype.handle = function(client, packet, next) {
+Authentication.prototype.handle = function(client, packet, next, done) {
   if(packet.cmd == 'connect') {
     if(!client._authenticated) {
       var store = {};
@@ -41,9 +42,11 @@ Authentication.prototype.handle = function(client, packet, next) {
           client._authenticated = true;
           return next();
         } else {
-          return client.connack({
+          client.connack({
             returnCode: 4
           });
+
+          return done();
         }
       });
     }

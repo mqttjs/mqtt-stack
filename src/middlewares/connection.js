@@ -80,18 +80,21 @@ Connection.prototype.install = function(client) {
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-Connection.prototype.handle = function(client, packet, next) {
+Connection.prototype.handle = function(client, packet, next, done) {
   var self = this;
   if(!client._sent_first) {
     client._sent_first = true;
     if(packet.cmd == 'connect') {
       if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
         client._dead = true;
-        return client.destroy();
+        client.destroy();
+        return done();
       } else if((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
         client._dead = true;
-        return client.destroy();
+        client.destroy();
+        return done();
       } else {
         if(!packet.clientId || packet.clientId.length === 0) {
           packet.clientId = crypto.randomBytes(16).toString('hex');
@@ -100,22 +103,25 @@ Connection.prototype.handle = function(client, packet, next) {
       }
     } else {
       client._dead = true;
-      return client.destroy();
+      client.destroy();
+      return done();
     }
   } else {
     if(packet.cmd == 'connect') {
       client._dead = true;
       client.destroy();
-      return self.stack.execute('uncleanDisconnect', {
+      self.stack.execute('uncleanDisconnect', {
         client: client
       });
+      return done();
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
       client._dead = true;
       client.destroy();
-      return self.stack.execute('cleanDisconnect', {
+      self.stack.execute('cleanDisconnect', {
         client: client
       });
+      return done();
     } else {
       return next();
     }

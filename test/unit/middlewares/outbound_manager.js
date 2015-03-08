@@ -48,8 +48,7 @@ describe('OutboundManager', function(){
     var middleware = new OutboundManager();
 
     stream.publish = function(){
-      middleware.handle(stream, packet2);
-      done();
+      middleware.handle(stream, packet2, function(){}, done);
     };
 
     middleware.forwardMessage({

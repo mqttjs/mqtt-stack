@@ -21,9 +21,10 @@ var SessionManager = function(){};
  * Stores subscriptions if the client is unclean.
  *
  * @param ctx
+ * @param store
  * @param callback
  */
-SessionManager.prototype.subscribeTopic = function(ctx, callback) {
+SessionManager.prototype.subscribeTopic = function(ctx, store, callback) {
   if(ctx.client._managed_session) {
     this.stack.execute('storeSubscription', ctx, callback);
   }
@@ -36,16 +37,17 @@ SessionManager.prototype.subscribeTopic = function(ctx, callback) {
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-SessionManager.prototype.handle = function(client, packet, next) {
+SessionManager.prototype.handle = function(client, packet, next, done) {
   if(packet.cmd == 'connect') {
     client._client_id = packet.clientId;
     if(packet.clean) {
       client._managed_session = false;
-      this._handleCleanClient(client, packet, next);
+      this._handleCleanClient(client, packet, next, done);
     } else {
       client._managed_session = true;
-      this._handleUncleanClient(client, packet, next);
+      this._handleUncleanClient(client, packet, next, done);
     }
   } else {
     return next();
@@ -59,9 +61,10 @@ SessionManager.prototype.handle = function(client, packet, next) {
  * @param client
  * @param packet
  * @param next
+ * @param done
  * @private
  */
-SessionManager.prototype._handleCleanClient = function(client, packet, next) {
+SessionManager.prototype._handleCleanClient = function(client, packet, next, done) {
   this.stack.execute('clearSubscriptions', {
     client: client,
     packet: packet,
@@ -73,6 +76,8 @@ SessionManager.prototype._handleCleanClient = function(client, packet, next) {
       returnCode: 0,
       sessionPresent: false
     });
+
+    return done();
   });
 };
 
@@ -83,9 +88,10 @@ SessionManager.prototype._handleCleanClient = function(client, packet, next) {
  * @param client
  * @param packet
  * @param next
+ * @param done
  * @private
  */
-SessionManager.prototype._handleUncleanClient = function(client, packet, next) {
+SessionManager.prototype._handleUncleanClient = function(client, packet, next, done) {
   var self = this;
 
   var store = [];
@@ -110,6 +116,8 @@ SessionManager.prototype._handleUncleanClient = function(client, packet, next) {
         returnCode: 0,
         sessionPresent: (store.length > 0)
       });
+
+      return done();
     });
   });
 };

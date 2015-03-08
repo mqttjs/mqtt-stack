@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var async = require('async');
+var through = require('through2');
 
 /**
  * Stack Class
@@ -36,11 +37,10 @@ Stack.prototype.handle = function(client) {
     }
   });
 
-  client.on('data', function(packet){
-    self.process(client, packet);
-  });
+  client.pipe(through.obj(function(packet, _, done){
+    self.process(client, packet, done);
+  }));
 };
-
 
 /**
  * Run the stack against a client and a single packet. This will be
@@ -48,8 +48,9 @@ Stack.prototype.handle = function(client) {
  *
  * @param client - the stream emitted the packet
  * @param packet - the packet that should be handled
+ * @param done - to be called on finish
  */
-Stack.prototype.process = function(client, packet) {
+Stack.prototype.process = function(client, packet, done) {
   var self = this;
   var l = this.middlewares.length;
   var i = -1;
@@ -60,7 +61,7 @@ Stack.prototype.process = function(client, packet) {
       i++;
       if(i < l) {
         if(self.middlewares[i].handle) {
-          return self.middlewares[i].handle(client, packet, next);
+          return self.middlewares[i].handle(client, packet, next, done);
         } else {
           return next();
         }

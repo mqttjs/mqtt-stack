@@ -10,7 +10,6 @@ describe('SessionManager', function(){
 
     stream.connack = function(){
       assert(!packet.sessionPresent);
-      done();
     };
 
     var packet = {
@@ -29,7 +28,7 @@ describe('SessionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should call lookupSubscriptions for unclean client', function(done){
@@ -37,7 +36,6 @@ describe('SessionManager', function(){
 
     stream.connack = function(packet){
       assert(packet.sessionPresent);
-      done();
     };
 
     var packet = {
@@ -68,7 +66,7 @@ describe('SessionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should call storeSubscriptions for new subscriptions', function(done){
@@ -98,11 +96,11 @@ describe('SessionManager', function(){
       cmd: 'connect',
       clientId: 'foo',
       clean: false
-    });
+    }, function(){}, function(){});
 
     middleware.subscribeTopic({
       client: stream,
       packet: packet
-    }, done);
+    }, {}, done);
   });
 });

@@ -27,9 +27,10 @@ OutboundManager.prototype.forwardMessage = function(ctx, callback) {
   if(callback) callback();
 };
 
-OutboundManager.prototype.handle = function(client, packet, next){
+OutboundManager.prototype.handle = function(client, packet, next, done){
   if(packet.cmd == 'puback') {
     //TODO: do something
+    return done();
   } else {
     return next();
   }

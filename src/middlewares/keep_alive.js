@@ -46,8 +46,9 @@ KeepAlive.prototype.install = function(client) {
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-KeepAlive.prototype.handle = function(client, packet, next) {
+KeepAlive.prototype.handle = function(client, packet, next, done) {
   var self = this;
   if(packet.cmd == 'connect') {
     if(client._keep_alive_timer) {
@@ -58,7 +59,7 @@ KeepAlive.prototype.handle = function(client, packet, next) {
       var timeout = packet.keepalive * 1000 * this.config.grace;
 
       client._keep_alive_timer = new Timer(timeout, function(){
-        return self.stack.execute('closeClient', {
+        self.stack.execute('closeClient', {
           client: client
         });
       });
@@ -70,7 +71,8 @@ KeepAlive.prototype.handle = function(client, packet, next) {
       client._keep_alive_timer.reset();
     }
     if(packet.cmd == 'pingreq') {
-      return client.pingresp();
+      client.pingresp();
+      return done();
     }
     return next();
   }

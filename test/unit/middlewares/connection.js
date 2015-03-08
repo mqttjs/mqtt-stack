@@ -10,7 +10,6 @@ describe('Connection', function(){
 
     client.destroy = function() {
       assert(client._dead);
-      done();
     };
 
     var middleware = new Connection();
@@ -21,7 +20,7 @@ describe('Connection', function(){
 
     middleware.handle(client, {
       cmd: 'test'
-    }, function(){});
+    }, function(){}, done);
   });
 
   it('should close client if "connect" is sent more than once', function(done){
@@ -41,17 +40,16 @@ describe('Connection', function(){
       execute: function(fn, ctx){
         assert.equal(fn, 'uncleanDisconnect');
         assert.equal(ctx.client, client);
-        done();
       }
     };
 
     middleware.handle(client, {
       cmd: 'connect'
-    }, function(){});
+    }, function(){}, function(){});
 
     middleware.handle(client, {
       cmd: 'connect'
-    });
+    }, function(){}, done);
   });
 
   it("should close client and emit 'cleanDisconnect' on 'disconnect' package", function(done){
@@ -71,17 +69,16 @@ describe('Connection', function(){
       execute: function(fn, ctx){
         assert.equal(fn, 'cleanDisconnect');
         assert.equal(ctx.client, client);
-        done();
       }
     };
 
     middleware.handle(client, {
       cmd: 'connect'
-    }, function(){});
+    }, function(){}, function(){});
 
     middleware.handle(client, {
       cmd: 'disconnect'
-    }, function(){});
+    }, function(){}, done);
   });
 
   it("should emit 'uncleanDisconnect' on 'close' event", function(done){
@@ -133,7 +130,6 @@ describe('Connection', function(){
 
     client.destroy = function() {
       assert(client._dead);
-      done();
     };
 
     var middleware = new Connection({
@@ -147,7 +143,7 @@ describe('Connection', function(){
     middleware.handle(client, {
       cmd: 'connet',
       protocolId: 'hello'
-    }, function(){});
+    }, function(){}, done);
   });
 
   it('should close client if "closeClient" has been called', function(done){

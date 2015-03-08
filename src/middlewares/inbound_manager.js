@@ -14,8 +14,9 @@ var InboundManager = function(){};
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-InboundManager.prototype.handle = function(client, packet, next){
+InboundManager.prototype.handle = function(client, packet, next, done){
   var self = this;
   if(packet.cmd == 'publish') {
     self.stack.execute('relayMessage',{
@@ -29,6 +30,9 @@ InboundManager.prototype.handle = function(client, packet, next){
         client.puback({
           messageId: packet.messageId
         });
+        return done();
+      } else {
+        return done();
       }
     });
   } else {

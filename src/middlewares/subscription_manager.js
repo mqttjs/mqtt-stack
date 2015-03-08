@@ -21,14 +21,15 @@ var SubscriptionManager = function(){};
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-SubscriptionManager.prototype.handle = function(client, packet, next){
+SubscriptionManager.prototype.handle = function(client, packet, next, done){
   if(packet.cmd == 'subscribe') {
-    this._handleSubscription(client, packet, next);
+    this._handleSubscription(client, packet, next, done);
   } else if(packet.cmd == 'unsubscribe') {
-    this._handleUnsubscription(client, packet, next);
+    this._handleUnsubscription(client, packet, next, done);
   } else {
-    next();
+    return next();
   }
 };
 
@@ -41,7 +42,7 @@ SubscriptionManager.prototype.handle = function(client, packet, next){
  * @param next
  * @private
  */
-SubscriptionManager.prototype._handleSubscription = function(client, packet, next) {
+SubscriptionManager.prototype._handleSubscription = function(client, packet, next, done) {
   var self = this;
   async.mapSeries(packet.subscriptions, function(s, cb){
     var store = { grant: s.qos };
@@ -62,6 +63,8 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
       messageId: packet.messageId,
       granted: results
     });
+
+    return done();
   });
 };
 
@@ -73,7 +76,7 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
  * @param next
  * @private
  */
-SubscriptionManager.prototype._handleUnsubscription = function(client, packet, next) {
+SubscriptionManager.prototype._handleUnsubscription = function(client, packet, next, done) {
   var self = this;
   async.mapSeries(packet.unsubscriptions, function(us, cb){
     self.stack.execute('unsubscribeTopic', {
@@ -87,6 +90,8 @@ SubscriptionManager.prototype._handleUnsubscription = function(client, packet, n
     client.unsuback({
       messageId: packet.messageId
     });
+
+    return done();
   });
 };
 

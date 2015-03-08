@@ -28,7 +28,8 @@
     "mqtt-server": "0.1.0"
   },
   "dependencies": {
-    "underscore": "1.7.0",
-    "async": "0.9.0"
+    "async": "0.9.0",
+    "through2": "0.6.3",
+    "underscore": "1.7.0"
   }
 }

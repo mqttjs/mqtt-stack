@@ -32,9 +32,7 @@ describe('InboundManager', function(){
   it('should send "puback" on QoS 1', function(done){
     var stream = new EventEmitter();
 
-    stream.puback = function(){
-      done();
-    };
+    stream.puback = function(){};
 
     var packet = {
       cmd: 'publish',
@@ -49,6 +47,6 @@ describe('InboundManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 });

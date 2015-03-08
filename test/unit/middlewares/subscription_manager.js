@@ -18,7 +18,6 @@ describe('SubscriptionManager', function(){
 
     stream.suback = function(packet) {
       assert.deepEqual(packet.granted, [1]);
-      done();
     };
 
     var middleware = new SubscriptionManager();
@@ -32,7 +31,7 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should execute "subscribeTopic" for multiple subscription', function(done){
@@ -54,7 +53,6 @@ describe('SubscriptionManager', function(){
 
     stream.suback = function(packet) {
       assert.deepEqual(packet.granted, [1, 0, 2]);
-      done();
     };
 
     var middleware = new SubscriptionManager();
@@ -65,7 +63,7 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should execute "unsubscribeTopic" for each unsubscription', function(done){
@@ -76,9 +74,7 @@ describe('SubscriptionManager', function(){
       unsubscriptions: ['foo']
     };
 
-    stream.unsuback = function(){
-      done();
-    };
+    stream.unsuback = function(){};
 
     var middleware = new SubscriptionManager();
 
@@ -90,6 +86,6 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 });

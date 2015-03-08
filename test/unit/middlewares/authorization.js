@@ -40,10 +40,9 @@ describe('Authorization', function(){
         assert.equal(ctx.client, client);
         assert.equal(ctx.packet, packet);
         callback();
-        done();
       }
     });
 
-    middleware.handle(client, packet);
+    middleware.handle(client, packet, function(){}, done);
   });
 });

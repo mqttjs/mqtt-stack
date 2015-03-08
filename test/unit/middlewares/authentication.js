@@ -8,11 +8,8 @@ describe('Authentication', function(){
   it('should keep authenticating if unsuccesful', function(done){
     var client = new EventEmitter();
 
-    var i = 0;
-
     client.connack = function(packet){
       assert.equal(packet.returnCode, 4);
-      i++; if(i == 2) done();
     };
 
     var packet = {
@@ -30,8 +27,8 @@ describe('Authentication', function(){
       }
     });
 
-    middleware.handle(client, packet);
-    middleware.handle(client, packet);
+    middleware.handle(client, packet, function(){}, function(){});
+    middleware.handle(client, packet, function(){}, done);
   });
 
   it('should pass packet if successful', function(done){

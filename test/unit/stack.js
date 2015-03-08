@@ -1,11 +1,12 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
+var through = require('through2');
 
 var Stack = require('../../src/stack');
 
 describe('Stack', function(){
-  it("should run stack when 'data' is emitted", function(done){
-    var client = new EventEmitter();
+  it("should run stack when data is available", function(done){
+    var client = through.obj();
+
     var stack = new Stack();
 
     stack.use({
@@ -25,11 +26,11 @@ describe('Stack', function(){
     });
 
     stack.handle(client);
-    client.emit('data', 'hello');
+    client.push('hello');
   });
 
   it("should call error handler on error", function(done){
-    var client = new EventEmitter();
+    var client = through.obj();
 
     var stack = new Stack(function(err){
       assert.equal(err, 'error');
@@ -51,11 +52,11 @@ describe('Stack', function(){
     });
 
     stack.handle(client);
-    client.emit('data', 'hello');
+    client.push('hello');
   });
 
   it("should call install for each client", function(done){
-    var client = new EventEmitter();
+    var client = through.obj();
     var stack = new Stack();
 
     stack.use({

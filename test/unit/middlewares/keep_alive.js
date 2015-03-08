@@ -7,13 +7,13 @@ describe('KeepAlive', function(){
   it('should respond to pingreq', function(done){
     var client = new EventEmitter();
 
-    client.pingresp = done;
+    client.pingresp = function(){};
 
     var middleware = new KeepAlive();
 
     middleware.handle(client, {
       cmd: 'pingreq'
-    });
+    }, function(){}, done);
   });
 
   it("should start default timer and close connection on inactivity", function(done){

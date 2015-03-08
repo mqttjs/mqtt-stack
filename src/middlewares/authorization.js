@@ -16,8 +16,9 @@ var Authorization = function(){};
  * @param client
  * @param packet
  * @param next
+ * @param done
  */
-Authorization.prototype.handle = function(client, packet, next) {
+Authorization.prototype.handle = function(client, packet, next, done) {
   var store = {};
   this.stack.execute('authorizePacket', {
     client: client,
@@ -26,6 +27,8 @@ Authorization.prototype.handle = function(client, packet, next) {
     if(err) return next(err);
     if(store.valid) {
       return next();
+    } else {
+      return done();
     }
   });
 };
