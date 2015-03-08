@@ -215,9 +215,10 @@ describe('Connection', function(){
       }
     }, function(client1){
       f.client(function(client2){
-        client2.on('message', function(){
-          client2.end();
-          throw new Error('this message should not have been published');
+        client2.on('message', function(topic){
+          if(topic == t) {
+            throw new Error('this message should not have been published');
+          }
         });
         client2.subscribe(t, function(){
           client1.end();
