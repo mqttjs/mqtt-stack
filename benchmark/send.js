@@ -1,7 +1,7 @@
 var mqtt = require('mqtt');
 
 var client = mqtt.connect({
-  port: 1883,
+  port: process.env['PORT'] || 1883,
   host: 'localhost',
   clean: true,
   keepalive: 0

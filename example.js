@@ -17,15 +17,17 @@ this.stack.use(new stack.InboundManager());
 this.stack.use(new stack.OutboundManager());
 this.stack.use(new stack.SubscriptionManager());
 
+var port = process.env['PORT'] || 1883;
+
 this.server = mqtt({
   mqtt: {
     protocol: 'tcp',
-    port: 1883
+    port: port
   }
 }, {
   emitEvents: false
 }, this.stack.handle.bind(this.stack));
 
 this.server.listen(function(){
-  console.log('listening on 1883')
+  console.log('listening on', port)
 });
