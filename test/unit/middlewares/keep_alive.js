@@ -1,5 +1,4 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var KeepAlive = require('../../../src/middlewares/keep_alive');
 
@@ -17,7 +16,7 @@ describe('KeepAlive', function(){
   });
 
   it("should start default timer and close connection on inactivity", function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     client.destroy = function() {
       client.on('uncleanDisconnect', done);
@@ -39,7 +38,7 @@ describe('KeepAlive', function(){
   });
 
   it("should restart timer and close connection on inactivity", function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     client.destroy = function() {
       client.on('uncleanDisconnect', done);

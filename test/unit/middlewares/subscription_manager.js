@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var SubscriptionManager = require('../../../src/middlewares/subscription_manager');
 
 describe('SubscriptionManager', function(){
   it('should execute "subscribeTopic" for one subscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'subscribe',
@@ -35,7 +34,7 @@ describe('SubscriptionManager', function(){
   });
 
   it('should execute "subscribeTopic" for multiple subscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'subscribe',
@@ -67,7 +66,7 @@ describe('SubscriptionManager', function(){
   });
 
   it('should execute "unsubscribeTopic" for each unsubscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'unsubscribe',

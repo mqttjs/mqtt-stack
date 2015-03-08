@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var SessionManager = require('../../../src/middlewares/session_manager');
 
 describe('SessionManager', function(){
   it('should call clearSubscriptions for clean client', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     stream.push = function(){
       assert(!packet.sessionPresent);
@@ -32,7 +31,7 @@ describe('SessionManager', function(){
   });
 
   it('should call lookupSubscriptions for unclean client', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     stream.push = function(packet){
       assert(packet.sessionPresent);
@@ -70,7 +69,7 @@ describe('SessionManager', function(){
   });
 
   it('should call storeSubscriptions for new subscriptions', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     stream.push = function(){};
 

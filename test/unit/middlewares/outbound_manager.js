@@ -1,5 +1,4 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var OutboundManager = require('../../../src/middlewares/outbound_manager');

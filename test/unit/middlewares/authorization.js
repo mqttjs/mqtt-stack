@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var Authorization = require('../../../src/middlewares/authorization');
 
 describe('Authorization', function(){
   it('should pass packet on successful authorization', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var packet = {
       cmd: 'test'
@@ -27,7 +26,7 @@ describe('Authorization', function(){
   });
 
   it('should dismiss packet on unsuccessful authorization', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var packet = {
       cmd: 'test'
