@@ -102,8 +102,8 @@ SessionManager.prototype._handleUncleanClient = function(client, packet, next) {
         packet: packet,
         topic: s.topic,
         qos: s.qos
-      }, cb);
-    }, {}, function(err){
+      }, {}, cb);
+    }, function(err){
       if(err) return next(err);
 
       client.connack({

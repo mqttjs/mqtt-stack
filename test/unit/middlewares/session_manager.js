@@ -60,9 +60,10 @@ describe('SessionManager', function(){
         store.push(packet2);
         callback();
       },
-      subscribeTopic: function(ctx, callback) {
+      subscribeTopic: function(ctx, store, callback) {
         assert(ctx.client, stream);
         assert(ctx.packet, packet2);
+        assert.deepEqual(store, {});
         callback();
       }
     });
