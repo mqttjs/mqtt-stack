@@ -14,7 +14,8 @@ var MemoryBackend = function(config) {
 MemoryBackend.prototype.install = function(client) {
   var self = this;
   client._forwarder = function(packet, callback) {
-    //console.log('<--', packet.topic);
+    process.stdout.write('- ');
+
     self.stack.execute('forwardMessage', {
       client: client,
       packet: packet
@@ -82,7 +83,8 @@ MemoryBackend.prototype.lookupRetainedMessages = function(ctx, store, callback) 
 /* InboundManager */
 
 MemoryBackend.prototype.relayMessage = function(ctx, callback){
-  //console.log('-->', ctx.topic);
+  process.stdout.write('+ ');
+
   this.pubsub.emit(ctx.packet, callback);
 };
 
