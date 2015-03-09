@@ -1,17 +1,19 @@
 var mqtt = require('mqtt');
 
+var port = process.env['PORT'] || 1883;
+
 var counter = 0;
 var interval = 5000;
 
 function count() {
-  console.log('received/s', counter / interval * 1000);
+  console.log('[recv]', Math.round(counter / interval * 1000), 'msg/s');
   counter = 0;
 }
 
 setInterval(count, interval);
 
 var client = mqtt.connect({
-  port: process.env['PORT'] || 1883,
+  port: port,
   host: 'localhost',
   clean: true,
   keepalive: 0,
@@ -19,10 +21,10 @@ var client = mqtt.connect({
 });
 
 client.on('connect', function() {
-  console.log('connected!');
+  console.log('[recv] connected to', port);
 
   client.subscribe('test', function(){
-    console.log('subscribed!');
+    console.log('[recv] subscribed');
   });
 
   client.on('message', function() {
