@@ -20,9 +20,9 @@
   },
   "devDependencies": {
     "expect.js": "0.3.1",
-    "mocha": "2.1.0",
-    "mqemitter": "0.2.1",
-    "mqtt": "1.0.5",
+    "mocha": "2.2.1",
+    "mqemitter": "0.3.1",
+    "mqtt": "1.1.0",
     "mqtt-connection": "2.1.1",
     "mqtt-regex": "1.0.2",
     "mqtt-server": "0.1.0"
@@ -30,6 +30,6 @@
   "dependencies": {
     "async": "0.9.0",
     "through2": "0.6.3",
-    "underscore": "1.7.0"
+    "underscore": "1.8.2"
   }
 }
