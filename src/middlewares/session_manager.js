@@ -26,6 +26,8 @@ var SessionManager = function(){};
 SessionManager.prototype.subscribeTopic = function(ctx, store, callback) {
   if(ctx.client._managed_session) {
     this.stack.execute('storeSubscription', ctx, callback);
+  } else {
+    callback();
   }
 };
 
