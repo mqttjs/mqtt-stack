@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var async = require('async');
-var through = require('through2');
+var stream = require('stream');
+var util = require('util');
 
 /**
  * Stack Class
@@ -24,22 +25,40 @@ Stack.prototype.use = function(middleware) {
   this.middlewares.push(middleware);
 };
 
+
+
+var ProcessStream = function(client, stack) {
+  this.client = client;
+  this.stack = stack;
+
+  stream.Writable.call(this, {
+    objectMode: true
+  });
+};
+
+util.inherits(ProcessStream, stream.Writable);
+
+ProcessStream.prototype._write = function(chunk, _, done) {
+  this.stack.process(this.client, chunk, done);
+};
+
+
+
+
 /**
  * Handle a client using the prepared stack.
  *
  * @param client - the client that should be handled
  */
 Stack.prototype.handle = function(client) {
-  var self = this;
   _.each(this.middlewares, function(m){
     if(m.install) {
       m.install(client);
     }
   });
 
-  client.pipe(through.obj(function(packet, _, done){
-    self.process(client, packet, done);
-  }));
+  client._process_stream = new ProcessStream(client, this);
+  client.pipe(client._process_stream);
 };
 
 /**

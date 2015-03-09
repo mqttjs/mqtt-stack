@@ -1,13 +1,5 @@
 var mqtt = require('mqtt');
 
-var client = mqtt.connect({
-  port: process.env['PORT'] || 1883,
-  host: 'localhost',
-  clean: true,
-  encoding: 'binary',
-  keepalive: 0
-});
-
 var counter = 0;
 var interval = 5000;
 
@@ -18,12 +10,27 @@ function count() {
 
 setInterval(count, interval);
 
+var client = mqtt.connect({
+  port: process.env['PORT'] || 1883,
+  host: 'localhost',
+  clean: true,
+  keepalive: 0,
+  encoding: 'binary'
+});
+
 client.on('connect', function() {
   console.log('connected!');
 
-  this.subscribe('test');
+  client.subscribe('test', function(){
+    console.log('subscribed!');
+  });
 
-  this.on('message', function() {
+  client.on('message', function() {
     counter++;
   });
 });
+
+client.on('close', function() {
+  process.exit();
+});
+

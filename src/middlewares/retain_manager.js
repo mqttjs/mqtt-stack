@@ -35,7 +35,7 @@ RetainManager.prototype.subscribeTopic = function(ctx, _, callback) {
         }, cb);
       }, callback);
     } else {
-      callback();
+      return callback();
     }
   });
 };

@@ -13,13 +13,12 @@ var MemoryBackend = function(config) {
 
 MemoryBackend.prototype.install = function(client) {
   var self = this;
-  client._forwarder = function(packet) {
-    setImmediate(function(){
-      self.stack.execute('forwardMessage', {
-        client: client,
-        packet: packet
-      });
-    });
+  client._forwarder = function(packet, callback) {
+    //console.log('<--', packet.topic);
+    self.stack.execute('forwardMessage', {
+      client: client,
+      packet: packet
+    }, callback);
   };
 };
 
@@ -83,8 +82,8 @@ MemoryBackend.prototype.lookupRetainedMessages = function(ctx, store, callback) 
 /* InboundManager */
 
 MemoryBackend.prototype.relayMessage = function(ctx, callback){
-  this.pubsub.emit(ctx.packet);
-  if(callback) callback();
+  //console.log('-->', ctx.topic);
+  this.pubsub.emit(ctx.packet, callback);
 };
 
 /* SubscriptionManager */

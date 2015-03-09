@@ -17,15 +17,16 @@ var OutboundManager = function(){};
  * @param callback
  */
 OutboundManager.prototype.forwardMessage = function(ctx, callback) {
-  ctx.client.write({
-    cmd: 'publish',
-    topic: ctx.packet.topic,
-    payload: ctx.packet.payload,
-    qos: ctx.packet.qos,
-    retain: ctx.packet.retain,
-    messageId: Math.random()*60000
+  setImmediate(function(){
+    ctx.client.write({
+      cmd: 'publish',
+      topic: ctx.packet.topic,
+      payload: ctx.packet.payload,
+      qos: ctx.packet.qos,
+      retain: ctx.packet.retain,
+      messageId: Math.random() * 60000
+    }, callback);
   });
-  if(callback) callback();
 };
 
 OutboundManager.prototype.handle = function(client, packet, next, done){
