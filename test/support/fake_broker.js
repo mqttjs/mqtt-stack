@@ -1,37 +1,35 @@
-var mqtt = require('mqtt-server');
+var css = require('create-stream-server');
 
-var stack = require('../../index');
+var s = require('../../index');
 var MemoryBackend = require('./memory_backend');
 
 var FakeBroker = function(port){
-  this.stack = new stack.Stack();
+  this.stack = new s.Stack();
 
   this.stack.use(new MemoryBackend());
 
-  this.stack.use(new stack.Connection({
+  this.stack.use(new s.Connection({
     forceMQTT4: true
   }));
 
-  this.stack.use(new stack.KeepAlive({
+  this.stack.use(new s.KeepAlive({
     defaultTimeout: 1,
     grace: global.speed
   }));
 
-  this.stack.use(new stack.LastWill());
-  this.stack.use(new stack.SessionManager());
-  this.stack.use(new stack.RetainManager());
-  this.stack.use(new stack.InboundManager());
-  this.stack.use(new stack.OutboundManager());
-  this.stack.use(new stack.SubscriptionManager());
+  this.stack.use(new s.LastWill());
+  this.stack.use(new s.SessionManager());
+  this.stack.use(new s.RetainManager());
+  this.stack.use(new s.InboundManager());
+  this.stack.use(new s.OutboundManager());
+  this.stack.use(new s.SubscriptionManager());
 
-  this.server = mqtt({
+  this.server = css({
     mqtt: {
       protocol: 'tcp',
       port: port
     }
-  }, {
-    emitEvents: false
-  }, this.stack.handle.bind(this.stack));
+  }, this.stack.handler());
 };
 
 FakeBroker.prototype.listen = function(done) {

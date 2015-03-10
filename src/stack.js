@@ -1,7 +1,8 @@
 var _ = require('underscore');
 var async = require('async');
 var stream = require('stream');
-var util = require('util');
+
+var Client = require('./client');
 
 /**
  * Stack Class
@@ -25,40 +26,30 @@ Stack.prototype.use = function(middleware) {
   this.middlewares.push(middleware);
 };
 
+/**
+ * Generates handler that takes streams as an input.
+ *
+ * @returns {Function}
+ */
+Stack.prototype.handler = function(){
+  var self = this;
 
-
-var ProcessStream = function(client, stack) {
-  this.client = client;
-  this.stack = stack;
-
-  stream.Writable.call(this, {
-    objectMode: true
-  });
+  return function(stream) {
+    new Client(self, stream);
+  }
 };
-
-util.inherits(ProcessStream, stream.Writable);
-
-ProcessStream.prototype._write = function(chunk, _, done) {
-  this.stack.process(this.client, chunk, done);
-};
-
-
-
 
 /**
- * Handle a client using the prepared stack.
+ * Install a client on all middlewares.
  *
- * @param client - the client that should be handled
+ * @param client - the client that should be installed
  */
-Stack.prototype.handle = function(client) {
+Stack.prototype.install = function(client) {
   _.each(this.middlewares, function(m){
     if(m.install) {
       m.install(client);
     }
   });
-
-  client._process_stream = new ProcessStream(client, this);
-  client.pipe(client._process_stream);
 };
 
 /**

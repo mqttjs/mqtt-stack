@@ -27,7 +27,7 @@ var Connection = function(config) {
  */
 Connection.prototype.closeClient = function(ctx){
   ctx.client._dead = true;
-  ctx.client.destroy();
+  ctx.client.close();
   this.stack.execute('uncleanDisconnect', ctx);
 };
 
@@ -51,7 +51,7 @@ Connection.prototype.install = function(client) {
   client.on('error', function(){
     if(!client._sent_disconnect) {
       client._dead = true;
-      client.destroy();
+      client.close();
       return self.stack.execute('uncleanDisconnect', {
         client: client
       });
@@ -89,11 +89,11 @@ Connection.prototype.handle = function(client, packet, next, done) {
     if(packet.cmd == 'connect') {
       if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
         client._dead = true;
-        client.destroy();
+        client.close();
         return done();
       } else if((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
         client._dead = true;
-        client.destroy();
+        client.close();
         return done();
       } else {
         if(!packet.clientId || packet.clientId.length === 0) {
@@ -103,13 +103,13 @@ Connection.prototype.handle = function(client, packet, next, done) {
       }
     } else {
       client._dead = true;
-      client.destroy();
+      client.close();
       return done();
     }
   } else {
     if(packet.cmd == 'connect') {
       client._dead = true;
-      client.destroy();
+      client.close();
       self.stack.execute('uncleanDisconnect', {
         client: client
       });
@@ -117,7 +117,7 @@ Connection.prototype.handle = function(client, packet, next, done) {
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
       client._dead = true;
-      client.destroy();
+      client.close();
       self.stack.execute('cleanDisconnect', {
         client: client
       });
