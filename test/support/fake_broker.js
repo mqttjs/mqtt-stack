@@ -13,7 +13,6 @@ var FakeBroker = function(port){
   }));
 
   this.stack.use(new s.KeepAlive({
-    defaultTimeout: 1,
     grace: global.speed
   }));
 
