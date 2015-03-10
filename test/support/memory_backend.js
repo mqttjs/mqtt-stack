@@ -87,13 +87,11 @@ MemoryBackend.prototype.relayMessage = function(ctx, callback){
 /* SubscriptionManager */
 
 MemoryBackend.prototype.subscribeTopic = function(ctx, store, callback) {
-  this.pubsub.on(ctx.topic, ctx.client._forwarder);
-  if(callback) callback();
+  this.pubsub.on(ctx.topic, ctx.client._forwarder, callback);
 };
 
 MemoryBackend.prototype.unsubscribeTopic = function(ctx, callback) {
-  this.pubsub.removeListener(ctx.topic, ctx.client._forwarder);
-  if(callback) callback();
+  this.pubsub.removeListener(ctx.topic, ctx.client._forwarder, callback);
 };
 
 module.exports = MemoryBackend;
