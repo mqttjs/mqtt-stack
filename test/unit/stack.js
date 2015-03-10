@@ -85,19 +85,19 @@ describe('Stack', function(){
 
     stack.use({
       testFunction: function(n, callback) {
-        callback(null, n + 1, n + 2);
+        callback(null, [n + 1, n + 2]);
       }
     });
 
     stack.use({
       testFunction: function(n, callback) {
-        callback(null, n + 3, n + 4);
+        callback(null, [n + 3, n + 4]);
       }
     });
 
-    stack.execute('testFunction', 1, function(_, result){
-      assert.deepEqual(result[0], [2, 3]);
-      assert.deepEqual(result[1], [4, 5]);
+    stack.execute('testFunction', 1, function(_, results){
+      assert.deepEqual(results[0], [2, 3]);
+      assert.deepEqual(results[1], [4, 5]);
       done();
     });
   });

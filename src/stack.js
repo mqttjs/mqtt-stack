@@ -95,21 +95,17 @@ Stack.prototype.execute = function(fn, data, store, callback){
     store = null;
   }
 
-  var tasks = [];
-
-  _.each(this.middlewares, function(m){
+  async.mapSeries(this.middlewares, function(m, cb){
     if(m[fn]) {
-      tasks.push(function(cb){
-        if(store) {
-          m[fn](data, store, cb);
-        } else {
-          m[fn](data, cb);
-        }
-      });
+      if(store) {
+        return m[fn](data, store, cb);
+      } else {
+        return m[fn](data, cb);
+      }
+    } else {
+      return cb();
     }
-  });
-
-  async.parallel(tasks, callback || function(){});
+  }, callback);
 };
 
 module.exports = Stack;
