@@ -33,7 +33,3 @@ client.on('connect', function(){
   console.log('[send] connected to', port);
   publish();
 });
-
-client.on('close', function() {
-  process.exit();
-});

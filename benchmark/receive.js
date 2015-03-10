@@ -31,8 +31,3 @@ client.on('connect', function() {
     counter++;
   });
 });
-
-client.on('close', function() {
-  process.exit();
-});
-
