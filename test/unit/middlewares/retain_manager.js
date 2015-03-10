@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var RetainManager = require('../../../src/middlewares/retain_manager');
 
 describe('RetainManager', function(){
   it('should store retaines messages and reset flag', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'publish',
@@ -31,7 +30,7 @@ describe('RetainManager', function(){
   });
 
   it('should lookup retained messages on subscribe', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       topic: 'foo',

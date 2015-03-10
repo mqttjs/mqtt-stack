@@ -17,19 +17,20 @@ var OutboundManager = function(){};
  * @param callback
  */
 OutboundManager.prototype.forwardMessage = function(ctx, callback) {
-  ctx.client.publish({
+  ctx.client.write({
+    cmd: 'publish',
     topic: ctx.packet.topic,
     payload: ctx.packet.payload,
     qos: ctx.packet.qos,
     retain: ctx.packet.retain,
-    messageId: Math.random()*60000
-  });
-  if(callback) callback();
+    messageId: Math.random() * 60000
+  }, callback);
 };
 
-OutboundManager.prototype.handle = function(client, packet, next){
+OutboundManager.prototype.handle = function(client, packet, next, done){
   if(packet.cmd == 'puback') {
     //TODO: do something
+    return done();
   } else {
     return next();
   }

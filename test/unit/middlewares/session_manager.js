@@ -1,16 +1,14 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var SessionManager = require('../../../src/middlewares/session_manager');
 
 describe('SessionManager', function(){
   it('should call clearSubscriptions for clean client', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
-    stream.connack = function(){
+    stream.write = function(){
       assert(!packet.sessionPresent);
-      done();
     };
 
     var packet = {
@@ -29,15 +27,14 @@ describe('SessionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should call lookupSubscriptions for unclean client', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
-    stream.connack = function(packet){
+    stream.write = function(packet){
       assert(packet.sessionPresent);
-      done();
     };
 
     var packet = {
@@ -68,13 +65,13 @@ describe('SessionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should call storeSubscriptions for new subscriptions', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
-    stream.connack = function(){};
+    stream.write = function(){};
 
     var packet = {
       topic: 'bar',
@@ -98,7 +95,7 @@ describe('SessionManager', function(){
       cmd: 'connect',
       clientId: 'foo',
       clean: false
-    });
+    }, function(){}, function(){});
 
     middleware.subscribeTopic({
       client: stream,

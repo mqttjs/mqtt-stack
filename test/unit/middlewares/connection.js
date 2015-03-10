@@ -1,16 +1,18 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
+var stream = require('stream');
 
 var stackHelper = require('../../support/stack_helper');
 var Connection = require('../../../src/middlewares/connection');
 
 describe('Connection', function(){
   it('should close client if first packet is not a "connect"', function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
-    client.destroy = function() {
+    var called = false;
+
+    client.close = function(){
       assert(client._dead);
-      done();
+      called = true;
     };
 
     var middleware = new Connection();
@@ -21,14 +23,20 @@ describe('Connection', function(){
 
     middleware.handle(client, {
       cmd: 'test'
-    }, function(){});
+    }, function(){}, function(){
+      assert(called);
+      done();
+    });
   });
 
   it('should close client if "connect" is sent more than once', function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
-    client.destroy = function() {
+    var called = false;
+
+    client.close = function(){
       assert(client._dead);
+      called = true;
     };
 
     var middleware = new Connection();
@@ -41,24 +49,29 @@ describe('Connection', function(){
       execute: function(fn, ctx){
         assert.equal(fn, 'uncleanDisconnect');
         assert.equal(ctx.client, client);
-        done();
       }
     };
 
     middleware.handle(client, {
       cmd: 'connect'
-    }, function(){});
+    }, function(){}, function(){});
 
     middleware.handle(client, {
       cmd: 'connect'
+    }, function(){}, function(){
+      assert(called);
+      done();
     });
   });
 
   it("should close client and emit 'cleanDisconnect' on 'disconnect' package", function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
-    client.destroy = function() {
+    var called = false;
+
+    client.close = function(){
       assert(client._dead);
+      called = true;
     };
 
     var middleware = new Connection();
@@ -71,21 +84,23 @@ describe('Connection', function(){
       execute: function(fn, ctx){
         assert.equal(fn, 'cleanDisconnect');
         assert.equal(ctx.client, client);
-        done();
       }
     };
 
     middleware.handle(client, {
       cmd: 'connect'
-    }, function(){});
+    }, function(){}, function(){});
 
     middleware.handle(client, {
       cmd: 'disconnect'
-    }, function(){});
+    }, function(){}, function(){
+      assert(called);
+      done();
+    });
   });
 
   it("should emit 'uncleanDisconnect' on 'close' event", function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
     var middleware = new Connection();
 
@@ -106,10 +121,13 @@ describe('Connection', function(){
   });
 
   it("should close client and emit 'uncleanDisconnect' on 'error' event", function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
-    client.destroy = function() {
+    var called = false;
+
+    client.close = function() {
       assert(client._dead);
+      called = true;
     };
 
     var middleware = new Connection();
@@ -121,6 +139,7 @@ describe('Connection', function(){
     middleware.stack = {
       execute: function(fn, ctx){
         assert.equal(fn, 'uncleanDisconnect');
+        assert(called);
         done();
       }
     };
@@ -129,11 +148,13 @@ describe('Connection', function(){
   });
 
   it('should close client if protocol is not mqtt 4', function(done){
-    var client = new EventEmitter();
+    var client = new stream.Duplex();
 
-    client.destroy = function() {
+    var called = false;
+
+    client.close = function(){
       assert(client._dead);
-      done();
+      called = true;
     };
 
     var middleware = new Connection({
@@ -147,7 +168,10 @@ describe('Connection', function(){
     middleware.handle(client, {
       cmd: 'connet',
       protocolId: 'hello'
-    }, function(){});
+    }, function(){}, function(){
+      assert(called);
+      done();
+    });
   });
 
   it('should close client if "closeClient" has been called', function(done){
@@ -159,7 +183,7 @@ describe('Connection', function(){
 
     middleware.closeClient({
       client: {
-        destroy: function(){
+        close: function(){
           assert(this._dead);
           done();
         }

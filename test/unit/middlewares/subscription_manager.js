@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var SubscriptionManager = require('../../../src/middlewares/subscription_manager');
 
 describe('SubscriptionManager', function(){
   it('should execute "subscribeTopic" for one subscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'subscribe',
@@ -16,9 +15,8 @@ describe('SubscriptionManager', function(){
       }]
     };
 
-    stream.suback = function(packet) {
+    stream.write = function(packet) {
       assert.deepEqual(packet.granted, [1]);
-      done();
     };
 
     var middleware = new SubscriptionManager();
@@ -32,11 +30,11 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should execute "subscribeTopic" for multiple subscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'subscribe',
@@ -52,9 +50,8 @@ describe('SubscriptionManager', function(){
       }]
     };
 
-    stream.suback = function(packet) {
+    stream.write = function(packet) {
       assert.deepEqual(packet.granted, [1, 0, 2]);
-      done();
     };
 
     var middleware = new SubscriptionManager();
@@ -65,20 +62,18 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 
   it('should execute "unsubscribeTopic" for each unsubscription', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'unsubscribe',
       unsubscriptions: ['foo']
     };
 
-    stream.unsuback = function(){
-      done();
-    };
+    stream.write = function(){};
 
     var middleware = new SubscriptionManager();
 
@@ -90,6 +85,6 @@ describe('SubscriptionManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 });

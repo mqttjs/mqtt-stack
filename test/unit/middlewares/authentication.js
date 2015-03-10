@@ -1,18 +1,14 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var Authentication = require('../../../src/middlewares/authentication');
 
 describe('Authentication', function(){
   it('should keep authenticating if unsuccesful', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
-    var i = 0;
-
-    client.connack = function(packet){
+    client.write = function(packet){
       assert.equal(packet.returnCode, 4);
-      i++; if(i == 2) done();
     };
 
     var packet = {
@@ -30,12 +26,12 @@ describe('Authentication', function(){
       }
     });
 
-    middleware.handle(client, packet);
-    middleware.handle(client, packet);
+    middleware.handle(client, packet, function(){}, function(){});
+    middleware.handle(client, packet, function(){}, done);
   });
 
   it('should pass packet if successful', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var packet = {
       cmd: 'connect',
@@ -58,7 +54,7 @@ describe('Authentication', function(){
   });
 
   it('should call error handler on error', function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var packet = {
       cmd: 'connect'

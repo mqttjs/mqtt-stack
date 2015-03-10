@@ -1,11 +1,10 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var LastWill = require('../../../src/middlewares/last_will');
 
 describe('LastWill', function(){
   it("should cache lastWill and inject on 'uncleanDisconnect'", function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var packet = {
       cmd: 'connect',

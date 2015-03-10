@@ -1,11 +1,12 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
+var stream = require('stream');
 
 var Stack = require('../../src/stack');
 
 describe('Stack', function(){
-  it("should run stack when 'data' is emitted", function(done){
-    var client = new EventEmitter();
+  it("should run stack when data is available", function(done){
+    var client = {};
+
     var stack = new Stack();
 
     stack.use({
@@ -17,19 +18,18 @@ describe('Stack', function(){
     });
 
     stack.use({
-      handle: function(_client, packet) {
+      handle: function(_client, packet, next, done) {
         assert.equal(_client, client);
         assert.equal(packet, 'hello');
         done();
       }
     });
 
-    stack.handle(client);
-    client.emit('data', 'hello');
+    stack.process(client, 'hello', done);
   });
 
   it("should call error handler on error", function(done){
-    var client = new EventEmitter();
+    var client = {};
 
     var stack = new Stack(function(err){
       assert.equal(err, 'error');
@@ -50,12 +50,11 @@ describe('Stack', function(){
       }
     });
 
-    stack.handle(client);
-    client.emit('data', 'hello');
+    stack.process(client, 'hello', function(){});
   });
 
   it("should call install for each client", function(done){
-    var client = new EventEmitter();
+    var client = {};
     var stack = new Stack();
 
     stack.use({
@@ -71,7 +70,7 @@ describe('Stack', function(){
       }
     });
 
-    stack.handle(client);
+    stack.install(client);
   });
 
   it('should set the stack on the middleware', function(){

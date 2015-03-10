@@ -1,37 +1,35 @@
 var mqtt = require('mqtt');
 
-var client = mqtt.connect({
-  port: process.env['PORT'] || 1883,
-  host: 'localhost',
-  clean: true,
-  keepalive: 0
-});
+var port = process.env['PORT'] || 1883;
 
-var sent = 0;
+var counter = 0;
 var interval = 5000;
 
 function count() {
-  console.log('sent/s', sent / interval * 1000);
-  sent = 0;
+  console.log('[send]', Math.round(counter / interval * 1000), 'msg/s');
+  counter = 0;
 }
 
 setInterval(count, interval);
 
+var client = mqtt.connect({
+  port: port,
+  host: 'localhost',
+  clean: true,
+  keepalive: 0,
+  encoding: 'binary'
+});
+
 function immediatePublish() {
-  setImmediate(publish)
+  setImmediate(publish);
 }
 
 function publish() {
-  sent++;
+  counter++;
   client.publish('test', 'payload', immediatePublish);
 }
 
 client.on('connect', function(){
-  console.log('connected!');
+  console.log('[send] connected to', port);
   publish();
-});
-
-client.on('error', function() {
-  console.log('reconnect!');
-  client.stream.end();
 });

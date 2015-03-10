@@ -1,5 +1,8 @@
 var _ = require('underscore');
 var async = require('async');
+var stream = require('stream');
+
+var Client = require('./client');
 
 /**
  * Stack Class
@@ -24,23 +27,30 @@ Stack.prototype.use = function(middleware) {
 };
 
 /**
- * Handle a client using the prepared stack.
+ * Generates handler that takes streams as an input.
  *
- * @param client - the client that should be handled
+ * @returns {Function}
  */
-Stack.prototype.handle = function(client) {
+Stack.prototype.handler = function(){
   var self = this;
+
+  return function(stream) {
+    new Client(self, stream);
+  }
+};
+
+/**
+ * Install a client on all middlewares.
+ *
+ * @param client - the client that should be installed
+ */
+Stack.prototype.install = function(client) {
   _.each(this.middlewares, function(m){
     if(m.install) {
       m.install(client);
     }
   });
-
-  client.on('data', function(packet){
-    self.process(client, packet);
-  });
 };
-
 
 /**
  * Run the stack against a client and a single packet. This will be
@@ -48,8 +58,9 @@ Stack.prototype.handle = function(client) {
  *
  * @param client - the stream emitted the packet
  * @param packet - the packet that should be handled
+ * @param done - to be called on finish
  */
-Stack.prototype.process = function(client, packet) {
+Stack.prototype.process = function(client, packet, done) {
   var self = this;
   var l = this.middlewares.length;
   var i = -1;
@@ -60,7 +71,7 @@ Stack.prototype.process = function(client, packet) {
       i++;
       if(i < l) {
         if(self.middlewares[i].handle) {
-          return self.middlewares[i].handle(client, packet, next);
+          return self.middlewares[i].handle(client, packet, next, done);
         } else {
           return next();
         }

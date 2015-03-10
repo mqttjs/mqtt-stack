@@ -23,9 +23,12 @@ PacketEmitter.prototype.install = function(client) {
  *
  * @param client
  * @param packet
+ * @param next
+ * @param done
  */
-PacketEmitter.prototype.handle = function(client, packet) {
+PacketEmitter.prototype.handle = function(client, packet, next, done) {
   client.emit(packet.cmd, packet);
+  done();
 };
 
 module.exports = PacketEmitter;

@@ -1,12 +1,11 @@
 var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
 
 var stackHelper = require('../../support/stack_helper');
 var InboundManager = require('../../../src/middlewares/inbound_manager');
 
 describe('InboundManager', function(){
   it('should call "relayMessage"', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
     var packet = {
       cmd: 'publish',
@@ -30,11 +29,9 @@ describe('InboundManager', function(){
   });
 
   it('should send "puback" on QoS 1', function(done){
-    var stream = new EventEmitter();
+    var stream = {};
 
-    stream.puback = function(){
-      done();
-    };
+    stream.write = function(){};
 
     var packet = {
       cmd: 'publish',
@@ -49,6 +46,6 @@ describe('InboundManager', function(){
       }
     });
 
-    middleware.handle(stream, packet);
+    middleware.handle(stream, packet, function(){}, done);
   });
 });

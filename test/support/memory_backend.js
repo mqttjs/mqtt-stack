@@ -13,23 +13,15 @@ var MemoryBackend = function(config) {
 
 MemoryBackend.prototype.install = function(client) {
   var self = this;
-  client._forwarder = function(packet) {
-    setImmediate(function(){
-      self.stack.execute('forwardMessage', {
-        client: client,
-        packet: packet
-      });
-    });
+  client._forwarder = function(packet, callback) {
+    self.stack.execute('forwardMessage', {
+      client: client,
+      packet: packet
+    }, callback);
   };
 };
 
 /* SessionManager */
-
-//MemoryBackend.prototype.closeOldSession = function(id) {
-//  if(this.sessions[id]) {
-//    this.sessions[id].client.destroy();
-//  }
-//};
 
 MemoryBackend.prototype._ensureSession = function(ctx) {
   if(!this.sessions[ctx.client._client_id]) {
@@ -83,20 +75,17 @@ MemoryBackend.prototype.lookupRetainedMessages = function(ctx, store, callback) 
 /* InboundManager */
 
 MemoryBackend.prototype.relayMessage = function(ctx, callback){
-  this.pubsub.emit(ctx.packet);
-  if(callback) callback();
+  this.pubsub.emit(ctx.packet, callback);
 };
 
 /* SubscriptionManager */
 
 MemoryBackend.prototype.subscribeTopic = function(ctx, store, callback) {
-  this.pubsub.on(ctx.topic, ctx.client._forwarder);
-  if(callback) callback();
+  this.pubsub.on(ctx.topic, ctx.client._forwarder, callback);
 };
 
 MemoryBackend.prototype.unsubscribeTopic = function(ctx, callback) {
-  this.pubsub.removeListener(ctx.topic, ctx.client._forwarder);
-  if(callback) callback();
+  this.pubsub.removeListener(ctx.topic, ctx.client._forwarder, callback);
 };
 
 module.exports = MemoryBackend;
