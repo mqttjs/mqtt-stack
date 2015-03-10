@@ -23,12 +23,6 @@ MemoryBackend.prototype.install = function(client) {
 
 /* SessionManager */
 
-//MemoryBackend.prototype.closeOldSession = function(id) {
-//  if(this.sessions[id]) {
-//    this.sessions[id].client.destroy();
-//  }
-//};
-
 MemoryBackend.prototype._ensureSession = function(ctx) {
   if(!this.sessions[ctx.client._client_id]) {
     this.sessions[ctx.client._client_id] = [];
