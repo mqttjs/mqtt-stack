@@ -26,18 +26,15 @@ var Connection = function(config) {
  * @param ctx
  */
 Connection.prototype.closeClient = function(ctx){
-  ctx.client._dead = true;
   ctx.client.close();
   this.stack.execute('uncleanDisconnect', ctx);
 };
 
 /**
- * Will manage the client._dead flag and execute 'uncleanDisconnect'
- * on 'close' and 'error'
+ * Will execute 'uncleanDisconnect' on 'close' and 'error'
  *
  * - closes client on 'error' and executes 'uncleanDisconnect'
  * - executes 'uncleanDisconnect' on 'close' without a previous 'disconnect' packet
- * - manages the client._dead flag
  *
  * @param client
  */
@@ -46,20 +43,18 @@ Connection.prototype.install = function(client) {
 
   client._sent_first = false;
   client._sent_disconnect = false;
-  client._dead = false;
 
   client.on('error', function(){
+    client.close();
     if(!client._sent_disconnect) {
-      client._dead = true;
-      client.close();
       return self.stack.execute('uncleanDisconnect', {
         client: client
       });
     }
   });
   client.on('close', function(){
+    client.close();
     if(!client._sent_disconnect) {
-      client._dead = true;
       return self.stack.execute('uncleanDisconnect', {
         client: client
       });
@@ -88,11 +83,9 @@ Connection.prototype.handle = function(client, packet, next, done) {
     client._sent_first = true;
     if(packet.cmd == 'connect') {
       if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
-        client._dead = true;
         client.close();
         return done();
       } else if((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
-        client._dead = true;
         client.close();
         return done();
       } else {
@@ -102,13 +95,11 @@ Connection.prototype.handle = function(client, packet, next, done) {
         return next();
       }
     } else {
-      client._dead = true;
       client.close();
       return done();
     }
   } else {
     if(packet.cmd == 'connect') {
-      client._dead = true;
       client.close();
       self.stack.execute('uncleanDisconnect', {
         client: client
@@ -116,7 +107,6 @@ Connection.prototype.handle = function(client, packet, next, done) {
       return done();
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
-      client._dead = true;
       client.close();
       self.stack.execute('cleanDisconnect', {
         client: client

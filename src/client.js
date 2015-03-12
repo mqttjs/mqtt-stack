@@ -18,6 +18,7 @@ function Client(stack, stream) {
   this.stream = stream;
   this._parser = mqtt.parser();
   this._workload = 1;
+  this._dead = false;
 
   this.stack.install(this);
 
@@ -62,7 +63,9 @@ Client.prototype._work = function(){
  * @param done
  */
 Client.prototype.write = function(packet, done) {
-  this.stream.write(mqtt.generate(packet), 'binary', done)
+  if(!this._dead) {
+    this.stream.write(mqtt.generate(packet), 'binary', done)
+  }
 };
 
 /**
@@ -71,6 +74,8 @@ Client.prototype.write = function(packet, done) {
  * @param done
  */
 Client.prototype.close = function(done) {
+  this._dead = true;
+
   if(this.stream.destroy) {
     this.stream.destroy();
   } else {

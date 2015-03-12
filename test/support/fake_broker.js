@@ -4,7 +4,9 @@ var s = require('../../index');
 var MemoryBackend = require('./memory_backend');
 
 var FakeBroker = function(port){
-  this.stack = new s.Stack();
+  this.stack = new s.Stack(function(err){
+    console.error(err);
+  });
 
   this.stack.use(new MemoryBackend());
 
