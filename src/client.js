@@ -77,12 +77,10 @@ Client.prototype.close = function(done) {
   this._dead = true;
 
   if(this.stream.destroy) {
-    this.stream.destroy();
+    this.stream.destroy(done);
   } else {
-    this.stream.end();
+    this.stream.end(done);
   }
-
-  if(done) done();
 };
 
 module.exports = Client;
