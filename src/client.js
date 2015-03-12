@@ -2,6 +2,15 @@ var mqtt = require('mqtt-packet');
 var EE = require('events').EventEmitter;
 var util  = require('util');
 
+/**
+ * Client Class
+ *
+ * Represents a connected client.
+ *
+ * @param stack
+ * @param stream
+ * @constructor
+ */
 function Client(stack, stream) {
   var self = this;
 
@@ -28,6 +37,9 @@ function Client(stack, stream) {
 
 util.inherits(Client, EE);
 
+/**
+ * Work in incomming packets.
+ */
 Client.prototype.work = function(){
   this.workload--;
 
@@ -41,10 +53,21 @@ Client.prototype.work = function(){
   }
 };
 
+/**
+ * Write data to the clients stream.
+ *
+ * @param packet
+ * @param done
+ */
 Client.prototype.write = function(packet, done) {
   this.stream.write(mqtt.generate(packet), 'binary', done)
 };
 
+/**
+ * Close the connection
+ *
+ * @param done
+ */
 Client.prototype.close = function(done) {
   if(this.stream.destroy) {
     this.stream.destroy();
