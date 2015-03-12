@@ -95,17 +95,30 @@ Stack.prototype.execute = function(fn, data, store, callback){
     store = null;
   }
 
-  async.mapSeries(this.middlewares, function(m, cb){
-    if(m[fn]) {
-      if(store) {
-        return m[fn](data, store, cb);
-      } else {
-        return m[fn](data, cb);
-      }
+  this._execute_fn = fn;
+  this._execute_data = data;
+  this._execute_store = store;
+
+  async.mapSeries(this.middlewares, this._execute.bind(this), callback);
+};
+
+/**
+ * Exeucte a single task on a middleware
+ *
+ * @param m
+ * @param cb
+ * @private
+ */
+Stack.prototype._execute = function(m, cb) {
+  if(m[this._execute_fn]) {
+    if(this._execute_store) {
+      return m[this._execute_fn](this._execute_data, this._execute_store, cb);
     } else {
-      return cb();
+      return m[this._execute_fn](this._execute_data, cb);
     }
-  }, callback);
+  } else {
+    return cb();
+  }
 };
 
 module.exports = Stack;
