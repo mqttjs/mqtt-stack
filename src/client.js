@@ -16,39 +16,41 @@ function Client(stack, stream) {
 
   this.stack = stack;
   this.stream = stream;
-  this.parser = mqtt.parser();
-  this.workload = 1;
+  this._parser = mqtt.parser();
+  this._workload = 1;
 
   this.stack.install(this);
 
-  stream.on('readable', self.work.bind(self));
+  stream.on('readable', self._work.bind(self));
   stream.on('error', this.emit.bind(this, 'error'));
   stream.on('close', this.emit.bind(this, 'close'));
 
-  this.parser.on('packet', function(packet){
-    self.workload++;
-    stack.process(self, packet, self.work.bind(self));
+  this._parser.on('packet', function(packet){
+    self._workload++;
+    stack.process(self, packet, self._work.bind(self));
   });
 
-  this.parser.on('error', this.emit.bind(this, 'error'));
+  this._parser.on('error', this.emit.bind(this, 'error'));
 
-  this.work();
+  this._work();
 }
 
 util.inherits(Client, EE);
 
 /**
- * Work in incomming packets.
+ * Work on incomming packets.
+ *
+ * @private
  */
-Client.prototype.work = function(){
-  this.workload--;
+Client.prototype._work = function(){
+  this._workload--;
 
-  if(this.workload <= 0) {
-    this.workload = 0;
+  if(this._workload <= 0) {
+    this._workload = 0;
     var chunk = this.stream.read();
 
     if(chunk) {
-      this.parser.parse(chunk);
+      this._parser.parse(chunk);
     }
   }
 };
