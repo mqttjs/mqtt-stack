@@ -11,15 +11,12 @@ describe('Connection', function(){
     var called = false;
 
     client.close = function(){
-      assert(client._dead);
       called = true;
     };
 
     var middleware = new Connection();
 
     middleware.install(client);
-
-    assert(!client._dead);
 
     middleware.handle(client, {
       cmd: 'test'
@@ -35,15 +32,12 @@ describe('Connection', function(){
     var called = false;
 
     client.close = function(){
-      assert(client._dead);
       called = true;
     };
 
     var middleware = new Connection();
 
     middleware.install(client);
-
-    assert(!client._dead);
 
     middleware.stack = {
       execute: function(fn, ctx){
@@ -70,15 +64,12 @@ describe('Connection', function(){
     var called = false;
 
     client.close = function(){
-      assert(client._dead);
       called = true;
     };
 
     var middleware = new Connection();
 
     middleware.install(client);
-
-    assert(!client._dead);
 
     middleware.stack = {
       execute: function(fn, ctx){
@@ -102,15 +93,14 @@ describe('Connection', function(){
   it("should emit 'uncleanDisconnect' on 'close' event", function(done){
     var client = new stream.Duplex();
 
+    client.close = function(){};
+
     var middleware = new Connection();
 
     middleware.install(client);
 
-    assert(!client._dead);
-
     middleware.stack = {
       execute: function(fn, ctx){
-        assert(ctx.client._dead);
         assert.equal(fn, 'uncleanDisconnect');
         assert.equal(ctx.client, client);
         done();
@@ -126,15 +116,12 @@ describe('Connection', function(){
     var called = false;
 
     client.close = function() {
-      assert(client._dead);
       called = true;
     };
 
     var middleware = new Connection();
 
     middleware.install(client);
-
-    assert(!client._dead);
 
     middleware.stack = {
       execute: function(fn, ctx){
@@ -153,7 +140,6 @@ describe('Connection', function(){
     var called = false;
 
     client.close = function(){
-      assert(client._dead);
       called = true;
     };
 
@@ -162,8 +148,6 @@ describe('Connection', function(){
     });
 
     middleware.install(client);
-
-    assert(!client._dead);
 
     middleware.handle(client, {
       cmd: 'connet',
@@ -184,7 +168,6 @@ describe('Connection', function(){
     middleware.closeClient({
       client: {
         close: function(){
-          assert(this._dead);
           done();
         }
       }
