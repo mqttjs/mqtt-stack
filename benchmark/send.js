@@ -26,7 +26,7 @@ function immediatePublish() {
 
 function publish() {
   counter++;
-  client.publish('test', 'payload', immediatePublish);
+  client.publish('test', counter.toString(), immediatePublish);
 }
 
 client.on('connect', function(){
