@@ -38,6 +38,7 @@ Authentication.prototype.handle = function(client, packet, next, done) {
         password: packet.password
       }, store, function(err){
         if(err) return next(err);
+
         if(store.valid) {
           client._authenticated = true;
           return next();

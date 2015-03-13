@@ -40,9 +40,10 @@ describe('Connection', function(){
     middleware.install(client);
 
     middleware.stack = {
-      execute: function(fn, ctx){
+      execute: function(fn, ctx, callback){
         assert.equal(fn, 'uncleanDisconnect');
         assert.equal(ctx.client, client);
+        callback();
       }
     };
 
@@ -72,9 +73,10 @@ describe('Connection', function(){
     middleware.install(client);
 
     middleware.stack = {
-      execute: function(fn, ctx){
+      execute: function(fn, ctx, callback){
         assert.equal(fn, 'cleanDisconnect');
         assert.equal(ctx.client, client);
+        callback();
       }
     };
 

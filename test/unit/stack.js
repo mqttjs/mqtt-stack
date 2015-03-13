@@ -84,52 +84,49 @@ describe('Stack', function(){
     var stack = new Stack();
 
     stack.use({
-      testFunction: function(n, callback) {
-        callback(null, [n + 1, n + 2]);
+      testFunction: function(n, store, callback) {
+        store.push(n + 1);
+        callback();
       }
     });
 
     stack.use({
-      testFunction: function(n, callback) {
-        callback(null, [n + 3, n + 4]);
+      testFunction: function(n, store, callback) {
+        store.push(n + 2);
+        callback();
       }
     });
 
-    stack.execute('testFunction', 1, function(_, results){
-      assert.deepEqual(results[0], [2, 3]);
-      assert.deepEqual(results[1], [4, 5]);
+    var store = [];
+
+    stack.execute('testFunction', 1, store, function(){
+      assert.deepEqual(store, [2, 3]);
       done();
     });
   });
 
   it('should execute a function on all middlewares even if there are none', function(done){
     var stack = new Stack();
-
-    stack.execute('testFunction', 1, function(_, result){
-      assert.equal(result.length, 0);
-      done();
-    });
+    stack.execute('testFunction', 1, done);
   });
 
   it('should execute a function on all middlewares and catch errors', function(done){
     var stack = new Stack();
 
     stack.use({
-      testFunction: function(ctx, callback) {
-        callback(null, 1 + 1);
+      testFunction: function(n, callback) {
+        callback();
       }
     });
 
     stack.use({
-      testFunction: function(_, callback) {
+      testFunction: function(n, callback) {
         callback(new Error('fail'));
       }
     });
 
-    stack.execute('testFunction', 1, function(err, result){
+    stack.execute('testFunction', 1, function(err){
       assert(err);
-      assert.equal(result[0], 2);
-      assert.equal(result[1], undefined);
       done();
     });
   });

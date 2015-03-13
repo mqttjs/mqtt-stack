@@ -25,6 +25,7 @@ Authorization.prototype.handle = function(client, packet, next, done) {
     packet: packet
   }, store, function(err){
     if(err) return next(err);
+
     if(store.valid) {
       return next();
     } else {

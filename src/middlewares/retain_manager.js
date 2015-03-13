@@ -52,15 +52,18 @@ RetainManager.prototype.handle = function(client, packet, next) {
   if(packet.cmd == 'publish') {
     if(packet.retain) {
       var p = _.clone(packet);
-      this.stack.execute('storeRetainedMessage', {
+      packet.retain = false;
+      return this.stack.execute('storeRetainedMessage', {
         client: client,
         packet: p,
         topic: p.topic
-      });
+      }, next);
+    } else {
+      return next();
     }
-    packet.retain = false;
+  } else {
+    return next();
   }
-  next();
 };
 
 module.exports = RetainManager;

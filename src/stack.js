@@ -1,5 +1,4 @@
 var _ = require('underscore');
-var async = require('async');
 var stream = require('stream');
 
 var Client = require('./client');
@@ -56,14 +55,18 @@ Stack.prototype.install = function(client) {
  * Run the stack against a client and a single packet. This will be
  * automatically called with data from the underlying stream.
  *
+ * The errorHandler gets called with any error ocurring in between.
+ *
  * @param client - the stream emitted the packet
  * @param packet - the packet that should be handled
  * @param done - to be called on finish
  */
 Stack.prototype.process = function(client, packet, done) {
   var self = this;
+
   var l = this.middlewares.length;
   var i = -1;
+
   function next(err) {
     if(err) {
       return self.errorHandler(err, client, packet);
@@ -78,6 +81,7 @@ Stack.prototype.process = function(client, packet, done) {
       }
     }
   }
+
   next();
 };
 
@@ -86,39 +90,42 @@ Stack.prototype.process = function(client, packet, done) {
  *
  * @param fn - the name of the function
  * @param [data] - object passed as first argument
- * @param [store] - object passes as second argument (usefull to collect data)
- * @param [callback] - function to be called after finish
+ * @param [store] - object passed as second argument (usefull to collect data)
+ * @param [callback] - function to be called after finish unless there is an error
  */
 Stack.prototype.execute = function(fn, data, store, callback){
+  var self = this;
+
   if(typeof store === 'function') {
     callback = store;
     store = null;
   }
 
-  this._execute_fn = fn;
-  this._execute_data = data;
-  this._execute_store = store;
+  var l = this.middlewares.length;
+  var i = -1;
 
-  async.mapSeries(this.middlewares, this._execute.bind(this), callback);
-};
-
-/**
- * Exeucte a single task on a middleware
- *
- * @param m
- * @param cb
- * @private
- */
-Stack.prototype._execute = function(m, cb) {
-  if(m[this._execute_fn]) {
-    if(this._execute_store) {
-      return m[this._execute_fn](this._execute_data, this._execute_store, cb);
+  function next(err) {
+    if(err) {
+      return callback(err);
     } else {
-      return m[this._execute_fn](this._execute_data, cb);
+      i++;
+      if(i < l) {
+        if(self.middlewares[i][fn]) {
+          if(store) {
+            return self.middlewares[i][fn](data, store, next);
+          } else {
+            return self.middlewares[i][fn](data, next);
+          }
+        } else {
+          return next();
+        }
+      } else {
+        return callback();
+      }
     }
-  } else {
-    return cb();
   }
+
+  next();
 };
 
 module.exports = Stack;

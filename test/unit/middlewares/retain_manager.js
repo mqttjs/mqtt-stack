@@ -4,7 +4,7 @@ var stackHelper = require('../../support/stack_helper');
 var RetainManager = require('../../../src/middlewares/retain_manager');
 
 describe('RetainManager', function(){
-  it('should store retaines messages and reset flag', function(done){
+  it('should store retained messages and reset flag', function(done){
     var stream = {};
 
     var packet = {
@@ -18,8 +18,9 @@ describe('RetainManager', function(){
     var middleware = new RetainManager();
 
     stackHelper.mockExecute(middleware, {
-      storeRetainedMessage: function(ctx) {
-        assert.deepEqual(ctx.packet, packet);
+      storeRetainedMessage: function(ctx, callback) {
+        assert.equal(ctx.packet.retain, true);
+        callback();
       }
     });
 

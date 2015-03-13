@@ -24,10 +24,11 @@ var Connection = function(config) {
  * 'uncleanDisconnect' right after.
  *
  * @param ctx
+ * @param callback
  */
-Connection.prototype.closeClient = function(ctx){
+Connection.prototype.closeClient = function(ctx, callback){
   ctx.client.close();
-  this.stack.execute('uncleanDisconnect', ctx);
+  this.stack.execute('uncleanDisconnect', ctx, callback);
 };
 
 /**
@@ -101,17 +102,15 @@ Connection.prototype.handle = function(client, packet, next, done) {
   } else {
     if(packet.cmd == 'connect') {
       client.close();
-      self.stack.execute('uncleanDisconnect', {
+      return self.stack.execute('uncleanDisconnect', {
         client: client
-      });
-      return done();
+      }, done);
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
       client.close();
-      self.stack.execute('cleanDisconnect', {
+      return self.stack.execute('cleanDisconnect', {
         client: client
-      });
-      return done();
+      }, done);
     } else {
       return next();
     }
