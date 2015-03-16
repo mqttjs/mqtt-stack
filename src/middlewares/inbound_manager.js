@@ -27,11 +27,10 @@ InboundManager.prototype.handle = function(client, packet, next, done){
     }, function(err){
       if(err) return next(err);
       if(packet.qos == 1) {
-        client.write({
+        return client.write({
           cmd: 'puback',
           messageId: packet.messageId
-        });
-        return done();
+        }, done);
       } else {
         return done();
       }

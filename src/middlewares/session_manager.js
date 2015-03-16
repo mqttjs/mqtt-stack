@@ -105,8 +105,8 @@ SessionManager.prototype._handleUncleanClient = function(client, packet, next, d
   }, store, function(err){
     if(err) return next(err);
 
-    async.mapSeries(store, function(s, cb){
-      self.stack.execute('subscribeTopic', {
+    return async.mapSeries(store, function(s, cb){
+      return self.stack.execute('subscribeTopic', {
         client: client,
         packet: packet,
         topic: s.topic,
@@ -115,13 +115,11 @@ SessionManager.prototype._handleUncleanClient = function(client, packet, next, d
     }, function(err){
       if(err) return next(err);
 
-      client.write({
+      return client.write({
         cmd: 'connack',
         returnCode: 0,
         sessionPresent: (store.length > 0)
-      });
-
-      return done();
+      }, done);
     });
   });
 };

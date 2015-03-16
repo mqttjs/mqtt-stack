@@ -15,7 +15,7 @@ var LastWill = function() {};
  *
  * @param ctx
  */
-LastWill.prototype.uncleanDisconnect = function(ctx){
+LastWill.prototype.uncleanDisconnect = function(ctx, cb){
   var self = this;
 
   if(ctx.client._last_will) {
@@ -26,6 +26,8 @@ LastWill.prototype.uncleanDisconnect = function(ctx){
     setImmediate(function(){
       self.stack.process(ctx.client, packet, function(){});
     });
+
+    cb();
   }
 };
 
@@ -42,7 +44,8 @@ LastWill.prototype.handle = function(client, packet, next) {
       client._last_will = packet.will;
     }
   }
-  next();
+
+  return next();
 };
 
 module.exports = LastWill;

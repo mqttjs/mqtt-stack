@@ -27,8 +27,10 @@ var Connection = function(config) {
  * @param callback
  */
 Connection.prototype.closeClient = function(ctx, callback){
-  ctx.client.close();
-  this.stack.execute('uncleanDisconnect', ctx, callback);
+  var self = this;
+  return ctx.client.close(function(){
+    self.stack.execute('uncleanDisconnect', ctx, callback);
+  });
 };
 
 /**
@@ -46,20 +48,23 @@ Connection.prototype.install = function(client) {
   client._sent_disconnect = false;
 
   client.on('error', function(){
-    client.close();
-    if(!client._sent_disconnect) {
-      return self.stack.execute('uncleanDisconnect', {
-        client: client
-      });
-    }
+    return client.close(function(){
+      if(!client._sent_disconnect) {
+        return self.stack.execute('uncleanDisconnect', {
+          client: client
+        });
+      }
+    });
   });
+
   client.on('close', function(){
-    client.close();
-    if(!client._sent_disconnect) {
-      return self.stack.execute('uncleanDisconnect', {
-        client: client
-      });
-    }
+    return client.close(function(){
+      if(!client._sent_disconnect) {
+        return self.stack.execute('uncleanDisconnect', {
+          client: client
+        });
+      }
+    });
   });
 };
 
@@ -84,11 +89,9 @@ Connection.prototype.handle = function(client, packet, next, done) {
     client._sent_first = true;
     if(packet.cmd == 'connect') {
       if(this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
-        client.close();
-        return done();
+        return client.close(done);
       } else if((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
-        client.close();
-        return done();
+        return client.close(done);
       } else {
         if(!packet.clientId || packet.clientId.length === 0) {
           packet.clientId = crypto.randomBytes(16).toString('hex');
@@ -96,21 +99,22 @@ Connection.prototype.handle = function(client, packet, next, done) {
         return next();
       }
     } else {
-      client.close();
-      return done();
+      return client.close(done);
     }
   } else {
     if(packet.cmd == 'connect') {
-      client.close();
-      return self.stack.execute('uncleanDisconnect', {
-        client: client
-      }, done);
+      return client.close(function(){
+        return self.stack.execute('uncleanDisconnect', {
+          client: client
+        }, done);
+      });
     } else if(packet.cmd == 'disconnect') {
       client._sent_disconnect = true;
-      client.close();
-      return self.stack.execute('cleanDisconnect', {
-        client: client
-      }, done);
+      return client.close(function(){
+        return self.stack.execute('cleanDisconnect', {
+          client: client
+        }, done);
+      });
     } else {
       return next();
     }

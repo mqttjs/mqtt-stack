@@ -33,8 +33,9 @@ describe('SessionManager', function(){
   it('should call lookupSubscriptions for unclean client', function(done){
     var stream = {};
 
-    stream.write = function(packet){
+    stream.write = function(packet, cb){
       assert(packet.sessionPresent);
+      cb();
     };
 
     var packet = {

@@ -6,7 +6,9 @@ describe('KeepAlive', function(){
   it('should respond to pingreq', function(done){
     var client = {};
 
-    client.write = function(){};
+    client.write = function(_, cb){
+      cb();
+    };
 
     var middleware = new KeepAlive();
 

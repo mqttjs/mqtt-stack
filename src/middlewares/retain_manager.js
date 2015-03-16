@@ -28,8 +28,8 @@ RetainManager.prototype.subscribeTopic = function(ctx, _, callback) {
     if(err) callback(err);
 
     if(store.length > 0) {
-      async.mapSeries(store, function(p, cb){
-        self.stack.execute('forwardMessage', {
+      return async.mapSeries(store, function(p, cb){
+        return self.stack.execute('forwardMessage', {
           client: ctx.client,
           packet: p
         }, cb);
@@ -53,6 +53,7 @@ RetainManager.prototype.handle = function(client, packet, next) {
     if(packet.retain) {
       var p = _.clone(packet);
       packet.retain = false;
+
       return this.stack.execute('storeRetainedMessage', {
         client: client,
         packet: p,

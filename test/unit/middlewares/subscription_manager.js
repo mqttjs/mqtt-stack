@@ -15,8 +15,9 @@ describe('SubscriptionManager', function(){
       }]
     };
 
-    stream.write = function(packet) {
+    stream.write = function(packet, cb) {
       assert.deepEqual(packet.granted, [1]);
+      cb();
     };
 
     var middleware = new SubscriptionManager();
@@ -50,8 +51,9 @@ describe('SubscriptionManager', function(){
       }]
     };
 
-    stream.write = function(packet) {
+    stream.write = function(packet, cb) {
       assert.deepEqual(packet.granted, [1, 0, 2]);
+      cb();
     };
 
     var middleware = new SubscriptionManager();
@@ -73,7 +75,9 @@ describe('SubscriptionManager', function(){
       unsubscriptions: ['foo']
     };
 
-    stream.write = function(){};
+    stream.write = function(_, cb){
+      cb();
+    };
 
     var middleware = new SubscriptionManager();
 

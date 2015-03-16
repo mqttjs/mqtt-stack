@@ -70,13 +70,14 @@ KeepAlive.prototype.handle = function(client, packet, next, done) {
     if(client._keep_alive_timer) {
       client._keep_alive_timer.reset();
     }
+
     if(packet.cmd == 'pingreq') {
-      client.write({
+      return client.write({
         cmd: 'pingresp'
-      });
-      return done();
+      }, done);
+    } else {
+      return next();
     }
-    return next();
   }
 };
 

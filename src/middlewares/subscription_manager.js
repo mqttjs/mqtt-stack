@@ -25,9 +25,9 @@ var SubscriptionManager = function(){};
  */
 SubscriptionManager.prototype.handle = function(client, packet, next, done){
   if(packet.cmd == 'subscribe') {
-    this._handleSubscription(client, packet, next, done);
+    return this._handleSubscription(client, packet, next, done);
   } else if(packet.cmd == 'unsubscribe') {
-    this._handleUnsubscription(client, packet, next, done);
+    return this._handleUnsubscription(client, packet, next, done);
   } else {
     return next();
   }
@@ -46,7 +46,7 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
   var self = this;
   async.mapSeries(packet.subscriptions, function(s, cb){
     var store = { grant: s.qos };
-    self.stack.execute('subscribeTopic', {
+    return self.stack.execute('subscribeTopic', {
       client: client,
       packet: packet,
       topic: s.topic,
@@ -54,18 +54,16 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
     }, store, function(err){
       if(err) return cb(err);
 
-      cb(null, store.grant === false ? 128 : store.grant);
+      return cb(null, store.grant === false ? 128 : store.grant);
     });
   }, function(err, results){
     if(err) return next(err);
 
-    client.write({
+    return client.write({
       cmd: 'suback',
       messageId: packet.messageId,
       granted: results
-    });
-
-    return done();
+    }, done);
   });
 };
 
@@ -79,8 +77,8 @@ SubscriptionManager.prototype._handleSubscription = function(client, packet, nex
  */
 SubscriptionManager.prototype._handleUnsubscription = function(client, packet, next, done) {
   var self = this;
-  async.mapSeries(packet.unsubscriptions, function(us, cb){
-    self.stack.execute('unsubscribeTopic', {
+  return async.mapSeries(packet.unsubscriptions, function(us, cb){
+    return self.stack.execute('unsubscribeTopic', {
       client: client,
       packet: packet,
       topic: us
@@ -88,12 +86,10 @@ SubscriptionManager.prototype._handleUnsubscription = function(client, packet, n
   }, function(err){
     if(err) return next(err);
 
-    client.write({
+    return client.write({
       cmd: 'unsuback',
       messageId: packet.messageId
-    });
-
-    return done();
+    }, done);
   });
 };
 

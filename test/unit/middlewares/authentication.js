@@ -7,8 +7,9 @@ describe('Authentication', function(){
   it('should keep authenticating if unsuccesful', function(done){
     var client = {};
 
-    client.write = function(packet){
+    client.write = function(packet, cb){
       assert.equal(packet.returnCode, 4);
+      cb();
     };
 
     var packet = {
