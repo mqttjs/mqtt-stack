@@ -11,7 +11,7 @@ var Authorization = function(){};
 
 /**
  * Executes 'authorizePacket' for every packet and only calls
- * next if authoriztion is valid.
+ * propagates if authorization is valid.
  *
  * @param client
  * @param packet
