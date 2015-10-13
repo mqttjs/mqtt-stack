@@ -14,7 +14,9 @@ class Stack {
      */
     constructor(errorHandler) {
         this.middlewares = [];
-        this.errorHandler = errorHandler;
+        this.errorHandler = errorHandler || function (err) {
+                throw err;
+            };
     }
 
     /**
@@ -88,7 +90,7 @@ class Stack {
      *
      * @param fn - the name of the function
      * @param [data] - object passed as first argument
-     * @param [store] - object passed as second argument (usefull to collect data)
+     * @param [store] - object passed as second argument (useful to collect data)
      * @param [callback] - function to be called after finish unless there is an error
      */
     execute(fn, data, store, callback) {
