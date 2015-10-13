@@ -1,24 +1,25 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 
-var PacketEmitter = require('../../../src/middlewares/packt_emitter');
+var PacketEmitter = require('../../../src/middlewares/packet_emitter');
 
 describe('PacketEmitter', function(){
   it('should emit packets as events', function(done){
-    var client = new EventEmitter();
+    var myclient = new EventEmitter();
 
     var packet = {
       cmd: 'test',
       value: 1
     };
 
-    var middleware = new PacketEmitter(function(){
+    var middleware = new PacketEmitter();
+    middleware.setClientHandler(function(client){
       client.on('test', function(_packet){
         assert.equal(_packet, packet);
       });
     });
 
-    middleware.install(client);
-    middleware.handle(client, packet, function(){}, done);
+    middleware.install(myclient);
+    middleware.handle(myclient, packet, function(){}, done);
   });
 });

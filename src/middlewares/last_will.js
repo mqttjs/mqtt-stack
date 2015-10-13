@@ -1,4 +1,6 @@
-var _ = require('underscore');
+"use strict";
+let Middleware = require('../utils/middleware');
+let _ = require('underscore');
 
 /**
  * LastWill Middleware
@@ -8,44 +10,46 @@ var _ = require('underscore');
  * Required callbacks:
  *  - uncleanDisconnect
  */
-var LastWill = function() {};
+class LastWill extends Middleware {
+    /**
+     * Injects will packet if available on 'uncleanDisconnect'.
+     *
+     * @param ctx
+     * @param cb
+     */
+    uncleanDisconnect(ctx, cb) {
+        let self = this;
 
-/**
- * Injects will packet if availabe on 'uncleanDisconnect'.
- *
- * @param ctx
- */
-LastWill.prototype.uncleanDisconnect = function(ctx, cb){
-  var self = this;
+        if (ctx.client._last_will) {
+            let packet = _.defaults(ctx.client._last_will, {
+                cmd: 'publish'
+            });
 
-  if(ctx.client._last_will) {
-    var packet = _.defaults(ctx.client._last_will, {
-      cmd: 'publish'
-    });
+            setImmediate(function () {
+                self.stack.process(ctx.client, packet, function () {
+                });
+            });
 
-    setImmediate(function(){
-      self.stack.process(ctx.client, packet, function(){});
-    });
-
-    cb();
-  }
-};
-
-/**
- * Looks for a will packet and stores it.
- *
- * @param client
- * @param packet
- * @param next
- */
-LastWill.prototype.handle = function(client, packet, next) {
-  if(packet.cmd == 'connect') {
-    if(packet.will) {
-      client._last_will = packet.will;
+            cb();
+        }
     }
-  }
 
-  return next();
-};
+    /**
+     * Looks for a will packet and stores it.
+     *
+     * @param client
+     * @param packet
+     * @param next
+     */
+    handle(client, packet, next) {
+        if (packet.cmd == 'connect') {
+            if (packet.will) {
+                client._last_will = packet.will;
+            }
+        }
+
+        return next();
+    }
+}
 
 module.exports = LastWill;

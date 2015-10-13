@@ -1,4 +1,5 @@
-var _ = require('underscore');
+"use strict";
+let Middleware = require('../utils/middleware');
 
 /**
  * OutboundManager Middleware
@@ -8,32 +9,32 @@ var _ = require('underscore');
  * Enabled callbacks:
  * - forwardMessage
  */
-var OutboundManager = function(){};
+class OutboundManager extends Middleware {
+    /**
+     * Forward messages to the client.
+     *
+     * @param ctx
+     * @param callback
+     */
+    forwardMessage(ctx, callback) {
+        ctx.client.write({
+            cmd: 'publish',
+            topic: ctx.packet.topic,
+            payload: ctx.packet.payload,
+            qos: ctx.packet.qos,
+            retain: ctx.packet.retain,
+            messageId: Math.random() * 60000
+        }, callback);
+    }
 
-/**
- * Forward messages to the client.
- *
- * @param ctx
- * @param callback
- */
-OutboundManager.prototype.forwardMessage = function(ctx, callback) {
-  ctx.client.write({
-    cmd: 'publish',
-    topic: ctx.packet.topic,
-    payload: ctx.packet.payload,
-    qos: ctx.packet.qos,
-    retain: ctx.packet.retain,
-    messageId: Math.random() * 60000
-  }, callback);
-};
-
-OutboundManager.prototype.handle = function(client, packet, next, done){
-  if(packet.cmd == 'puback') {
-    //TODO: do something
-    return done();
-  } else {
-    return next();
-  }
-};
+    handle(client, packet, next, done) {
+        if (packet.cmd == 'puback') {
+            //TODO: do something
+            return done();
+        } else {
+            return next();
+        }
+    }
+}
 
 module.exports = OutboundManager;

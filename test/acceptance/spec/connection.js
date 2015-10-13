@@ -9,8 +9,12 @@ var f = require('../../support/factory');
 describe('Connection', function(){
   it('should close client on corrupt packet (MQTT-2.0.0-1)', function(done){
     f.rawClient(function(client){
+      client.on('error', function(){
+        done();
+      });
       client.stream.write("\x00\x00\x00\x00\x00\x00");
     }, done);
+
   });
 
   it('should send a pingresp when it receives a pingreq (MQTT-3.12.4-1)', function(done) {
@@ -27,6 +31,9 @@ describe('Connection', function(){
 
   it('should close connection on not connect packet (MQTT-3.1.0-1)', function(done){
     f.rawClient(function(client){
+      client.on('error', function(){
+        done();
+      });
       client.pingreq();
     }, done);
   });

@@ -1,10 +1,12 @@
 module.exports.Stack = require('./src/stack');
+module.exports.Middleware = require('./src/utils/middleware');
 module.exports.KeepAlive = require('./src/middlewares/keep_alive');
 module.exports.LastWill = require('./src/middlewares/last_will');
 module.exports.Authentication = require('./src/middlewares/authentication');
 module.exports.Authorization = require('./src/middlewares/authorization');
 module.exports.Connection = require('./src/middlewares/connection');
-module.exports.PacketEmitter = require('./src/middlewares/packt_emitter');
+module.exports.MemoryBackend = require('./src/middlewares/memory_backend');
+module.exports.PacketEmitter = require('./src/middlewares/packet_emitter');
 module.exports.SessionManager = require('./src/middlewares/session_manager');
 module.exports.RetainManager = require('./src/middlewares/retain_manager');
 module.exports.SubscriptionManager = require('./src/middlewares/subscription_manager');

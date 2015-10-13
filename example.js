@@ -2,12 +2,9 @@ var css = require('create-stream-server');
 
 var s = require('./index');
 
-var MemoryBackend = require('./test/support/memory_backend');
-
 var stack = new s.Stack();
 
-stack.use(new MemoryBackend());
-
+stack.use(new s.MemoryBackend());
 stack.use(new s.Connection());
 stack.use(new s.KeepAlive());
 stack.use(new s.LastWill());

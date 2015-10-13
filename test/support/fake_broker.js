@@ -1,14 +1,13 @@
 var css = require('create-stream-server');
 
 var s = require('../../index');
-var MemoryBackend = require('./memory_backend');
 
 var FakeBroker = function(port){
   this.stack = new s.Stack(function(err){
     console.error(err);
   });
 
-  this.stack.use(new MemoryBackend());
+  this.stack.use(new s.MemoryBackend());
 
   this.stack.use(new s.Connection({
     forceMQTT4: true
