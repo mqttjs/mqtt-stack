@@ -7,7 +7,7 @@ let async = require('async');
  *
  * Handles sunscription and unsubscriptions.
  *
- * Enabled callbacks:
+ * Required callbacks:
  * - subscribeTopic
  * - unsubscribeTopic
  *

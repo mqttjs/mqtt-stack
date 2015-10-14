@@ -6,7 +6,7 @@ let Middleware = require('../utils/middleware');
  *
  * Manages outgoing messages.
  *
- * Enabled callbacks:
+ * Exposed callbacks:
  * - forwardMessage
  */
 class OutboundManager extends Middleware {

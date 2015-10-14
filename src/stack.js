@@ -77,7 +77,15 @@ class Stack {
             } else {
                 i++;
                 if (i < l) {
-                    return self.middlewares[i].handle(client, packet, next, done);
+                    if(self.middlewares[i].handle) {
+                        return self.middlewares[i].handle(client, packet, next, done);
+                    }
+                    else {
+                        return next();
+                    }
+                }
+                else {
+                    return done();
                 }
             }
         }

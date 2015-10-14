@@ -8,12 +8,12 @@ let async = require('async');
  * Manages the clients session and calls callbacks to manage
  * the stored subscriptions for clean and unclean clients.
  *
- * Enabled Callbacks:
+ * Required Callbacks:
  * - storeSubscription
  * - lookupSubscriptions
  * - clearSubscriptions
  *
- * Required Callbacks:
+ * Exposed Callbacks:
  *  - subscribeTopic
  */
 class SessionManager extends Middleware {

@@ -6,7 +6,7 @@ let Middleware = require('../utils/middleware');
  *
  * Authorizes invidual packet types.
  *
- * Enabled callbacks:
+ * Required callbacks:
  * - authorizePacket
  */
 

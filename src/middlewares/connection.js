@@ -7,8 +7,9 @@ let crypto = require('crypto');
  *
  * Manages the basic connection.
  *
- * Enabled callbacks:
+ * Exposed callbacks:
  * - closeClient
+ * Required callbacks:
  * - uncleanDisconnect
  * - cleanDisconnect
  */

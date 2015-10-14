@@ -1,28 +1,22 @@
-var css = require('create-stream-server');
+var net = require('net'),
+    mqttStack = require('./index');
 
-var s = require('./index');
+var stack = new mqttStack.Stack();
 
-var stack = new s.Stack();
-
-stack.use(new s.MemoryBackend());
-stack.use(new s.Connection());
-stack.use(new s.KeepAlive());
-stack.use(new s.LastWill());
-stack.use(new s.SessionManager());
-stack.use(new s.RetainManager());
-stack.use(new s.InboundManager());
-stack.use(new s.OutboundManager());
-stack.use(new s.SubscriptionManager());
+stack.use(new mqttStack.MemoryBackend());
+stack.use(new mqttStack.Connection());
+stack.use(new mqttStack.KeepAlive());
+stack.use(new mqttStack.LastWill());
+stack.use(new mqttStack.SessionManager());
+stack.use(new mqttStack.RetainManager());
+stack.use(new mqttStack.InboundManager());
+stack.use(new mqttStack.OutboundManager());
+stack.use(new mqttStack.SubscriptionManager());
 
 var port = process.env['PORT'] || 1883;
 
-this.server = css({
-  mqtt: {
-    protocol: 'tcp',
-    port: port
-  }
-}, stack.handler());
+var server = net.createServer(stack.handler());
 
-this.server.listen(function(){
-  console.log('[serv] listening on', port)
+server.listen(port, function(){
+    console.log('[serv] listening on', port)
 });

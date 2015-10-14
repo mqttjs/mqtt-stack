@@ -13,10 +13,6 @@ class Middleware {
     handle(client, packet, next) {
         next();
     }
-
-    setStack(stack) {
-        this.stack = stack;
-    }
 }
 
 module.exports = Middleware;

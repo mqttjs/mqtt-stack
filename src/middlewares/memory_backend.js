@@ -11,7 +11,7 @@ let Middleware = require('../utils/middleware'),
 /**
  * Simple backend with in-memory storage
  *
- * Required callbacks:
+ * Exposed callbacks:
  * - storeSubscription
  * - clearSubscriptions
  * - lookupSubscriptions
@@ -20,8 +20,8 @@ let Middleware = require('../utils/middleware'),
  * - relayMessage
  * - subscribeTopic
  * - unsubscribeTopic
- *
- * TODO: subscribeTopic may store QoS level and relayMessage may forward message with max. QoS level
+ * Required Callbacks:
+ * - forwardMessage
  */
 class MemoryBackend extends Middleware {
     constructor(config) {
@@ -32,14 +32,15 @@ class MemoryBackend extends Middleware {
         this.sessions = new Map();
         this.retainedMessages = new Qlobber(qlobber_mqtt_settings);
         this.pubsub = new Qlobber(qlobber_mqtt_settings);
+        this.qos_store = new Qlobber(qlobber_mqtt_settings);
         this.clientMap = new Map();
     }
 
     /* SessionManager */
 
     _ensureSession(ctx) {
-        if (!this.sessions.has(ctx.client._client_id)) {
-            this.sessions.set(ctx.client._client_id, new Set());
+        if (!this.sessions.has(ctx.clientId)) {
+            this.sessions.set(ctx.clientId, new Set());
         }
     }
 
@@ -51,7 +52,7 @@ class MemoryBackend extends Middleware {
      */
     storeSubscription(ctx, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.client._client_id).add({
+        this.sessions.get(ctx.clientId).add({
             topic: ctx.topic,
             qos: ctx.qos
         });
@@ -65,7 +66,7 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     clearSubscriptions(ctx, callback) {
-        this.sessions.delete(ctx.client._client_id);
+        this.sessions.delete(ctx.clientId);
         callback();
     }
 
@@ -78,7 +79,7 @@ class MemoryBackend extends Middleware {
      */
     lookupSubscriptions(ctx, store, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.client._client_id).forEach(function (s) {
+        this.sessions.get(ctx.clientId).forEach(function (s) {
             store.push(s);
         });
         callback();
@@ -120,10 +121,19 @@ class MemoryBackend extends Middleware {
         let listeners = _.uniq(this.pubsub.match(ctx.packet.topic));
         _.each(listeners, (listener) => {
             let client = this.clientMap.get(listener);
+            let qos = Math.max(this.qos_store.match(listener + '/' + ctx.packet.topic));
+            let packet;
+            if(_.isUndefined(qos)) {
+                packet = ctx.packet;
+            }
+            else {
+                packet = _.clone(ctx.packet); //clone packet since its qos will be modified
+                packet.qos = qos;
+            }
             if (client) {
                 this.stack.execute('forwardMessage', {
                     client: client,
-                    packet: ctx.packet
+                    packet: packet
                 }, callback);
             }
         });
@@ -136,11 +146,12 @@ class MemoryBackend extends Middleware {
      * Subscribe client to the topic
      *
      * @param ctx
-     * @param __
+     * @param store
      * @param callback
      */
-    subscribeTopic(ctx, __, callback) {
+    subscribeTopic(ctx, store, callback) {
         this.pubsub.add(ctx.topic, ctx.client._client_id);
+        this.qos_store.add(ctx.client._client_id + '/' + ctx.topic, ctx.qos);
         if (!this.clientMap.has(ctx.client._client_id)) {
             this.clientMap.set(ctx.client._client_id, ctx.client);
         }
@@ -155,6 +166,7 @@ class MemoryBackend extends Middleware {
      */
     unsubscribeTopic(ctx, callback) {
         this.pubsub.remove(ctx.topic, ctx.client._client_id);
+        this.qos_store.remove(ctx.client._client_id + '/' + ctx.topic);
         callback();
     }
 }

@@ -5,6 +5,8 @@ let Middleware = require('../utils/middleware');
  * InboundManager Middleware
  *
  * Manages incomming publish packets.
+ * Required callbacks:
+ *  - relayMessage
  */
 class InboundManager extends Middleware {
     /**

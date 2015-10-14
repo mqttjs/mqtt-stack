@@ -5,7 +5,7 @@ let Middleware = require('../utils/middleware');
  *
  * Manges connection level authentication.
  *
- * Enabled callbacks:
+ * Required callbacks:
  * - authenticateConnection
  */
 

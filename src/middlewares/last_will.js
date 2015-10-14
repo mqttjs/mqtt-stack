@@ -7,7 +7,7 @@ let _ = require('underscore');
  *
  * Manages will packet.
  *
- * Required callbacks:
+ * Exposed callbacks:
  *  - uncleanDisconnect
  */
 class LastWill extends Middleware {
