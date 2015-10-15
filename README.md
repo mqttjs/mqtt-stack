@@ -1,4 +1,7 @@
-# mqtt-stack&nbsp;&nbsp;[![Build Status](https://travis-ci.org/mqttjs/mqtt-stack.png)](https://travis-ci.org/mqttjs/mqtt-stack) [![npm version](https://badge.fury.io/js/mqtt-stack.svg)](http://badge.fury.io/js/mqtt-stack)
+[![mqtt-stack](https://raw.githubusercontent.com/kokeksibir/mqtt-stack/master/mqtt-stack.png)]
+[![Build Status](https://travis-ci.org/mqttjs/mqtt-stack.png)](https://travis-ci.org/mqttjs/mqtt-stack) [![npm version](https://badge.fury.io/js/mqtt-stack.svg)](http://badge.fury.io/js/mqtt-stack)]
+
+# mqtt-stack
 
 *In development, not yet stable.*
 
