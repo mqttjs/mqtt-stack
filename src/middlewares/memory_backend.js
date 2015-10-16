@@ -39,8 +39,8 @@ class MemoryBackend extends Middleware {
     /* SessionManager */
 
     _ensureSession(ctx) {
-        if (!this.sessions.has(ctx.clientId)) {
-            this.sessions.set(ctx.clientId, new Set());
+        if (!this.sessions.has(ctx.client._client_id)) {
+            this.sessions.set(ctx.client._client_id, new Set());
         }
     }
 
@@ -52,7 +52,8 @@ class MemoryBackend extends Middleware {
      */
     storeSubscription(ctx, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.clientId).add({
+        let session = this.sessions.get(ctx.client._client_id);
+        session.add({
             topic: ctx.topic,
             qos: ctx.qos
         });
@@ -66,7 +67,7 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     clearSubscriptions(ctx, callback) {
-        this.sessions.delete(ctx.clientId);
+        this.sessions.delete(ctx.client._client_id);
         callback();
     }
 
@@ -79,9 +80,10 @@ class MemoryBackend extends Middleware {
      */
     lookupSubscriptions(ctx, store, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.clientId).forEach(function (s) {
+        let session = this.sessions.get(ctx.client._client_id);
+        session.forEach(s => {
             store.push(s);
-        });
+        })
         callback();
     }
 
@@ -107,7 +109,15 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     lookupRetainedMessages(ctx, store, callback) {
-        store = this.retainedMessages.match(ctx.topic);
+        let messages =  this.retainedMessages.match(ctx.topic);
+        if(_.isArray(messages)) {
+            messages.forEach(s => {
+                store.push(s);
+            })
+        }
+        else {
+            store[0] = this.retainedMessages.match(ctx.topic);
+        }
         callback();
     }
 
@@ -118,10 +128,10 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     relayMessage(ctx, callback) {
-        let listeners = _.uniq(this.pubsub.match(ctx.packet.topic));
+        let listeners = _.uniq(this.pubsub.match(ctx.topic));
         _.each(listeners, (listener) => {
             let client = this.clientMap.get(listener);
-            let qos = Math.max(this.qos_store.match(listener + '/' + ctx.packet.topic));
+            let qos = Math.max(this.qos_store.match(listener + '/' + ctx.topic));
             let packet;
             if(_.isUndefined(qos)) {
                 packet = ctx.packet;
