@@ -95,7 +95,7 @@ class MemoryBackend extends Middleware {
      */
     storeRetainedMessage(ctx, callback) {
         this.retainedMessages.remove(ctx.topic);
-        if (ctx.packet.payload !== '') {
+        if (ctx.packet.payload.toString() !== '') {
             this.retainedMessages.add(ctx.topic, ctx.packet);
         }
         callback();
