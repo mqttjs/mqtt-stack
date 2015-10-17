@@ -119,11 +119,7 @@ class Stack {
                 i++;
                 if (i < l) {
                     if (self.middlewares[i][fn]) {
-                        if (store) {
-                            return self.middlewares[i][fn](data, store, next);
-                        } else {
-                            return self.middlewares[i][fn](data, next);
-                        }
+                        return self.middlewares[i][fn](data, store, next, callback);
                     } else {
                         return next();
                     }

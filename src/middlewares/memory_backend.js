@@ -48,9 +48,10 @@ class MemoryBackend extends Middleware {
      * Keeps subscription list for client
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    storeSubscription(ctx, callback) {
+    storeSubscription(ctx, __, callback) {
         this._ensureSession(ctx);
         this.sessions.get(ctx.clientId).add({
             topic: ctx.topic,
@@ -63,9 +64,10 @@ class MemoryBackend extends Middleware {
      * Clears subscription list of client
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    clearSubscriptions(ctx, callback) {
+    clearSubscriptions(ctx, __, callback) {
         this.sessions.delete(ctx.clientId);
         callback();
     }
@@ -89,9 +91,10 @@ class MemoryBackend extends Middleware {
      * Keeps message to be retained for the topic
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    storeRetainedMessage(ctx, callback) {
+    storeRetainedMessage(ctx, __, callback) {
         this.retainedMessages.remove(ctx.topic);
         if (ctx.packet.payload !== '') {
             this.retainedMessages.add(ctx.topic, ctx.packet);
@@ -115,9 +118,10 @@ class MemoryBackend extends Middleware {
      * Relay published message to subscribed clients
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    relayMessage(ctx, callback) {
+    relayMessage(ctx, __, callback) {
         let listeners = _.uniq(this.pubsub.match(ctx.packet.topic));
         _.each(listeners, (listener) => {
             let client = this.clientMap.get(listener);
@@ -146,10 +150,10 @@ class MemoryBackend extends Middleware {
      * Subscribe client to the topic
      *
      * @param ctx
-     * @param store
+     * @param __ - not used
      * @param callback
      */
-    subscribeTopic(ctx, store, callback) {
+    subscribeTopic(ctx, __, callback) {
         this.pubsub.add(ctx.topic, ctx.client._client_id);
         this.qos_store.add(ctx.client._client_id + '/' + ctx.topic, ctx.qos);
         if (!this.clientMap.has(ctx.client._client_id)) {
@@ -162,9 +166,10 @@ class MemoryBackend extends Middleware {
      * Unsubscribe client from the topic
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    unsubscribeTopic(ctx, callback) {
+    unsubscribeTopic(ctx, __, callback) {
         this.pubsub.remove(ctx.topic, ctx.client._client_id);
         this.qos_store.remove(ctx.client._client_id + '/' + ctx.topic);
         callback();

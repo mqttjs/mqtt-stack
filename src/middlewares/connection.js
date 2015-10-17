@@ -119,9 +119,10 @@ class Connection extends Middleware {
      * 'uncleanDisconnect' right after.
      *
      * @param ctx
+     * @param __
      * @param callback
      */
-    closeClient(ctx, callback) {
+    closeClient(ctx, __, callback) {
         let self = this;
         return ctx.client.close(function () {
             self.stack.execute('uncleanDisconnect', ctx, callback);

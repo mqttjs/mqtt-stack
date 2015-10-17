@@ -14,9 +14,10 @@ class OutboundManager extends Middleware {
      * Forward messages to the client.
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    forwardMessage(ctx, callback) {
+    forwardMessage(ctx, __, callback) {
         ctx.client.write({
             cmd: 'publish',
             topic: ctx.packet.topic,

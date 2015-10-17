@@ -57,8 +57,8 @@ Method is called once a new connection is established.
 #### handle (client, packet, next, done)
 Method is called once a packet is received. Once middleware finishes its action, it should either call `next` function to propagate to next middleware or call `done` function to terminate propagation.
 
-#### callback handlers (ctx, store, callback)
-Other than these interface methods, middleware may handle a stack `callback` by exposing a method function with callback name. For instance, please check OutboundManager middleware (path: `src/middlewares/outbound_manager.js`) to see `forwardMessage` callback handler. `ctx` argument is an object which contains any relevant data required for callback handling. `store` is an output argument, that is updated by callback handlers.
+#### callback handlers (ctx, store, next, done)
+Other than these interface methods, middleware may handle a stack `callback` by exposing a method function with callback name. For instance, please check OutboundManager middleware (path: `src/middlewares/outbound_manager.js`) to see `forwardMessage` callback handler. `ctx` argument is an object which contains any relevant data required for callback handling. `store` is an output argument, that is updated by callback handlers. `done` terminates callback chain and returns callback.  
 
 ### Built-in Middlewares
 mqtt-stack provide some built-in middlewares to provide basic MQTT Broker functionality. Keep in mind that those middlewares are not mandatory, on contrary they are designed to be easily replacible.
