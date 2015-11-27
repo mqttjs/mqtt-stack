@@ -83,6 +83,7 @@ class SessionManager extends Middleware {
      * @private
      */
     _handleCleanClient(client, packet, next, done) {
+        this.stack.execute('clearOfflineMessages', {clientId: packet.clientId}, {});
         this.stack.execute('clearSubscriptions', {
             client: client,
             packet: packet,
@@ -138,7 +139,8 @@ class SessionManager extends Middleware {
                 if (err) return next(err);
 
                 self.stack.execute('removeOfflineMessages', {
-                    messages: sentMessages
+                    clientId: packet.clientId,
+                    messageIds: sentMessages
                 }, {}, function() {
                     let subscriptionsStore = [];
                     self.stack.execute('lookupSubscriptions', {

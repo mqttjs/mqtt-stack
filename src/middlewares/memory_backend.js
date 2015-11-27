@@ -217,7 +217,7 @@ class MemoryBackend extends Middleware {
     }
 
     /**
-     *
+     * Provides client's stored offline messages
      * @param ctx
      * @param store
      * @param callback
@@ -231,7 +231,7 @@ class MemoryBackend extends Middleware {
     }
 
     /**
-     *
+     * Removes messages from store.
      * @param ctx
      * @param __
      * @param callback
@@ -239,9 +239,20 @@ class MemoryBackend extends Middleware {
     removeOfflineMessages(ctx, __, callback) {
         this._ensureMessageStore(ctx.clientId);
         const messages = this.offlineMessages.get(ctx.clientId);
-        ctx.messages.forEach(function (messageId) {
+        ctx.messageIds.forEach(function (messageId) {
             messages.delete(messageId);
         });
+        callback();
+    }
+
+    /**
+     * Removes all offline messages of given client.
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    clearOfflineMessages(ctx, __, callback) {
+        this.offlineMessages.delete(ctx.clientId);
         callback();
     }
 }
