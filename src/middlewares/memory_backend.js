@@ -30,6 +30,7 @@ class MemoryBackend extends Middleware {
         };
         super(config, defaults);
         this.sessions = new Map();
+        this.offlineMessages = new Map();
         this.retainedMessages = new Qlobber(qlobber_mqtt_settings);
         this.pubsub = new Qlobber(qlobber_mqtt_settings);
         this.qos_store = new Qlobber(qlobber_mqtt_settings);
@@ -40,7 +41,7 @@ class MemoryBackend extends Middleware {
 
     _ensureSession(ctx) {
         if (!this.sessions.has(ctx.clientId)) {
-            this.sessions.set(ctx.clientId, new Set());
+            this.sessions.set(ctx.clientId, new Map());
         }
     }
 
@@ -53,10 +54,19 @@ class MemoryBackend extends Middleware {
      */
     storeSubscription(ctx, __, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.clientId).add({
-            topic: ctx.topic,
-            qos: ctx.qos
-        });
+        this.sessions.get(ctx.clientId).set(ctx.topic, ctx.qos);
+        callback();
+    }
+
+    /**
+     * Remove subscription from client session
+     *
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    removeSubscription(ctx, __, callback) {
+        this.sessions.get(ctx.clientId).delete(ctx.topic);
         callback();
     }
 
@@ -81,8 +91,8 @@ class MemoryBackend extends Middleware {
      */
     lookupSubscriptions(ctx, store, callback) {
         this._ensureSession(ctx);
-        this.sessions.get(ctx.clientId).forEach(function (s) {
-            store.push(s);
+        this.sessions.get(ctx.clientId).forEach(function (qos, topic) {
+            store.push({topic, qos});
         });
         callback();
     }
@@ -140,6 +150,12 @@ class MemoryBackend extends Middleware {
                     packet: packet
                 }, callback);
             }
+            else {
+                this.stack.execute('storeOfflineMessage', {
+                    client: client,
+                    packet: packet
+                }, callback)
+            }
         });
         if (listeners.length === 0) {
             callback();
@@ -154,10 +170,10 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     subscribeTopic(ctx, __, callback) {
-        this.pubsub.add(ctx.topic, ctx.client._client_id);
-        this.qos_store.add(ctx.client._client_id + '/' + ctx.topic, ctx.qos);
-        if (!this.clientMap.has(ctx.client._client_id)) {
-            this.clientMap.set(ctx.client._client_id, ctx.client);
+        this.pubsub.add(ctx.topic, ctx.client._id);
+        this.qos_store.add(ctx.client._id + '/' + ctx.topic, ctx.qos);
+        if (!this.clientMap.has(ctx.client._id)) {
+            this.clientMap.set(ctx.client._id, ctx.client);
         }
         callback();
     }
@@ -170,8 +186,62 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     unsubscribeTopic(ctx, __, callback) {
-        this.pubsub.remove(ctx.topic, ctx.client._client_id);
-        this.qos_store.remove(ctx.client._client_id + '/' + ctx.topic);
+        this.pubsub.remove(ctx.topic, ctx.client._id);
+        this.qos_store.remove(ctx.client._id + '/' + ctx.topic);
+        callback();
+    }
+
+
+    /**
+     * Ensures offline message store exists for client
+     * @param ctx
+     * @private
+     */
+    _ensureMessageStore(id) {
+        if (!this.offlineMessages.has(id)) {
+            this.offlineMessages.set(id, new Map());
+        }
+    }
+
+    /**
+     * Stores message for offline client
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    storeOfflineMessage(ctx, __, callback) {
+        this._ensureMessageStore(ctx.client._id);
+        //dont care storing message if it does not have message id
+        if(ctx.packet.messageId) this.offlineMessages.get(ctx.client._id).set(ctx.packet.messageId, ctx.packet);
+        callback();
+    }
+
+    /**
+     *
+     * @param ctx
+     * @param store
+     * @param callback
+     */
+    lookupOfflineMessages(ctx, store, callback) {
+        this._ensureMessageStore(ctx.clientId);
+        this.offlineMessages.get(ctx.clientId).forEach(function (value, key) {
+            store.push({key, value});
+        });
+        callback();
+    }
+
+    /**
+     *
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    removeOfflineMessages(ctx, __, callback) {
+        this._ensureMessageStore(ctx.clientId);
+        const messages = this.offlineMessages.get(ctx.clientId);
+        ctx.messages.forEach(function (messageId) {
+            messages.delete(messageId);
+        });
         callback();
     }
 }

@@ -15,6 +15,7 @@ let async = require('async');
  *
  * Exposed Callbacks:
  *  - subscribeTopic
+ *  - unsubscribeTopic
  */
 class SessionManager extends Middleware {
     /**
@@ -33,8 +34,23 @@ class SessionManager extends Middleware {
     }
 
     /**
+     * Remove subscription from storage if the client is unclean.
+     *
+     * @param ctx
+     * @param store
+     * @param callback
+     */
+    unsubscribeTopic(ctx, store, callback) {
+        if (ctx.client._managed_session) {
+            this.stack.execute('removeSubscription', ctx, callback);
+        } else {
+            callback();
+        }
+    }
+
+    /**
      * Checks the clean flag on connect and calls appropriate functions and
-     * sets clientId as client._client_id if unclean.
+     * sets clientId as client._id if unclean.
      *
      * @param client
      * @param packet
@@ -43,7 +59,7 @@ class SessionManager extends Middleware {
      */
     handle(client, packet, next, done) {
         if (packet.cmd == 'connect') {
-            client._client_id = packet.clientId;
+            client._id = packet.clientId;
             if (packet.clean) {
                 client._managed_session = false;
                 this._handleCleanClient(client, packet, next, done);
@@ -85,7 +101,10 @@ class SessionManager extends Middleware {
     }
 
     /**
-     * For unclean clients executes 'lookupSubscriptions' and executes
+     * For unclean clients
+     * executes 'lookupOfflineMessages' and executes 'forwardMessage'
+     * for each to send them to client
+     * executes 'lookupSubscriptions' and executes
      * 'subscribeTopic' for each and finally sends a 'connack' with
      * 'sessionPresent' set to true if there are any subscriptions.
      * @param client
@@ -98,28 +117,56 @@ class SessionManager extends Middleware {
         let self = this;
 
         let store = [];
-        this.stack.execute('lookupSubscriptions', {
+
+        self.stack.execute('lookupOfflineMessages', {
             client: client,
-            packet: packet,
             clientId: packet.clientId
         }, store, function (err) {
-            if (err) return next(err);
+            if (err)  return next(err);
 
-            return async.mapSeries(store, function (s, cb) {
-                return self.stack.execute('subscribeTopic', {
-                    client: client,
-                    packet: packet,
-                    topic: s.topic,
-                    qos: s.qos
-                }, {}, cb);
+            let sentMessages = [];
+
+            async.mapSeries(store, function (s, cb) {
+                return self.stack.execute('forwardMessage', {
+                    client,
+                    packet: s.value
+                }, {}, err => {
+                    if(!err) sentMessages.push(s.key);
+                    cb(err);
+                });
             }, function (err) {
                 if (err) return next(err);
 
-                return client.write({
-                    cmd: 'connack',
-                    returnCode: 0,
-                    sessionPresent: (store.length > 0)
-                }, done);
+                self.stack.execute('removeOfflineMessages', {
+                    messages: sentMessages
+                }, {}, function() {
+                    let subscriptionsStore = [];
+                    self.stack.execute('lookupSubscriptions', {
+                        client: client,
+                        packet: packet,
+                        clientId: packet.clientId
+                    }, subscriptionsStore, function (err) {
+                        if (err) return next(err);
+
+                        return async.mapSeries(subscriptionsStore, function (s, cb) {
+                            return self.stack.execute('subscribeTopic', {
+                                client: client,
+                                packet: packet,
+                                topic: s.topic,
+                                qos: s.qos
+                            }, {}, cb);
+                        }, function (err) {
+                            if (err) return next(err);
+
+                            return client.write({
+                                cmd: 'connack',
+                                returnCode: 0,
+                                sessionPresent: (subscriptionsStore.length > 0)
+                            }, done);
+                        });
+                    });
+
+                });
             });
         });
     }
