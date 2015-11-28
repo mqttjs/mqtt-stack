@@ -95,9 +95,7 @@ class SessionManager extends Middleware {
                 cmd: 'connack',
                 returnCode: 0,
                 sessionPresent: false
-            });
-
-            return done();
+            },done);
         });
     }
 

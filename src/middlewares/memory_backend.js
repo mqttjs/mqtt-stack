@@ -137,7 +137,7 @@ class MemoryBackend extends Middleware {
             let client = this.clientMap.get(listener);
             let qos = Math.max(this.qos_store.match(listener + '/' + ctx.packet.topic));
             let packet;
-            if(_.isUndefined(qos)) {
+            if(_.isUndefined(qos) || qos === ctx.packet.qos) {
                 packet = ctx.packet;
             }
             else {

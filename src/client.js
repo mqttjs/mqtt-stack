@@ -31,6 +31,8 @@ class Client extends EventEmitter {
         stream.on('error', this.emit.bind(this, 'error'));
         stream.on('close', this.emit.bind(this, 'close'));
 
+
+
         this._parser.on('packet', function (packet) {
             self._workload++;
             stack.process(self, packet, self._work.bind(self));
@@ -68,6 +70,17 @@ class Client extends EventEmitter {
     write(packet, done) {
         if (!this._dead) {
             this.stream.write(mqtt.generate(packet), 'binary', done)
+        }
+    }
+
+    /**
+     * Write without callback
+     *
+     * @param packet
+     */
+    quickWrite(packet) {
+        if (!this._dead) {
+            mqtt.writeToStream(packet, this.stream);
         }
     }
 
