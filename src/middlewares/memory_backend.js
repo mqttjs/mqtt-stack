@@ -30,6 +30,7 @@ class MemoryBackend extends Middleware {
         };
         super(config, defaults);
         this.sessions = new Map();
+        this.offlineMessages = new Map();
         this.retainedMessages = new Qlobber(qlobber_mqtt_settings);
         this.pubsub = new Qlobber(qlobber_mqtt_settings);
         this.qos_store = new Qlobber(qlobber_mqtt_settings);
@@ -39,8 +40,8 @@ class MemoryBackend extends Middleware {
     /* SessionManager */
 
     _ensureSession(ctx) {
-        if (!this.sessions.has(ctx.client._client_id)) {
-            this.sessions.set(ctx.client._client_id, new Set());
+        if (!this.sessions.has(ctx.clientId)) {
+            this.sessions.set(ctx.clientId, new Map());
         }
     }
 
@@ -48,15 +49,24 @@ class MemoryBackend extends Middleware {
      * Keeps subscription list for client
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    storeSubscription(ctx, callback) {
+    storeSubscription(ctx, __, callback) {
         this._ensureSession(ctx);
-        let session = this.sessions.get(ctx.client._client_id);
-        session.add({
-            topic: ctx.topic,
-            qos: ctx.qos
-        });
+        this.sessions.get(ctx.clientId).set(ctx.topic, ctx.qos);
+        callback();
+    }
+
+    /**
+     * Remove subscription from client session
+     *
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    removeSubscription(ctx, __, callback) {
+        this.sessions.get(ctx.clientId).delete(ctx.topic);
         callback();
     }
 
@@ -64,10 +74,11 @@ class MemoryBackend extends Middleware {
      * Clears subscription list of client
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    clearSubscriptions(ctx, callback) {
-        this.sessions.delete(ctx.client._client_id);
+    clearSubscriptions(ctx, __, callback) {
+        this.sessions.delete(ctx.clientId);
         callback();
     }
 
@@ -80,10 +91,9 @@ class MemoryBackend extends Middleware {
      */
     lookupSubscriptions(ctx, store, callback) {
         this._ensureSession(ctx);
-        let session = this.sessions.get(ctx.client._client_id);
-        session.forEach(s => {
-            store.push(s);
-        })
+        this.sessions.get(ctx.clientId).forEach(function (qos, topic) {
+            store.push({topic, qos});
+        });
         callback();
     }
 
@@ -91,11 +101,12 @@ class MemoryBackend extends Middleware {
      * Keeps message to be retained for the topic
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    storeRetainedMessage(ctx, callback) {
+    storeRetainedMessage(ctx, __, callback) {
         this.retainedMessages.remove(ctx.topic);
-        if (ctx.packet.payload.toString() !== '') {
+        if (ctx.packet.payload !== '') {
             this.retainedMessages.add(ctx.topic, ctx.packet);
         }
         callback();
@@ -109,15 +120,7 @@ class MemoryBackend extends Middleware {
      * @param callback
      */
     lookupRetainedMessages(ctx, store, callback) {
-        let messages =  this.retainedMessages.match(ctx.topic);
-        if(_.isArray(messages)) {
-            messages.forEach(s => {
-                store.push(s);
-            })
-        }
-        else {
-            store[0] = this.retainedMessages.match(ctx.topic);
-        }
+        store = this.retainedMessages.match(ctx.topic);
         callback();
     }
 
@@ -125,15 +128,16 @@ class MemoryBackend extends Middleware {
      * Relay published message to subscribed clients
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    relayMessage(ctx, callback) {
-        let listeners = _.uniq(this.pubsub.match(ctx.topic));
+    relayMessage(ctx, __, callback) {
+        let listeners = _.uniq(this.pubsub.match(ctx.packet.topic));
         _.each(listeners, (listener) => {
             let client = this.clientMap.get(listener);
-            let qos = Math.max(this.qos_store.match(listener + '/' + ctx.topic));
+            let qos = Math.max(this.qos_store.match(listener + '/' + ctx.packet.topic));
             let packet;
-            if(_.isUndefined(qos)) {
+            if(_.isUndefined(qos) || qos === ctx.packet.qos) {
                 packet = ctx.packet;
             }
             else {
@@ -146,6 +150,12 @@ class MemoryBackend extends Middleware {
                     packet: packet
                 }, callback);
             }
+            else {
+                this.stack.execute('storeOfflineMessage', {
+                    client: client,
+                    packet: packet
+                }, callback)
+            }
         });
         if (listeners.length === 0) {
             callback();
@@ -156,14 +166,14 @@ class MemoryBackend extends Middleware {
      * Subscribe client to the topic
      *
      * @param ctx
-     * @param store
+     * @param __ - not used
      * @param callback
      */
-    subscribeTopic(ctx, store, callback) {
-        this.pubsub.add(ctx.topic, ctx.client._client_id);
-        this.qos_store.add(ctx.client._client_id + '/' + ctx.topic, ctx.qos);
-        if (!this.clientMap.has(ctx.client._client_id)) {
-            this.clientMap.set(ctx.client._client_id, ctx.client);
+    subscribeTopic(ctx, __, callback) {
+        this.pubsub.add(ctx.topic, ctx.client._id);
+        this.qos_store.add(ctx.client._id + '/' + ctx.topic, ctx.qos);
+        if (!this.clientMap.has(ctx.client._id)) {
+            this.clientMap.set(ctx.client._id, ctx.client);
         }
         callback();
     }
@@ -172,11 +182,77 @@ class MemoryBackend extends Middleware {
      * Unsubscribe client from the topic
      *
      * @param ctx
+     * @param __ - not used
      * @param callback
      */
-    unsubscribeTopic(ctx, callback) {
-        this.pubsub.remove(ctx.topic, ctx.client._client_id);
-        this.qos_store.remove(ctx.client._client_id + '/' + ctx.topic);
+    unsubscribeTopic(ctx, __, callback) {
+        this.pubsub.remove(ctx.topic, ctx.client._id);
+        this.qos_store.remove(ctx.client._id + '/' + ctx.topic);
+        callback();
+    }
+
+
+    /**
+     * Ensures offline message store exists for client
+     * @param ctx
+     * @private
+     */
+    _ensureMessageStore(id) {
+        if (!this.offlineMessages.has(id)) {
+            this.offlineMessages.set(id, new Map());
+        }
+    }
+
+    /**
+     * Stores message for offline client
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    storeOfflineMessage(ctx, __, callback) {
+        this._ensureMessageStore(ctx.client._id);
+        //dont care storing message if it does not have message id
+        if(ctx.packet.messageId) this.offlineMessages.get(ctx.client._id).set(ctx.packet.messageId, ctx.packet);
+        callback();
+    }
+
+    /**
+     * Provides client's stored offline messages
+     * @param ctx
+     * @param store
+     * @param callback
+     */
+    lookupOfflineMessages(ctx, store, callback) {
+        this._ensureMessageStore(ctx.clientId);
+        this.offlineMessages.get(ctx.clientId).forEach(function (value, key) {
+            store.push({key, value});
+        });
+        callback();
+    }
+
+    /**
+     * Removes messages from store.
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    removeOfflineMessages(ctx, __, callback) {
+        this._ensureMessageStore(ctx.clientId);
+        const messages = this.offlineMessages.get(ctx.clientId);
+        ctx.messageIds.forEach(function (messageId) {
+            messages.delete(messageId);
+        });
+        callback();
+    }
+
+    /**
+     * Removes all offline messages of given client.
+     * @param ctx
+     * @param __
+     * @param callback
+     */
+    clearOfflineMessages(ctx, __, callback) {
+        this.offlineMessages.delete(ctx.clientId);
         callback();
     }
 }

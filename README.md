@@ -57,8 +57,8 @@ Method is called once a new connection is established.
 #### handle (client, packet, next, done)
 Method is called once a packet is received. Once middleware finishes its action, it should either call `next` function to propagate to next middleware or call `done` function to terminate propagation.
 
-#### callback handlers (ctx, store, callback)
-Other than these interface methods, middleware may handle a stack `callback` by exposing a method function with callback name. For instance, please check OutboundManager middleware (path: `src/middlewares/outbound_manager.js`) to see `forwardMessage` callback handler. `ctx` argument is an object which contains any relevant data required for callback handling. `store` is an output argument, that is updated by callback handlers.
+#### callback handlers (ctx, store, next, done)
+Other than these interface methods, middleware may handle a stack `callback` by exposing a method function with callback name. For instance, please check OutboundManager middleware (path: `src/middlewares/outbound_manager.js`) to see `forwardMessage` callback handler. `ctx` argument is an object which contains any relevant data required for callback handling. `store` is an output argument, that is updated by callback handlers. `done` terminates callback chain and returns callback.  
 
 ### Built-in Middlewares
 mqtt-stack provide some built-in middlewares to provide basic MQTT Broker functionality. Keep in mind that those middlewares are not mandatory, on contrary they are designed to be easily replacible.
@@ -92,13 +92,18 @@ Sends `last will` packet if client is disconnected unexpectedly. Once client's  
 Simple non-persistent backend storage middleware. It stores clients' subscription list and topics' retained messages in memory. It exposes following callback handlers
 
   * `storeSubscription` stores that `ctx.client` is subscribed to `ctx.topic` with `ctx.qos` QoS level.
-  * `clearSubscriptions` removes all stored subscription data for `ctx.client`
+  * `removeSubscription` removes subscription record of `ctx.client` for topic `ctx.topic`.
+  * `clearSubscriptions` removes all stored subscription data for `ctx.client`.
   * `lookupSubscriptions` returns all stored subscription data for `ctx.client` in `store` argument.
   * `storeRetainedMessage` clears previous retained message of `ctx.topic` and if `ctx.packet.payload` is not empty stores `ctx.packet` as new retained message.
   * `lookupRetainedMessages` returns stored retained message of `ctx.topic` in `store` argument.
   * `relayMessage` relays `ctx.packet` to subscribers of `ctx.packet.topic` by executing `forwardMessage` callback handler with context `{client, packet}`.
   * `subscribeTopic` subscribes `ctx.client` to `ctx.topic` with QoS level defined by `ctx.qos`.
   * `unsubscribeTopic` unsubscribes `ctx.client` from `ctx.topic`.
+  * `storeOfflineMessage` stores `ctx.packet` for offline `ctx.client` with `ctx.messageId`.
+  * `lookupOfflineMessages` returns all messages stored for `ctx.client` in `store` argument.
+  * `removeOfflineMessages` removes messages with id's in the list `ctx.messageIds` stored for client with id `ctx.clientId`.
+  * `clearOfflineMessages` removes all messages stored for client with id `ctx.clientId`.
 
 #### OutboundManager
 Manages outgoing messages. Handles client's `PUBACK` command. Exposes `forwardMessage` that publishes message to client.

@@ -41,23 +41,20 @@ class Connection extends Middleware {
         client._sent_disconnect = false;
 
         client.on('error', function () {
-            return client.close(function () {
-                if (!client._sent_disconnect) {
-                    return self.stack.execute('uncleanDisconnect', {
-                        client: client
-                    });
-                }
-            });
+            if (!client._sent_disconnect) {
+                client.close();
+                return self.stack.execute('uncleanDisconnect', {
+                    client: client
+                });
+            }
         });
 
         client.on('close', function () {
-            return client.close(function () {
-                if (!client._sent_disconnect) {
-                    return self.stack.execute('uncleanDisconnect', {
-                        client: client
-                    });
-                }
-            });
+            if (!client._sent_disconnect) {
+                return self.stack.execute('uncleanDisconnect', {
+                    client: client
+                });
+            }
         });
     }
 
@@ -82,9 +79,11 @@ class Connection extends Middleware {
             client._sent_first = true;
             if (packet.cmd == 'connect') {
                 if (this.config.forceMQTT4 && (packet.protocolVersion !== 4 || packet.protocolId !== 'MQTT')) {
-                    return client.close(done);
+                    client.close();
+                    return done();
                 } else if ((!packet.clientId || packet.clientId.length === 0) && packet.clean === false) {
-                    return client.close(done);
+                    client.close();
+                    return done();
                 } else {
                     if (!packet.clientId || packet.clientId.length === 0) {
                         packet.clientId = crypto.randomBytes(16).toString('hex');
@@ -92,22 +91,21 @@ class Connection extends Middleware {
                     return next();
                 }
             } else {
-                return client.close(done);
+                client.close();
+                return done();
             }
         } else {
             if (packet.cmd == 'connect') {
-                return client.close(function () {
-                    return self.stack.execute('uncleanDisconnect', {
-                        client: client
-                    }, done);
-                });
+                client.close();
+                return self.stack.execute('uncleanDisconnect', {
+                    client: client
+                }, done);
             } else if (packet.cmd == 'disconnect') {
                 client._sent_disconnect = true;
-                return client.close(function () {
-                    return self.stack.execute('cleanDisconnect', {
-                        client: client
-                    }, done);
-                });
+                client.close();
+                return self.stack.execute('cleanDisconnect', {
+                    client: client
+                }, done);
             } else {
                 return next();
             }
@@ -119,13 +117,13 @@ class Connection extends Middleware {
      * 'uncleanDisconnect' right after.
      *
      * @param ctx
+     * @param __
      * @param callback
      */
-    closeClient(ctx, callback) {
+    closeClient(ctx, __, callback) {
         let self = this;
-        return ctx.client.close(function () {
-            self.stack.execute('uncleanDisconnect', ctx, callback);
-        });
+        self.stack.execute('uncleanDisconnect', ctx, callback);
+        return ctx.client.close();
     }
 }
 module.exports = Connection;

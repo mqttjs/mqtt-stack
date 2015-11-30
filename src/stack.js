@@ -1,6 +1,8 @@
 "use strict";
 let Client = require('./client');
 
+function noop() {}
+
 /**
  * Stack Class
  *
@@ -78,14 +80,14 @@ class Stack {
                 i++;
                 if (i < l) {
                     if(self.middlewares[i].handle) {
-                        return self.middlewares[i].handle(client, packet, next, done);
+                        return self.middlewares[i].handle(client, packet, next, (done || noop));
                     }
                     else {
                         return next();
                     }
                 }
                 else {
-                    return done();
+                    return (done || noop)();
                 }
             }
         }
@@ -114,21 +116,17 @@ class Stack {
 
         function next(err) {
             if (err) {
-                return callback(err);
+                return (callback || noop)(err);
             } else {
                 i++;
                 if (i < l) {
                     if (self.middlewares[i][fn]) {
-                        if (store) {
-                            return self.middlewares[i][fn](data, store, next);
-                        } else {
-                            return self.middlewares[i][fn](data, next);
-                        }
+                        return self.middlewares[i][fn](data, store, next, callback);
                     } else {
                         return next();
                     }
                 } else {
-                    return callback();
+                    return (callback || noop)();
                 }
             }
         }

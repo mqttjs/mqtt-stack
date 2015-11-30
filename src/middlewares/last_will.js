@@ -15,9 +15,10 @@ class LastWill extends Middleware {
      * Injects will packet if available on 'uncleanDisconnect'.
      *
      * @param ctx
-     * @param cb
+     * @param __ - not used
+     * @param callback
      */
-    uncleanDisconnect(ctx, cb) {
+    uncleanDisconnect(ctx, __, callback) {
         let self = this;
 
         if (ctx.client._last_will) {
@@ -30,7 +31,7 @@ class LastWill extends Middleware {
                 });
             });
 
-            cb();
+            callback();
         }
     }
 

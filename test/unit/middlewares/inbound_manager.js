@@ -43,7 +43,7 @@ describe('InboundManager', function () {
         var middleware = new InboundManager();
 
         stackHelper.mockExecute(middleware, {
-            relayMessage: function (ctx, callback) {
+            relayMessage: function (ctx, __, callback) {
                 callback();
             }
         });

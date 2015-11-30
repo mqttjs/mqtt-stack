@@ -10,9 +10,8 @@ describe('Connection', function () {
 
         var called = false;
 
-        client.close = function (cb) {
+        client.close = function () {
             called = true;
-            cb();
         };
 
         var middleware = new Connection();
@@ -33,9 +32,8 @@ describe('Connection', function () {
 
         var called = false;
 
-        client.close = function (cb) {
+        client.close = function () {
             called = true;
-            cb();
         };
 
         var middleware = new Connection();
@@ -70,9 +68,8 @@ describe('Connection', function () {
 
         var called = false;
 
-        client.close = function (cb) {
+        client.close = function () {
             called = true;
-            cb();
         };
 
         var middleware = new Connection();
@@ -105,8 +102,7 @@ describe('Connection', function () {
     it("should emit 'uncleanDisconnect' on 'close' event", function (done) {
         var client = new stream.Duplex();
 
-        client.close = function (cb) {
-            cb();
+        client.close = function () {
         };
 
         var middleware = new Connection();
@@ -129,9 +125,8 @@ describe('Connection', function () {
 
         var called = false;
 
-        client.close = function (cb) {
+        client.close = function () {
             called = true;
-            cb();
         };
 
         var middleware = new Connection();
@@ -154,9 +149,8 @@ describe('Connection', function () {
 
         var called = false;
 
-        client.close = function (cb) {
+        client.close = function () {
             called = true;
-            cb();
         };
 
         var middleware = new Connection({
