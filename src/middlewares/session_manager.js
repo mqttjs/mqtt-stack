@@ -88,7 +88,7 @@ class SessionManager extends Middleware {
             client: client,
             packet: packet,
             clientId: packet.clientId
-        }, function (err) {
+        }, {}, function (err) {
             if (err) return next(err);
 
             client.write({

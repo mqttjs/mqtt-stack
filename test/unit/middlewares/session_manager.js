@@ -7,8 +7,9 @@ describe('SessionManager', function () {
     it('should call clearSubscriptions for clean client', function (done) {
         var stream = {};
 
-        stream.write = function () {
+        stream.write = function (data, callback) {
             assert(!packet.sessionPresent);
+            callback && callback();
         };
 
         var packet = {
@@ -20,7 +21,11 @@ describe('SessionManager', function () {
         var middleware = new SessionManager();
 
         stackHelper.mockExecute(middleware, {
-            clearSubscriptions: function (ctx, callback) {
+            clearOfflineMessages: function (ctx, __, callback) {
+                assert(ctx.clientId, 'foo');
+                callback && callback();
+            },
+            clearSubscriptions: function (ctx, __, callback) {
                 assert(ctx.client, stream);
                 assert(ctx.packet, packet);
                 callback();
@@ -53,6 +58,17 @@ describe('SessionManager', function () {
         var middleware = new SessionManager();
 
         stackHelper.mockExecute(middleware, {
+            lookupOfflineMessages: function (ctx, store, callback) {
+                assert(ctx.clientId, 'foo');
+                assert(ctx.client, stream);
+                callback();
+            },
+            forwardMessage: function (ctx, store, callback) {
+                callback();
+            },
+            removeOfflineMessages: function (ctx, store, callback) {
+                callback();
+            },
             lookupSubscriptions: function (ctx, store, callback) {
                 assert(ctx.client, stream);
                 assert(ctx.packet, packet);
@@ -85,10 +101,19 @@ describe('SessionManager', function () {
         var middleware = new SessionManager();
 
         stackHelper.mockExecute(middleware, {
+            lookupOfflineMessages: function (ctx, store, callback) {
+                callback();
+            },
+            forwardMessage: function (ctx, store, callback) {
+                callback();
+            },
+            removeOfflineMessages: function (ctx, store, callback) {
+                callback();
+            },
             lookupSubscriptions: function (ctx, store, callback) {
                 callback();
             },
-            storeSubscription: function (ctx, callback) {
+            storeSubscription: function (ctx, __, callback) {
                 assert(ctx.client, stream);
                 assert(ctx.packet, packet);
                 callback();

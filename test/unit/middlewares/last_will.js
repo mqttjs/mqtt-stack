@@ -27,7 +27,7 @@ describe('LastWill', function () {
         });
         middleware.uncleanDisconnect({
             client: client
-        }, function () {
+        }, [], function () {
         });
     });
 });

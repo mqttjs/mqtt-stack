@@ -84,7 +84,7 @@ describe('SubscriptionManager', function () {
         var middleware = new SubscriptionManager();
 
         stackHelper.mockExecute(middleware, {
-            unsubscribeTopic: function (ctx, callback) {
+            unsubscribeTopic: function (ctx, __, callback) {
                 assert.equal(ctx.client, stream);
                 assert.equal(ctx.topic, 'foo');
                 callback();

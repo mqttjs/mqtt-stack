@@ -18,7 +18,7 @@ describe('RetainManager', function () {
         var middleware = new RetainManager();
 
         stackHelper.mockExecute(middleware, {
-            storeRetainedMessage: function (ctx, callback) {
+            storeRetainedMessage: function (ctx, __, callback) {
                 assert.equal(ctx.packet.retain, true);
                 callback();
             }

@@ -115,13 +115,13 @@ describe('Stack', function () {
         var stack = new Stack();
 
         stack.use({
-            testFunction: function (n, callback) {
+            testFunction: function (n, __, callback) {
                 callback();
             }
         });
 
         stack.use({
-            testFunction: function (n, callback) {
+            testFunction: function (n, __, callback) {
                 callback(new Error('fail'));
             }
         });
