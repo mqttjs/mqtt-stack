@@ -24,7 +24,7 @@ class OutboundManager extends Middleware {
             payload: ctx.packet.payload,
             qos: ctx.packet.qos,
             retain: ctx.packet.retain,
-            messageId: Math.random() * 60000
+            messageId: Math.floor(Math.random() * 60000)
         }, callback);
     }
 

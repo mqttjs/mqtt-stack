@@ -69,18 +69,12 @@ class Client extends EventEmitter {
      */
     write(packet, done) {
         if (!this._dead) {
-            this.stream.write(mqtt.generate(packet), 'binary', done)
-        }
-    }
-
-    /**
-     * Write without callback
-     *
-     * @param packet
-     */
-    quickWrite(packet) {
-        if (!this._dead) {
-            mqtt.writeToStream(packet, this.stream);
+            if(mqtt.writeToStream(packet, this.stream)) {
+                setImmediate(done);
+            }
+            else {
+                this.stream.once('drain', done);
+            }
         }
     }
 
